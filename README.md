@@ -31,7 +31,7 @@ AllUNBot tiene como objetivo ser una herramienta unificada para la consulta, vis
 
 - Pedro Junior Jimenez Ibañez - [@PedroJimenez2](https://github.com/PedroJimenez2)
 - David Pérez Zapata - [@Deipzza](https://github.com/Deipzza)
-- Catherin Patiño Restrepo [@Cpatinore] - (https://github.com/cpatinore)
+- Catherin Patiño Restrepo - [@Cpatinore](https://github.com/cpatinore)
 
 
 
