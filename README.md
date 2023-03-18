@@ -3,7 +3,7 @@
 
 AllUNBot tiene como objetivo ser una herramienta unificada para la consulta, visualización y personalización de la información académica de los estudiantes de la **Universidad Nacional de Colombia**, de una manera que les resulte cómoda, accesible y versátil.
 
-
+[![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://github.com/Deipzza/ppi_02/blob/main/LICENSE.md)
 
 ## Caracteristicas
 
@@ -27,13 +27,11 @@ AllUNBot tiene como objetivo ser una herramienta unificada para la consulta, vis
 
 
 
-
-
-## Authors
+## Autores
 
 - Pedro Junior Jimenez Ibañez - [@PedroJimenez2](https://github.com/PedroJimenez2)
 - David Pérez Zapata - [@Deipzza](https://github.com/Deipzza)
-- Catherin Patiño Restrepo [@Cpatinore](https://github.com/cpatinore)
+- Catherin Patiño Restrepo - [@Cpatinore](https://github.com/cpatinore)
 
 
 
