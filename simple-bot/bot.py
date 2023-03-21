@@ -2,7 +2,7 @@ import telebot
 from telebot import types
 from flask import Flask, request
 from constant import *
-from academic_calendad_V2 import get_calendar
+from calendar_university import *
 from utils import gen_markup
 
 bot = telebot.TeleBot(BOT_TOKEN, threaded=False)
@@ -41,6 +41,7 @@ FUNCIONALIDADES
 
 *Información general*
 - Si quieres ver el calendario académico, escribe /calendario_academico
+- Si quieres ver el calendario de solicitudes, escribe /calendario_solicitudes
 
   """
   )
@@ -48,15 +49,26 @@ FUNCIONALIDADES
 
 @bot.message_handler(commands=["calendario_academico"])
 def academic_calendar(message):
-  bot.send_message(message.chat.id, "¿Qué tipo de estudiante eres?", reply_markup=gen_markup())
+  menu=[{"name":"Pregrado","value"="ac_pregrado"},{"name":"posgrado","value"="ac_posgrado"},]
+  bot.send_message(message.chat.id, "¿Qué tipo de estudiante eres?", reply_markup=gen_markup(menu))
+
+@bot.message_handler(commands=["calendario_solicitudes"])
+def academic_calendar(message):
+  menu=[{"name":"Pregrado","value"="so_pregrado"},{"name":"posgrado","value"="so_posgrado"},]
+  bot.send_message(message.chat.id, "¿Qué tipo de estudiante eres?", reply_markup=gen_markup(menu))
 
 
-@bot.callback_query_handler(func=lambda call: call.data.lower() in ["pregrado","posgrado"])
+@bot.callback_query_handler(func=lambda call: call.data in ["ac_pregrado","ac_posgrado"])
 def callback_query(call):
-    bot.answer_callback_query(call.id,"Espera a que se genera la respuesta")  
-    calendar = get_calendar(call.data)
+    bot.answer_callback_query(call.id,"La respuesta tarda un poco en generar. Por favor espere.")  
+    calendar = get_academic_calender(call.data[3:])
     bot.send_message(call.message.chat.id, calendar, parse_mode="Markdown")
 
+@bot.callback_query_handler(func=lambda call: call.data in ["so_pregrado","so_posgrado"])
+def callback_query(call):
+    bot.answer_callback_query(call.id,"La respuesta tarda un poco en generar. Por favor espere.")  
+    calendar = get_request_calender(call.data[3:])
+    bot.send_message(call.message.chat.id, calendar, parse_mode="Markdown")
 
 @bot.message_handler(func=lambda msg: True)
 def echo_all(message):
