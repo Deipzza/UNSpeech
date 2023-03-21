@@ -49,12 +49,12 @@ FUNCIONALIDADES
 
 @bot.message_handler(commands=["calendario_academico"])
 def academic_calendar(message):
-  menu=[{"name":"Pregrado","value"="ac_pregrado"},{"name":"posgrado","value"="ac_posgrado"},]
+  menu=[{"name":"Pregrado","value"="ac_pregrado"},{"name":"posgrado","value":"ac_posgrado"},]
   bot.send_message(message.chat.id, "¿Qué tipo de estudiante eres?", reply_markup=gen_markup(menu))
 
 @bot.message_handler(commands=["calendario_solicitudes"])
 def academic_calendar(message):
-  menu=[{"name":"Pregrado","value"="so_pregrado"},{"name":"posgrado","value"="so_posgrado"},]
+  menu=[{"name":"Pregrado","value":"so_pregrado"},{"name":"posgrado","value":"so_posgrado"},]
   bot.send_message(message.chat.id, "¿Qué tipo de estudiante eres?", reply_markup=gen_markup(menu))
 
 
