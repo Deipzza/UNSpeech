@@ -10,7 +10,7 @@ bot.set_webhook(url=URL)
 
 app = Flask(__name__)
 
-##Bot
+# Bot
 
 @bot.message_handler(commands=['hello'])
 def send_welcome(message):
@@ -46,7 +46,6 @@ FUNCIONALIDADES
   """
   )
 
-
 @bot.message_handler(commands=["calendario_academico"])
 def academic_calendar(message):
   menu=[{"name":"Pregrado","value":"ac_pregrado"},{"name":"posgrado","value":"ac_posgrado"},]
@@ -57,23 +56,21 @@ def academic_calendar(message):
   menu=[{"name":"Pregrado","value":"so_pregrado"},{"name":"posgrado","value":"so_posgrado"},]
   bot.send_message(message.chat.id, "¿Qué tipo de estudiante eres?", reply_markup=gen_markup(menu))
 
-
 @bot.callback_query_handler(func=lambda call: call.data in ["ac_pregrado","ac_posgrado"])
 def callback_query(call):
     bot.answer_callback_query(call.id,"La respuesta tarda un poco en generar. Por favor espere.")  
-    calendar = get_academic_calender(call.data[3:])
+    calendar = get_academic_calendar(call.data[3:])
     bot.send_message(call.message.chat.id, calendar, parse_mode="Markdown")
 
 @bot.callback_query_handler(func=lambda call: call.data in ["so_pregrado","so_posgrado"])
 def callback_query(call):
     bot.answer_callback_query(call.id,"La respuesta tarda un poco en generar. Por favor espere.")  
-    calendar = get_request_calender(call.data[3:])
+    calendar = get_request_calendar(call.data[3:])
     bot.send_message(call.message.chat.id, calendar, parse_mode="Markdown")
 
 @bot.message_handler(func=lambda msg: True)
 def echo_all(message):
     bot.reply_to(message, "No reconocemos ese comando.")
-
 
 ##NO BORRAR
 @app.route('/', methods=["POST"])
@@ -84,4 +81,5 @@ def webhook():
     return "ok"
 
 if __name__ == "__main__":
+    # bot.infinity_polling()
     app.run(port=int(os.environ.get('PORT', 10000)))
