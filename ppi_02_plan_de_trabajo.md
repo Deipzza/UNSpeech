@@ -8,11 +8,11 @@ En este informe se desarrolló la versión "hola mundo" de nuestro proyecto la c
 
 Funcionalidades necesarias para la implementación de la herramienta:
 
---- Despliege simple en el servidor 
+- Despliege simple en el servidor.
 
 - Enviar mensajes: En esta funcionalidad el bot genera unas respuestas básicas correspondientes a los mensajes enviados por el usuario.
 
-- Realización básica de web scraping: se espera realizar una base de web scraping con páginas sencillas de la universidad
+- Realización básica de web scraping: se espera realizar una base de web scraping con páginas sencillas de la universidad.
 
 Funcionalidades a implementar propias de la herramienta:
 - Visualización del plan de estudios: el bot, al momento en el que se le solicite, entregará el plan de estudios solicitado de la **Universidad Nacional de Colombia Sede Medellín**.
@@ -33,7 +33,7 @@ Funcionalidades a implementar propias de la herramienta:
 
 ---
 ## Informe 05
-#### *Fecha: 21 de abril de 2023*
+#### *Fecha: 14 de abril de 2023*
 <br>
 Funcionalidades necesarias para la implementación de la herramienta:
 - Autenticación del usuario.
@@ -46,7 +46,7 @@ Funcionalidades a implementar propias de la herramienta:
 
 ---
 ## Informe 06
-#### *Fecha: 28 de abril de 2023*
+#### *Fecha: 21 de abril de 2023*
 <br>
 Funcionalidades necesarias para la implementación de la herramienta:
 - Vinculación con la base de datos
@@ -67,7 +67,7 @@ Funcionalidades necesarias para la implementación de la herramienta:
 
 Funcionalidades a implementar propias de la herramienta:
 - Gestionar Tareas, trabajos, talleres, parciales, entre otros.
-- Notificación de las actividades pendientes
+- Notificación de las actividades pendientes.
 
 ---
 ## Informe 08
@@ -82,21 +82,14 @@ Funcionalidades a implementar propias de la herramienta:
 <br>
 
 Funcionalidades necesarias para la implementación de la herramienta:
-- Despliegue total en el servidor
+- Despliegue total en el servidor.
 
 Funcionalidades a implementar propias de la herramienta:
 - Implementación **prueba** de todas las funcionalidades esperadas de la aplicación.
 
 ---
 ## Informe 10
-#### *Fecha: 23 de mayo de 2023*
+#### *Fecha: 26 de mayo de 2023*
 <br>
+
 Implementación **definitiva** de todas las funcionalidades esperadas de la aplicación.
-
-
-
-
-
-
-
-

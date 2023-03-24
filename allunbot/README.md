@@ -10,6 +10,8 @@ Para poner utilizar los servicios de **AllUNBot** debes:
 
 2. Inicia el chat con el comando /start
 
+**Nota**: al iniciar una conversación con el bot es posible que algunas de las funcionalidades se tarden un poco en responder.
+
 ---
 
 ## Usarlo localmente
@@ -33,6 +35,4 @@ ngrok http 10000
 
 6. Inicia el bot ejecutando el archivo bot.py
 
-7. Envie un mensaje a su bot
-
-
+7. Envie un mensaje a su bot.
