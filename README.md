@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 
 <h1 align="center">
 <img src="./icon_large.png" width="300">
@@ -36,3 +38,4 @@ AllUNBot tiene como objetivo ser una herramienta unificada para la consulta, vis
 
 
 
+>>>>>>> main
