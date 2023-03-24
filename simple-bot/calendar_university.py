@@ -5,13 +5,14 @@ def get_academic_calendar(student):
     URL = "https://minas.medellin.unal.edu.co/tramitesestudiantiles/calendarios/calendario-academico-sede-medellin.html"
     r = requests.get(URL)
     soup = BeautifulSoup(r.content, 'html5lib')
-    links = soup.find_all("li")
+    collapses = soup.find_all("li")
+    result="Lo sentimos. No hemos podido encontrar esa información."
 
-    for link in links:
+    for collapse in collapses:
         try:
-            anchor = link.find("a").text
+            anchor = collapse.find("a").text
             if (("CALENDARIO ACADÉMICO 2023-1S" in anchor) and (f"{student.upper()}" in anchor)):
-                URL = link.find("div").find("a")["href"]
+                URL = collapse.find("div").find("a")["href"]
                 r = requests.get(URL)
                 soup = BeautifulSoup(r.content, 'html5lib')
                 scrapTable = True
@@ -27,44 +28,48 @@ def get_academic_calendar(student):
 
                 if (scrapTable):
                     table = soup.find_all("table",attrs ={"class":"MsoNormalTable"})
-                    content = table[0].find("tbody")
-
-                    result = ""
-
-                    for row in content.find_all("tr"):
-                        print("hola2")
-                        cells=row.findAll("td")
-
-                        if len(cells)>2:
-                            act=cells[0].find("p").text
-                            date=cells[1].find("p").text
-                            result+=f"{act} --- {date} \n"
+                    result = process_table(table[0],[0,1])
                     return result
-                
         except:
             pass
 
+    return result
+
 def get_request_calendar(student):
-    URL = "https://registroymatricula.medellin.unal.edu.co"
+    URL = "https://minas.medellin.unal.edu.co/tramitesestudiantiles/calendarios/calendario-academico-sede-medellin.html"
     r = requests.get(URL)
     soup = BeautifulSoup(r.content, 'html5lib')
+    collapses = soup.find_all("li")
+    result = "Lo sentimos. No hemos podido encontrar esa información."
 
-    URL=soup.find("img",attrs ={"alt":f"Banner calendario acadmico {student}"}).parent["href"]
-    r = requests.get(URL)
-    soup = BeautifulSoup(r.content, 'html5lib')
+    for collapse in collapses:
+        try:
+            anchor = collapse.find("a").text
+            if (("CALENDARIO ACADÉMICO 2023-1S" in anchor) and (f"{student.upper()}" in anchor) and "MODIFICACIÓN" not in anchor):
+                URL = collapse.find("div").find("a")["href"]
+                r = requests.get(URL)
+                soup = BeautifulSoup(r.content, 'html5lib')
+                table = soup.find_all("table",attrs ={"class":"MsoNormalTable"})
+                result = process_table(table[1],[1,2])
+                return result
+        except:
+            pass
 
-    table = soup.find_all("table",attrs ={"class":"MsoNormalTable"})
-    content = table[1].find("tbody")
+    return result
 
+def process_table(table, positions):
+    
+    content = table.find("tbody")
     result = ""
+    count = 0
+
     for row in content.find_all("tr"):
-        cells=row.findAll("td")
-        if len(cells)>3:
-            number=cells[0].find("p").text
-            act=cells[1].find("p").text            
-            date=cells[2].find("p").text        
-            if len(date) < 3:
-                result+=f"{number}. {act}\n"
-            else:
-                result+=f"{number}. {act} --- {date}\n"
+        cells = row.findAll("td")
+
+        if len(cells) > 2:
+            act = cells[positions[0]].find("p").text
+            date = cells[positions[1]].find("p").text
+            result += f"{count}. {act} --- {date} \n"
+            count += 1
+
     return result
