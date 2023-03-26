@@ -3,6 +3,7 @@ from flask import Flask, request
 from constants import *
 from bot_functions.university_calendar import *
 from utils import gen_markup
+from bot_functions.directory import *
 
 # Bot creation
 bot = telebot.TeleBot(BOT_TOKEN, threaded = False)
@@ -43,6 +44,7 @@ FUNCIONALIDADES
 *Información general*
 - Si quieres ver el calendario académico, escribe /calendario_academico
 - Si quieres ver el calendario de solicitudes, escribe /calendario_solicitudes
+- Si quieres consultar el directorio UN, escribe /directorio + palabras claves de busqueda
 
   """)
 
@@ -77,6 +79,19 @@ def callback_query(call):
     bot.answer_callback_query(call.id, "La respuesta tarda un poco en generar. Por favor espere.")  
     calendar = get_request_calendar(call.data[3:])
     bot.send_message(call.message.chat.id, "*Calendario de solicitudes.*\n" + calendar, parse_mode = "Markdown")
+
+# Request directorio message handler
+@bot.message_handler(commands = ["directorio"])
+def requests_directorio(message):
+  metadata = message.text.split()[1:]
+  response = select_query_directorio(metadata, "allunbot.db")
+  if len(response) > 4095:
+    for part in range(0, len(response), 4095):
+        bot.send_message(message.chat.id, response[part:part+4095])
+  else:
+      bot.send_message(message.chat.id, response)
+  #bot.send_message(message.chat.id, response, parse_mode = "Markdown")
+
 
 # Handler for other messages
 @bot.message_handler(func = lambda msg: True)
