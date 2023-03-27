@@ -15,7 +15,6 @@ Funcionalidades necesarias para la implementación de la herramienta:
 - Realización básica de web scraping: se espera realizar una base de web scraping con páginas sencillas de la universidad.
 
 Funcionalidades a implementar propias de la herramienta:
-- Visualización del plan de estudios: el bot, al momento en el que se le solicite, entregará el plan de estudios solicitado de la **Universidad Nacional de Colombia Sede Medellín**.
 - Visualización Calendario académico y de solicitudes: el bot, al momento en el que se le solicite, entregará las fechas importantes del calendario académico y de solicitudes de la **Universidad Nacional de Colombia Sede Medellín**.
 
 ---
@@ -35,6 +34,7 @@ Funcionalidades a implementar propias de la herramienta:
 ## Informe 05
 #### *Fecha: 14 de abril de 2023*
 <br>
+
 Funcionalidades necesarias para la implementación de la herramienta:
 - Autenticación del usuario.
 - Cargar la información académica.
@@ -48,6 +48,7 @@ Funcionalidades a implementar propias de la herramienta:
 ## Informe 06
 #### *Fecha: 21 de abril de 2023*
 <br>
+
 Funcionalidades necesarias para la implementación de la herramienta:
 - Vinculación con la base de datos
 - Almacenamiento de contenido en la base de datos
