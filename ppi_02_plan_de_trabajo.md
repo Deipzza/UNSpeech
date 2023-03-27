@@ -8,7 +8,9 @@ En este informe se desarrolló la versión "hola mundo" de nuestro proyecto la c
 
 Funcionalidades necesarias para la implementación de la herramienta:
 
-- Despliege simple en el servidor.
+- Creación del bot: [@allun_dev_bot](https://telegram.me/allun_dev_bot).
+
+- Despliege simple en un servidor.
 
 - Enviar mensajes: En esta funcionalidad el bot genera unas respuestas básicas correspondientes a los mensajes enviados por el usuario.
 
@@ -16,6 +18,8 @@ Funcionalidades necesarias para la implementación de la herramienta:
 
 Funcionalidades a implementar propias de la herramienta:
 - Visualización Calendario académico y de solicitudes: el bot, al momento en el que se le solicite, entregará las fechas importantes del calendario académico y de solicitudes de la **Universidad Nacional de Colombia Sede Medellín**.
+
+**Nota:** Debido a que estas funcionalidades requieren realizar web scraping de páginas universitarias, y por el momento no está implementado el almacenamiento de la información, un mal funcionamiento de estas páginas causará intermitencias en el correcto funcionamiento del bot.
 
 ---
 ## Informe 04
