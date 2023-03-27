@@ -1,7 +1,8 @@
 <h1 align="center">
 <img src="./icon_large.png" width="300">
 </h1><br>
-AllUNBot tiene como objetivo ser una herramienta unificada para la consulta, visualización y personalización de la información académica de los estudiantes de la <strong>Universidad Nacional de Colombia Sede Medellín</strong>, de una manera que les resulte cómoda, accesible y versátil.
+
+AllUNBot ([@allun_dev_bot](https://telegram.me/allun_dev_bot)) tiene como objetivo ser una herramienta unificada para la consulta, visualización y personalización de la información académica de los estudiantes de la <strong>Universidad Nacional de Colombia Sede Medellín</strong>, de una manera que les resulte cómoda, accesible y versátil.
 
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://github.com/Deipzza/ppi_02/blob/main/LICENSE.md)
 
