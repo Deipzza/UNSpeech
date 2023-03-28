@@ -1,5 +1,6 @@
 import telebot
 from flask import Flask, request
+from flask import render_template
 from constants import *
 from bot_functions.university_calendar import *
 from utils import gen_markup
@@ -10,7 +11,8 @@ bot = telebot.TeleBot(BOT_TOKEN, threaded = False)
 bot.set_webhook(url = URL)
 
 # Server initialization
-app = Flask(__name__)
+app = Flask(__name__,
+            static_folder='assets',)
 
 # Start message handler
 @bot.message_handler(commands = ["start"])
@@ -70,14 +72,14 @@ def requests_calendar(message):
 @bot.callback_query_handler(func=lambda call: call.data in ["ac_pregrado", "ac_posgrado"])
 def callback_query(call):
     bot.answer_callback_query(call.id, "La respuesta tarda un poco en generar. Por favor espere.")  
-    calendar = get_academic_calendar(call.data[3:])
+    calendar = generate_academic_calendar(call.data[3:])
     bot.send_message(call.message.chat.id, "*Calendario académico.*\n" + calendar, parse_mode = "Markdown")
 
 # Interactive messages for requests calendar handler
 @bot.callback_query_handler(func = lambda call: call.data in ["so_pregrado","so_posgrado"])
 def callback_query(call):
     bot.answer_callback_query(call.id, "La respuesta tarda un poco en generar. Por favor espere.")  
-    calendar = get_request_calendar(call.data[3:])
+    calendar = generate_request_calendar(call.data[3:])
     bot.send_message(call.message.chat.id, "*Calendario de solicitudes.*\n" + calendar, parse_mode = "Markdown")
 
 # Request directorio message handler
@@ -105,6 +107,10 @@ def webhook():
         [telebot.types.Update.de_json(request.stream.read().decode("utf-8"))]
     )
     return "ok"
+
+@app.route('/', methods=['GET'])
+def index():
+    return render_template('index.html')
 
 if __name__ == "__main__":
     app.run(port = int(os.environ.get('PORT', 10000))) # Server execution port

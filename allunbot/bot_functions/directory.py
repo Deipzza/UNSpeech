@@ -1,6 +1,9 @@
-import sqlite3
 import requests
 from bs4 import BeautifulSoup
+
+from .database.manage_database import *
+
+db = "allunbot.db"
 
 def get_directory():
     insert_data, position = [], 2
@@ -22,42 +25,35 @@ def get_directory():
 
         position += 1
         
-    insert_values(insert_data,"allunbot.db")
+    insert_values(insert_data, db)
     
 
 def create_table_directory():
-    con = sqlite3.connect("allunbot.db")
-    cur = con.cursor() 
-    cur.execute("DROP TABLE IF EXISTS directorio")
-    cur.execute("""
-                CREATE TABLE directorio(
-                    id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                    area NOT NULL,
-                    dependencia NOT NULL,
-                    telefono NOT NULL,
-                    ubicacion NOT NULL,
-                    correo NOT NULL,
-                    extension NOT NULL,
-                    adicionales DEFAULT NULL
-                )
-                """)
-    con.close()
+    sql = """
+            CREATE TABLE directorio(
+                id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                area NOT NULL,
+                dependencia NOT NULL,
+                telefono NOT NULL,
+                ubicacion NOT NULL,
+                correo NOT NULL,
+                extension NOT NULL,
+                adicionales DEFAULT NULL
+            )
+          """
+    create_table(db, "directorio", sql)
 
 def update_directory():
     create_table_directory()
     get_directory()
 
 def insert_values(insert_data, db):
-    con = sqlite3.connect(db)
-    cur = con.cursor() 
-    cur.executemany("""
-                    INSERT INTO
-                    directorio(area,dependencia,telefono,ubicacion,correo,extension)
-                    VALUES (?,?,?,?,?,?)
-                    """,
-                    insert_data)
-    con.commit()
-    con.close()
+    sql="""
+            INSERT INTO
+            directorio(area,dependencia,telefono,ubicacion,correo,extension)
+            VALUES (?,?,?,?,?,?)
+        """
+    insert_values_by_query(insert_data, db, sql)
 
 def select_data_scrap(rows):
     data=[]
@@ -68,21 +64,21 @@ def select_data_scrap(rows):
     return data
 
 def select_query_directorio(metadata,db):
-    con = sqlite3.connect(db)
-    cur = con.cursor()
     
-    param = ["",""]
+    param, response = ["",""], ""
+    operator = "AND" if len(metadata) > 1 else 'OR'
+
     for word in metadata:
         param[0] += f"area LIKE '%{word}%' OR "
         param[1] += f"dependencia LIKE '%{word}%' OR "
+
+    sql=f"SELECT * FROM directorio WHERE ({param[0][:-4]}) {operator} ({param[1][:-4]})"
     
-    param = [param[0][:-4] ,param[1][:-4]]
-    operator = "OR"
-    if len(metadata) > 1:
-        operator = "AND"
-    sql=f"SELECT * FROM directorio WHERE ({param[0]}) {operator} ({param[1]})"
-    consulta = cur.execute(sql)
-    response = ""
+    consulta = select_data_query(sql,db)
+    
+    if len(consulta) < 1:
+        return "Lo sentimos no hemos encontrado registros."
+    
     for fila in consulta:
         response += f"{fila[1]} / {fila[2]}\n"
         response += f"Número de teléfono: {fila[3]}\n"
@@ -94,6 +90,5 @@ def select_query_directorio(metadata,db):
             response += f"Correo: {fila[5]}\n"
         
         response += "----------------------------------\n"
-    con.commit()
-    con.close()
+
     return response
