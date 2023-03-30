@@ -77,11 +77,11 @@ def select_query_directorio(metadata,db):
     consulta = select_data_query(sql,db)
     
     if len(consulta) < 1:
-        return "Lo sentimos no hemos encontrado registros."
+        return "Lo sentimos, no hemos encontrado registros."
     
     for fila in consulta:
         response += f"{fila[1]} / {fila[2]}\n"
-        response += f"Número de teléfono: {fila[3]}\n"
+        response += f"Número de teléfono: {fila[3]} - Ext: {fila[6]}\n"
         
         if fila[4] != "":
             response += f"Ubicación: {fila[4]}\n"

@@ -2,8 +2,8 @@ import telebot
 from flask import Flask, request
 from flask import render_template
 from constants import *
+from utils import *
 from bot_functions.university_calendar import *
-from utils import gen_markup
 from bot_functions.directory import *
 
 # Bot creation
@@ -43,11 +43,12 @@ def commands_handler(message):
 FUNCIONALIDADES
 ===============
 
-*Información general*
-- Si quieres ver el calendario académico, escribe /calendario_academico
-- Si quieres ver el calendario de solicitudes, escribe /calendario_solicitudes
-- Si quieres consultar el directorio UN, escribe /directorio + palabras claves de busqueda
-
+Información general.
+- Si quieres ver el calendario académico, escribe /calendario_academico.
+- Si quieres ver el calendario de solicitudes, escribe /calendario_solicitudes.
+- Si quieres consultar el directorio UN, escribe /directorio.
+- Si quieres consultar la lista de grupos de las asignaturas, escribe /buscar_grupos.
+- Si quieres agregar un grupo de una asignatura al directorio de grupos, escribe /agregar_grupos.
   """)
 
 # Academic calendar message handler
@@ -85,15 +86,23 @@ def callback_query(call):
 # Request directorio message handler
 @bot.message_handler(commands = ["directorio"])
 def requests_directorio(message):
-  metadata = message.text.split()[1:]
-  response = select_query_directorio(metadata, "allunbot.db")
-  if len(response) > 4095:
-    for part in range(0, len(response), 4095):
-        bot.send_message(message.chat.id, response[part:part+4095])
-  else:
-      bot.send_message(message.chat.id, response)
-  #bot.send_message(message.chat.id, response, parse_mode = "Markdown")
+    text = "Escribe las palabras clave para buscar en el directorio, separadas por espacios.\nPor ejemplo: bienestar minas facultad"
+    sent_msg = bot.send_message(message.chat.id, text, parse_mode="Markdown")
+    bot.register_next_step_handler(sent_msg, requests_directorio_handler, bot)
 
+# Request groups list message handler
+@bot.message_handler(commands = ["buscar_grupos"])
+def requests_groups(message):
+    text = "Escribe el código de la asignatura de la cual quieres buscar un grupo."
+    sent_msg = bot.send_message(message.chat.id, text, parse_mode="Markdown")
+    bot.register_next_step_handler(sent_msg, search_groups_handler, bot)
+
+# Add groups message handler
+@bot.message_handler(commands = ["agregar_grupos"])
+def add_groups(message):
+    text = "Escribe el código de la asignatura de la cual quieres agregar el grupo."
+    sent_msg = bot.send_message(message.chat.id, text, parse_mode="Markdown")
+    bot.register_next_step_handler(sent_msg, add_groups_name_handler, bot)
 
 # Handler for other messages
 @bot.message_handler(func = lambda msg: True)
