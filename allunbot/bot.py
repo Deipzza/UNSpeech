@@ -1,15 +1,18 @@
 import telebot
 from flask import Flask, request
+from flask import render_template
 from constants import *
+from utils import *
 from bot_functions.university_calendar import *
-from utils import gen_markup
+from bot_functions.directory import *
 
 # Bot creation
 bot = telebot.TeleBot(BOT_TOKEN, threaded = False)
 bot.set_webhook(url = URL)
 
 # Server initialization
-app = Flask(__name__)
+app = Flask(__name__,
+            static_folder='assets',)
 
 # Start message handler
 @bot.message_handler(commands = ["start"])
@@ -40,10 +43,12 @@ def commands_handler(message):
 FUNCIONALIDADES
 ===============
 
-*Información general*
-- Si quieres ver el calendario académico, escribe /calendario_academico
-- Si quieres ver el calendario de solicitudes, escribe /calendario_solicitudes
-
+Información general.
+- Si quieres ver el calendario académico, escribe /calendario_academico.
+- Si quieres ver el calendario de solicitudes, escribe /calendario_solicitudes.
+- Si quieres consultar el directorio UN, escribe /directorio.
+- Si quieres consultar la lista de grupos de las asignaturas, escribe /buscar_grupos.
+- Si quieres agregar un grupo de una asignatura al directorio de grupos, escribe /agregar_grupos.
   """)
 
 # Academic calendar message handler
@@ -68,15 +73,36 @@ def requests_calendar(message):
 @bot.callback_query_handler(func=lambda call: call.data in ["ac_pregrado", "ac_posgrado"])
 def callback_query(call):
     bot.answer_callback_query(call.id, "La respuesta tarda un poco en generar. Por favor espere.")  
-    calendar = get_academic_calendar(call.data[3:])
+    calendar = generate_academic_calendar(call.data[3:])
     bot.send_message(call.message.chat.id, "*Calendario académico.*\n" + calendar, parse_mode = "Markdown")
 
 # Interactive messages for requests calendar handler
 @bot.callback_query_handler(func = lambda call: call.data in ["so_pregrado","so_posgrado"])
 def callback_query(call):
     bot.answer_callback_query(call.id, "La respuesta tarda un poco en generar. Por favor espere.")  
-    calendar = get_request_calendar(call.data[3:])
+    calendar = generate_request_calendar(call.data[3:])
     bot.send_message(call.message.chat.id, "*Calendario de solicitudes.*\n" + calendar, parse_mode = "Markdown")
+
+# Request directorio message handler
+@bot.message_handler(commands = ["directorio"])
+def requests_directorio(message):
+    text = "Escribe las palabras clave para buscar en el directorio, separadas por espacios.\nPor ejemplo: bienestar minas facultad"
+    sent_msg = bot.send_message(message.chat.id, text, parse_mode="Markdown")
+    bot.register_next_step_handler(sent_msg, requests_directorio_handler, bot)
+
+# Request groups list message handler
+@bot.message_handler(commands = ["buscar_grupos"])
+def requests_groups(message):
+    text = "Escribe el código de la asignatura de la cual quieres buscar un grupo."
+    sent_msg = bot.send_message(message.chat.id, text, parse_mode="Markdown")
+    bot.register_next_step_handler(sent_msg, search_groups_handler, bot)
+
+# Add groups message handler
+@bot.message_handler(commands = ["agregar_grupos"])
+def add_groups(message):
+    text = "Escribe el código de la asignatura de la cual quieres agregar el grupo."
+    sent_msg = bot.send_message(message.chat.id, text, parse_mode="Markdown")
+    bot.register_next_step_handler(sent_msg, add_groups_name_handler, bot)
 
 # Handler for other messages
 @bot.message_handler(func = lambda msg: True)
@@ -90,6 +116,10 @@ def webhook():
         [telebot.types.Update.de_json(request.stream.read().decode("utf-8"))]
     )
     return "ok"
+
+@app.route('/', methods=['GET'])
+def index():
+    return render_template('index.html')
 
 if __name__ == "__main__":
     app.run(port = int(os.environ.get('PORT', 10000))) # Server execution port
