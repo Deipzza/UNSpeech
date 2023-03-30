@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from .database.manage_database import *
 
-db="allunbot.db"
+db = 'allunbot.db'
 
 def get_academic_calendar(student):
     URL = "https://minas.medellin.unal.edu.co/tramitesestudiantiles/calendarios/calendario-academico-sede-medellin.html"

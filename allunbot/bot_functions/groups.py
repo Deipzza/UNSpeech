@@ -1,9 +1,6 @@
-import requests
-from bs4 import BeautifulSoup
-
 from .database.manage_database import *
 
-db = "allunbot.db"
+db = 'allunbot.db'
 
 def create_table_groups():
     sql = """

@@ -1,9 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
-
 from .database.manage_database import *
 
-db = "allunbot.db"
+db = 'allunbot.db'
 
 def get_directory():
     insert_data, position = [], 2
