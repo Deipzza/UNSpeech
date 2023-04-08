@@ -11,8 +11,7 @@ bot = telebot.TeleBot(BOT_TOKEN, threaded = False)
 bot.set_webhook(url = URL)
 
 # Server initialization
-app = Flask(__name__,
-            static_folder='assets',)
+app = Flask(__name__, static_folder = 'assets',)
 
 # Start message handler
 @bot.message_handler(commands = ["start"])
@@ -87,31 +86,34 @@ def callback_query(call):
 @bot.message_handler(commands = ["directorio"])
 def requests_directorio(message):
     text = "Escribe las palabras clave para buscar en el directorio, separadas por espacios.\nPor ejemplo: bienestar minas facultad"
-    sent_msg = bot.send_message(message.chat.id, text, parse_mode="Markdown")
+    sent_msg = bot.send_message(message.chat.id, text, parse_mode = "Markdown")
     bot.register_next_step_handler(sent_msg, requests_directorio_handler, bot)
 
 # Request groups list message handler
 @bot.message_handler(commands = ["buscar_grupos"])
 def requests_groups(message):
     text = "Escribe el código de la asignatura de la cual quieres buscar un grupo."
-    sent_msg = bot.send_message(message.chat.id, text, parse_mode="Markdown")
+    sent_msg = bot.send_message(message.chat.id, text, parse_mode = "Markdown")
     bot.register_next_step_handler(sent_msg, search_groups_handler, bot)
 
 # Add groups message handler
 @bot.message_handler(commands = ["agregar_grupos"])
 def add_groups(message):
     text = "Escribe el código de la asignatura de la cual quieres agregar el grupo."
-    sent_msg = bot.send_message(message.chat.id, text, parse_mode="Markdown")
+    sent_msg = bot.send_message(message.chat.id, text, parse_mode = "Markdown")
     bot.register_next_step_handler(sent_msg, add_groups_name_handler, bot)
 
-# Handler for other messages
+
 @bot.message_handler(func = lambda msg: True)
 def echo_all(message):
+    """Handler for other messages"""
+
     bot.send_message(message.chat.id, "No reconozco ese comando.\nPara ver mi lista de comandos escribe /comandos", parse_mode = "Markdown")
 
-# Server settings
 @app.route('/', methods=["POST"])
 def webhook():
+    """Server settings."""
+
     bot.process_new_updates(
         [telebot.types.Update.de_json(request.stream.read().decode("utf-8"))]
     )

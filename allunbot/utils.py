@@ -12,7 +12,8 @@ def gen_markup(menu):
 
 def requests_directorio_handler(message, bot):
     metadata = message.text.split()
-    response = select_query_directorio(metadata, "allunbot.db")
+    response = select_query_directorio(metadata)
+    
     if len(response) > 4095:
         for part in range(0, len(response), 4095):
             bot.send_message(message.chat.id, response[part:part+4095])
@@ -21,7 +22,7 @@ def requests_directorio_handler(message, bot):
 
 def search_groups_handler(message, bot):
    subject_code = message.text
-   groups = select_query_groups(subject_code, "allunbot.db")
+   groups = select_query_groups(subject_code)
    bot.send_message(message.chat.id, groups)
 
 def add_groups_name_handler(message, bot):

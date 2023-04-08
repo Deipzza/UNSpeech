@@ -8,3 +8,6 @@ BOT_TOKEN = os.environ.get("BOT_TOKEN")
 
 # URL
 URL = os.environ.get("URL")
+
+# MongoDB
+CONNECTION_STRING = os.environ.get("CONNECTION_STRING")
