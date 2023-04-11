@@ -6,25 +6,33 @@ import prettytable as pt
 
 from bs4 import BeautifulSoup
 
-from .database.manage_database import *
-from .utils import *
-# from login import *
+from database.manage_database import *
+from utils import *
+from login import *
 
 db = 'allunbot.db'
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 temp = os.path.join(BASE_DIR, 'bot_functions/temp')
 
-def get_academic_history(driver=None):
-    pag_academic_history = get_page_academic_history(driver)
-    page_soup = BeautifulSoup(pag_academic_history, 'html5lib')
-    table = page_soup.find("div", id = "pt1:r1:1:t10::db").find("table")
-    result = process_table(table)
-    return result
+def get_schedule(driver):
+
+    driver = get_page_schedule(driver)
+    view_list = driver.find_element(By.XPATH, value="//div[@title='Lista']")
+    driver.execute_script("arguments[0].click();", view_list)
+    time.sleep(2)
+
+    rows = driver.find_element(By.CSS_SELECTOR,".af_calendar_list-container .af_calendar_list-row .af_calendar_list-title-link")
+    driver.execute_script("arguments[0].click();", rows)
+    time.sleep(2)
+
+    dialog = driver.find_element(By.XPATH, value="//table[@class='af_dialog_main']")
+
+    return dialog.get_attribute('innerHTML')
 
 
-def create_table_academic_history():
+def create_table_schedule():
     query = """
-        CREATE TABLE academic_history(
+        CREATE TABLE schedule(
             username TEXT PRIMARY KEY, 
             disc_op TEXT NOT NULL,
             fund_ob TEXT NOT NULL,
@@ -37,21 +45,21 @@ def create_table_academic_history():
             total_estudiante TEXT NOT NULL
         );
         """
-    create_table(db,"academic_history",query)
+    create_table(db,"schedule",query)
 
 
-def add_academic_history_user(data):
+def add_schedule_user(data):
     sql="""
         INSERT INTO
-            academic_history
+            schedule
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
     insert_values_by_query([data], db, sql)
 
 
-def update_academic_history_user(data):
+def update_schedule_user(data):
     sql="""
-        UPDATE academic_history
+        UPDATE schedule
             SET
             disc_op = ?,
             fund_ob = ?,
@@ -70,8 +78,8 @@ def update_academic_history_user(data):
     select_data_query(sql, db, data)
 
 
-def academic_history(username, data):
-    sql = "SELECT * FROM academic_history WHERE username = ?;"
+def schedule(username, data):
+    sql = "SELECT * FROM schedule WHERE username = ?;"
     result = select_data_query(sql, db, [username])
     
     data = pd.DataFrame(data)
@@ -85,13 +93,13 @@ def academic_history(username, data):
             ]
 
     if len(result) == 0:
-        add_academic_history_user(data)
+        add_schedule_user(data)
     else:
-        update_academic_history_user(data)
+        update_schedule_user(data)
 
 
-def generete_academic_history_user(username):
-    sql = "SELECT * FROM academic_history WHERE username = ?"
+def generete_schedule_user(username):
+    sql = "SELECT * FROM schedule WHERE username = ?"
     result = select_data_query(sql, db, [username])
 
     if len(result) == 0:
@@ -103,10 +111,10 @@ def generete_academic_history_user(username):
     
     return table
 
-def generate_academic_history_img(username):
+def generate_schedule_img(username):
     import matplotlib.pyplot as plt
 
-    sql = "SELECT * FROM academic_history WHERE username = ?"
+    sql = "SELECT * FROM schedule WHERE username = ?"
     result = select_data_query(sql, db, [username])
 
     if len(result) == 0:
@@ -156,4 +164,8 @@ def process_table(table):
     return result
 
 
-# create_table_academic_history()
+# create_table_schedule()
+
+driver = auth({"username":"username","password":"password","chat_id":"YOUR CHAT"})[1]
+driver = get_page_schedule(driver)
+print(get_schedule(driver))

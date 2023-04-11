@@ -1,49 +1,19 @@
 import time
-import requests
-
-from bs4 import BeautifulSoup
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 
+from database.manage_database import *
+
 db = 'allunbot.db'
 
-def auth(payload):
-    """ """
-
-    # create session
-    session = requests.Session()
-    url = 'https://sia.unal.edu.co/ServiciosApp'    
-
-    # get log in page
-    auth_page = session.get(url)
-    soup = BeautifulSoup(auth_page.content, 'html.parser')
-
-    # get form
-    form = soup.find('form')
-    post_url = form['action']
-
-    # auth
-    session.post(post_url, data=payload)
-
-    # parse content
-    content_url = 'https://sia.unal.edu.co/ServiciosApp'
-    page = session.get(content_url)
-    page_soup = BeautifulSoup(page.content, 'html5lib')
-    print(page_soup)
-
-    try:
-        user_loggen = page_soup.find('a', {'class': 'af_menu_bar-item-text'}).text
-        return (user_loggen == payload["username"], session)
-    except:
-        return (False, None)
-
-def login(payload) -> webdriver.Chrome:
+def auth(payload) -> webdriver.Chrome:
     """Authenticates the student with its credentials.
     """
+    chat_id = payload["chat_id"]
     options = ChromeOptions()
-    options.add_argument("--headless")
+    # options.add_argument("--headless")
     driver = webdriver.Chrome(options=options)
     driver.get("https://sia.unal.edu.co/ServiciosApp")
 
@@ -60,6 +30,59 @@ def login(payload) -> webdriver.Chrome:
     del password_input
     del login_button
 
-    driver.implicitly_wait(5)
+    time.sleep(5)
+    
+    try:
+        user_loggen = driver.find_element(by=By.XPATH, value="//a[@class='af_menu_bar-item-text']").text
+        login = user_loggen == payload["username"]
+    except:
+        login = False
 
-    return driver
+    if login:
+        add_users([chat_id, payload["username"]])
+        return (True, driver)
+    else:
+        return (False, None)
+
+
+def create_table_users():
+    query = """
+        CREATE TABLE users(
+            chat_id TEXT PRIMARY KEY,
+            username TEXT NOT NULL
+        );
+        """
+    create_table(db,"users",query)
+
+def add_users(data):
+    """Añadir un usuario a la base de datos.
+
+    La función toma una arreglo [chat_id, username] y hace las validaciones
+    pertinentes para agregarlo.
+    Un usuario puede estar asociado a varios chat_id.
+    """
+
+    sql = "SELECT * FROM users WHERE chat_id = ?;"
+    result = select_data_query(sql, db, [data[0]])
+
+    if len(result) == 0:
+        sql="""
+            INSERT INTO users VALUES (?, ?)
+            """
+        insert_values_by_query([data], db, sql)
+    elif result[0][1] != data[1]:
+        sql="""
+            UPDATE users SET username = ? WHERE chat_id = ?
+            """
+        select_data_query(sql, db, data.reverse())
+
+def get_user_by_chat(chat_id):
+    sql = "SELECT username FROM users WHERE chat_id = ?;"
+    result = select_data_query(sql, db, [chat_id])
+
+    if len(result) == 0:
+        return ""
+    else:
+        return result[0][0]
+    
+# create_table_users()
