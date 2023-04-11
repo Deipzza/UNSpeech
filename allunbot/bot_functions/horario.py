@@ -30,6 +30,28 @@ def get_schedule(driver):
     return dialog.get_attribute('innerHTML')
 
 
+def get_schedule_week(driver):
+
+    driver = get_page_schedule(driver)
+    view_list = driver.find_element(By.XPATH, value="//div[@title='Mes']")
+    driver.execute_script("arguments[0].click();", view_list)
+    time.sleep(2)
+    cells = driver.find_elements(By.CSS_SELECTOR,".af_calendar_month-grid .af_calendar_month-time-activity-wrapper")
+    arc = -1
+    for cell in cells:
+        if cell.get_attribute("arc") == arc:
+            break
+        driver.execute_script("arguments[0].click();", cell)
+        print(cell.text)
+        time.sleep(2)
+        arc = 0
+    
+    time.sleep(2)
+
+    dialog = driver.find_element(By.XPATH, value="//table[@class='af_dialog_main']")
+
+    return dialog.get_attribute('innerHTML')
+
 def create_table_schedule():
     query = """
         CREATE TABLE schedule(
@@ -166,6 +188,6 @@ def process_table(table):
 
 # create_table_schedule()
 
-driver = auth({"username":"username","password":"password","chat_id":"YOUR CHAT"})[1]
+driver = auth({"username":"username","password":"password","chat_id":"YOUR CHAT ID"})[1]
 driver = get_page_schedule(driver)
-print(get_schedule(driver))
+print(get_schedule_week(driver))
