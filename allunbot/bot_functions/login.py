@@ -1,3 +1,4 @@
+import time
 import requests
 
 from bs4 import BeautifulSoup
@@ -5,6 +6,8 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options as ChromeOptions
+
+db = 'allunbot.db'
 
 def auth(payload):
     """ """
@@ -36,13 +39,8 @@ def auth(payload):
     except:
         return (False, None)
 
-def login2(payload) -> webdriver.Chrome:
-    """
-    Authenticates the student with its credentials.
-    Kwargs:
-    user: str - user's email address
-    password: str - user's password
-    Returns: web driver instance
+def login(payload) -> webdriver.Chrome:
+    """Authenticates the student with its credentials.
     """
     options = ChromeOptions()
     options.add_argument("--headless")
@@ -65,13 +63,3 @@ def login2(payload) -> webdriver.Chrome:
     driver.implicitly_wait(5)
 
     return driver
-
-def scraping(driver):
-    academic_information = driver.find_element(By.XPATH, value="//td[@title='Información académica']")
-    academic_information.click()
-    academic_history = driver.find_element(By.XPATH, value="//a[@title='Mi historia académica']")
-    academic_history.click()
-
-    papa = driver.find_elements(By.XPATH, value="//span[@class='promedios-valor']")[0].get_attribute("innerHTML").split()[0]
-    return papa
-

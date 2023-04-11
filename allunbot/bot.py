@@ -5,7 +5,6 @@ from constants import *
 from utils import *
 
 from bot_functions.university_calendar import *
-from bot_functions.directory import *
 from bot_functions.login import *
 
 import list_message as messages
@@ -156,7 +155,8 @@ def login():
         
         payload = {
             "username": username, 
-            "password": password
+            "password": password,
+            "chat_id": chat_id
         }
         logged, request_seccion = auth(payload)
         
