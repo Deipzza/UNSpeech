@@ -6,8 +6,8 @@ import prettytable as pt
 
 from bs4 import BeautifulSoup
 
-from .database.manage_database import *
-from .utils import *
+from database.manage_database import *
+from utils import *
 # from login import *
 
 db = 'allunbot.db'
@@ -105,32 +105,54 @@ def generete_academic_history_user(username):
 
 def generate_academic_history_img(username):
     import matplotlib.pyplot as plt
-
-    sql = "SELECT * FROM academic_history WHERE username = ?"
-    result = select_data_query(sql, db, [username])
-
-    if len(result) == 0:
-        return False
     
-    column_headers = ('Exigidos', 'Aprobados', 'Pendientes', 'Inscritos', 'cursados')
-    data = [item.split("-") for item in result[0][1:]]
-    fig, ax = plt.subplots()
+    rows = 2
+    sql = "SELECT * FROM academic_history WHERE username = ?"
+    academic_history = select_data_query(sql, db, [username])
 
-    # Pop the headers from the data array
-    row_headers = [x.pop(0) for x in data]
-    ax.table(cellText=data,
-                      rowLabels=row_headers,
-                      colLabels=column_headers,
-                      loc='center')
+    sql = "SELECT * FROM metrics WHERE username = ?"
+    metrics = select_data_query(sql, db, [username])
+
+    if len(academic_history) == 0 or (len(metrics) == 0):
+        row -= 1
+    elif len(academic_history) == 0 and (len(metrics) == 0):
+        return "Lo sentimos, no hemos podido encontrar tu historia academica, comunicate con el área de soporte."
+    
+    fig, (table1, table2) = plt.subplots(rows, 1, sharey=True)
+
+    if len(academic_history) != 0:
+        column_headers = ('Exigidos', 'Aprobados', 'Pendientes', 'Inscritos', 'cursados')
+        data = [item.split("-") for item in academic_history[0][1:]]
+        
+        # Pop the headers from the data array
+        row_headers = [x.pop(0) for x in data]
+        table2.table(
+            cellText=data,
+            rowLabels=row_headers,
+            colLabels=column_headers,
+            loc='center'
+        )
+
+    if len(metrics) != 0:
+    
+        column_headers = ['P.A.P.A', 'Promedio']
+        data = [metrics[0][1:]]
+        table1.table(
+            cellText=data,
+            colLabels=column_headers,
+            loc='center'
+        )
     
     # hide axes
     fig.patch.set_visible(False)
-    ax.axis('off')
-    ax.axis('tight')
+    table1.axis('off')
+    table1.axis('tight')
+    table2.axis('off')
+    table2.axis('tight')
     fig.tight_layout()
 
     filename= os.path.join(temp, f'{username}-academic-history.png')
-    plt.savefig(filename, bbox_inches='tight',dpi=150)
+    plt.savefig(filename, bbox_inches='tight')
 
     return filename
 
@@ -157,3 +179,5 @@ def process_table(table):
 
 
 # create_table_academic_history()
+
+generate_academic_history_img("cpatinore")
