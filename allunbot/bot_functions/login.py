@@ -1,12 +1,14 @@
+import os
 import time
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 
-from database.manage_database import *
+from .database.manage_database import *
 
-db = 'allunbot.db'
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+db = os.path.join(BASE_DIR, 'allunbot.db')
 
 def auth(payload) -> webdriver.Chrome:
     """Authenticates the student with its credentials.

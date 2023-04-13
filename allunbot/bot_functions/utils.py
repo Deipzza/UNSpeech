@@ -39,8 +39,8 @@ def get_page_schedule(driver):
     schedule.click()
     time.sleep(5)
 
-    pag_schedule = driver.page_source
-    with open("page_source.html","w") as file:
-        file.write(pag_schedule)
+    # pag_schedule = driver.page_source
+    # with open("page_source.html","w") as file:
+    #     file.write(pag_schedule)
 
     return driver

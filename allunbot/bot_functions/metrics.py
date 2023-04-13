@@ -57,9 +57,13 @@ def update_metrics_user(data):
         UPDATE metrics
             SET
             papa = ?,
-            promedio = ?,
+            promedio = ?
             WHERE username = ?
         """
+    
+    username = data[0]
+    data = data[1:]
+    data.append(username)
     select_data_query(sql, db, data)
 
 

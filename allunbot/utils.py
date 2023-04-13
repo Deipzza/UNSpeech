@@ -46,7 +46,7 @@ def add_groups_handler(message, subject_code, subject_name, bot):
 def auth_user(message, bot):
    initial_login = f"""
 Para poder obtener la información del SIA necesitamos que ingreses al link:
-{socket.gethostname()}/login
+localhost:10000/login
 
 Utiliza este token para poder autenticarte:
 {message.chat.id}
