@@ -9,6 +9,7 @@ from bot_functions.university_calendar import *
 from bot_functions.login import *
 from bot_functions.academic_history import *
 from bot_functions.metrics import *
+from bot_functions.schedule import *
 
 # Bot creation
 bot = telebot.TeleBot(BOT_TOKEN, threaded = False)
@@ -23,30 +24,35 @@ app = Flask(__name__,
 # Start message handler
 @bot.message_handler(commands = ["start"])
 def start_handler(message):
-  """Returns the message that the user receives
-  after sending the /start command.
-  """
+    """Returns the message that the user receives
+    after sending the /start command.
+    """
 
-  bot.send_message(message.chat.id, messages.welcome, parse_mode = "Markdown")
+    bot.send_message(message.chat.id, messages.welcome, parse_mode = "Markdown")
 
 # List of commands message handler
 @bot.message_handler(commands = ["comandos"])
 def commands_handler(message):
-  """Returns the message that the user receives
-  after sending the /start command.
-  """
+    """Returns the message that the user receives
+    after sending the /start command.
+    """
 
-  bot.send_message(message.chat.id, messages.list_comands)
+    bot.send_message(message.chat.id, messages.list_comands)
 
 # Academic calendar message handler
 @bot.message_handler(commands = ["calendario_academico"])
 def academic_calendar(message):
-  """Returns an interactive menu for the user to select
-  its student type to load its corresponding requests calendar.
-  """
+    """Returns an interactive menu for the user to select
+    its student type to load its corresponding requests calendar.
+    """
 
-  menu = [{"name": "Pregrado","value": "ac_pregrado"}, {"name": "Posgrado", "value": "ac_posgrado"},]
-  bot.send_message(message.chat.id, "¿Qué tipo de estudiante eres?", reply_markup = gen_markup(menu))
+    menu = [
+        {"name": "Pregrado","value": "ac_pregrado"},
+        {"name": "Posgrado", "value": "ac_posgrado"},
+    ]
+    bot.send_message(message.chat.id,
+                     "¿Qué tipo de estudiante eres?",
+                     reply_markup = gen_markup(menu))
 
 # Request calendar message handler
 @bot.message_handler(commands = ["calendario_solicitudes"])
@@ -61,10 +67,12 @@ def requests_calendar(message):
     ]
     bot.send_message(message.chat.id, "¿Qué tipo de estudiante eres?", reply_markup = gen_markup(menu))
 
-# Request calendar message handler
+# Academic information message handler
 @bot.message_handler(commands = ["informacion_sia"])
 def initial_sia(message):
-    """ """
+    """
+    """
+
     username = get_user_by_chat(message.chat.id)
     
     if username == "":
@@ -74,7 +82,10 @@ def initial_sia(message):
             {"name": "Mi historia académica", "value": "sia_academic_history"},
             {"name": "Mi Horario", "value": "sia_schedule"}
         ]
-        bot.send_message(message.chat.id, "¿Qué deseas consultar?", reply_markup = gen_markup(menu))
+        bot.send_message(message.chat.id,
+                        "¿Qué deseas consultar?",
+                        reply_markup = gen_markup(menu))
+
 
 """------------------------------callback-----------------------------------"""
 # Interactive messages for academic calendar handler
@@ -82,16 +93,20 @@ def initial_sia(message):
 def callback_query(call):
     bot.answer_callback_query(call.id, messages.time_out)  
     calendar = generate_academic_calendar(call.data[3:])
-    bot.send_message(call.message.chat.id, "*Calendario académico.*\n" + calendar, parse_mode = "Markdown")
+    bot.send_message(call.message.chat.id,
+                     "*Calendario académico.*\n" + calendar,
+                     parse_mode = "Markdown")
 
 # Interactive messages for requests calendar handler
-@bot.callback_query_handler(func = lambda call: call.data in ["so_pregrado","so_posgrado"])
+@bot.callback_query_handler(func = lambda call: call.data in ["so_pregrado", "so_posgrado"])
 def callback_query(call):
     bot.answer_callback_query(call.id, messages.time_out)  
     calendar = generate_request_calendar(call.data[3:])
-    bot.send_message(call.message.chat.id, "*Calendario de solicitudes.*\n" + calendar, parse_mode = "Markdown")
+    bot.send_message(call.message.chat.id,
+                     "*Calendario de solicitudes.*\n" + calendar,
+                     parse_mode = "Markdown")
 
-# Interactive messages for requests calendar handler
+# Interactive messages for academic information handler
 @bot.callback_query_handler(func = lambda call: "sia" in call.data)
 def callback_login(call):
     
@@ -106,12 +121,16 @@ def callback_login(call):
             bot.send_message(call.message.chat.id, f'```{metricas}```', parse_mode="Markdown")
             
             filename = generate_academic_history_img(username)
-            photo = open(filename,'rb')
+            photo = open(filename, 'rb')
             bot.send_photo(call.message.chat.id, photo)
             os.remove(filename)
+        
+        elif call.data == "sia_schedule":
+            schedule = generate_schedule_user(username)
+            bot.send_message(call.message.chat.id, f'```{schedule}```', parse_mode = "Markdown")
     else:
         text = "Lo sentimos, no tenemos registro de inicio de sesión de tu parte. Por favor, escribe /informacion_sia para autenticar e intenta nuevamente"
-        bot.send_message(call.message.chat.id, text, parse_mode="Markdown")
+        bot.send_message(call.message.chat.id, text, parse_mode = "Markdown")
 
 
 # Request directorio message handler
@@ -180,6 +199,9 @@ def login():
             data = get_metrics(driver)
             metrics(username, data)
 
+            data = get_schedule(driver)
+            schedule(username, data)
+
             bot.send_message(chat_id, f"Hola, {username}")
             menu = [
             {"name": "Mi historia académica", "value": "sia_academic_history"},
@@ -187,7 +209,7 @@ def login():
             ]
             bot.send_message(chat_id, "¿Qué deseas consultar?", reply_markup = gen_markup(menu))
         else:
-            bot.send_message(chat_id, f"Lo sentimos, no hemos podido autenticarte. Proba nuevamente.")
+            bot.send_message(chat_id, f"Lo sentimos, no hemos podido autenticarte. Prueba nuevamente.")
         
     return render_template('login.html')
 
