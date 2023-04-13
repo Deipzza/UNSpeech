@@ -1,16 +1,9 @@
 import os
-import time
 
 import pandas as pd
-import prettytable as pt
 
-from bs4 import BeautifulSoup
+from .utils import *
 
-from database.manage_database import *
-from utils import *
-# from login import *
-
-db = 'allunbot.db'
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 temp = os.path.join(BASE_DIR, 'bot_functions/temp')
 
@@ -113,12 +106,12 @@ def generate_academic_history_img(username):
     sql = "SELECT * FROM metrics WHERE username = ?"
     metrics = select_data_query(sql, db, [username])
 
-    if len(academic_history) == 0 or (len(metrics) == 0):
-        row -= 1
+    if len(academic_history) == 0 or len(metrics) == 0:
+        rows -= 1
     elif len(academic_history) == 0 and (len(metrics) == 0):
         return "Lo sentimos, no hemos podido encontrar tu historia academica, comunicate con el área de soporte."
     
-    fig, (table1, table2) = plt.subplots(rows, 1, sharey=True)
+    fig, (table1, table2) = plt.subplots(2, 1, sharey=True)
 
     if len(academic_history) != 0:
         column_headers = ('Exigidos', 'Aprobados', 'Pendientes', 'Inscritos', 'cursados')
@@ -135,7 +128,7 @@ def generate_academic_history_img(username):
 
     if len(metrics) != 0:
     
-        column_headers = ['P.A.P.A', 'Promedio']
+        column_headers = ['P.A.P.A', 'Promedio',"Avance"]
         data = [metrics[0][1:]]
         table1.table(
             cellText=data,
@@ -177,7 +170,5 @@ def process_table(table):
 
     return result
 
-
+# generate_academic_history_img("cpatinore")
 # create_table_academic_history()
-
-generate_academic_history_img("cpatinore")

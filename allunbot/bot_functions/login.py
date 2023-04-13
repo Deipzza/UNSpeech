@@ -15,7 +15,7 @@ def auth(payload) -> webdriver.Chrome:
     """
     chat_id = payload["chat_id"]
     options = ChromeOptions()
-    # options.add_argument("--headless")
+    options.add_argument("--headless")
     driver = webdriver.Chrome(options=options)
     driver.get("https://sia.unal.edu.co/ServiciosApp")
 
@@ -86,5 +86,3 @@ def get_user_by_chat(chat_id):
         return ""
     else:
         return result[0][0]
-    
-# create_table_users()

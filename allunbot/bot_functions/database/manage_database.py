@@ -1,5 +1,7 @@
 import sqlite3
 
+
+db = 'allunbot.db'
 def create_tables(db):
     with open('create_table.sql', 'r') as sql_file:
         sql_script = sql_file.read()

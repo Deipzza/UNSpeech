@@ -117,13 +117,16 @@ def callback_login(call):
             # table = generete_academic_history_user(username)
             # bot.send_message(call.message.chat.id, f'```{table}```', parse_mode="Markdown")
 
-            metricas = generate_metrics_user(username)
-            bot.send_message(call.message.chat.id, f'```{metricas}```', parse_mode="Markdown")
+            # metricas = generate_metrics_user(username)
+            # bot.send_message(call.message.chat.id, f'```{metricas}```', parse_mode="Markdown")
             
             filename = generate_academic_history_img(username)
-            photo = open(filename, 'rb')
-            bot.send_photo(call.message.chat.id, photo)
-            os.remove(filename)
+            if "sentimos" not in filename:
+                photo = open(filename, 'rb')
+                bot.send_photo(call.message.chat.id, photo)
+                os.remove(filename)
+            else:
+                bot.send_message(call.message.chat.id, filename, parse_mode = "Markdown")
         
         elif call.data == "sia_schedule":
             schedule = generate_schedule_user(username)

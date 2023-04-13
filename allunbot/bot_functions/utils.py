@@ -1,6 +1,10 @@
 import time
 
+import prettytable as pt
+from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
+
+from .database.manage_database import *
 
 def get_page_academic_history(driver=None):
     if driver != None:
@@ -15,7 +19,7 @@ def get_page_academic_history(driver=None):
             academic_history = driver.find_element(By.XPATH, value="//a[@title='Mi historia académica']")
 
         academic_history.click()
-        time.sleep(5)
+        time.sleep(6)
 
         pag_academic_history = driver.page_source
         with open("page_source.html","w") as file:

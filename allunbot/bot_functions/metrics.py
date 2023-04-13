@@ -1,13 +1,6 @@
 import os
 
-import prettytable as pt
-
-from bs4 import BeautifulSoup
-
 from .utils import *
-from .database.manage_database import *
-
-# from login import *
 
 db = 'allunbot.db'
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -18,7 +11,7 @@ def get_metrics(driver=None):
     page_soup = BeautifulSoup(pag_academic_history, 'html5lib')
     metrics = page_soup.find("span",{"class":"promedios"}).find_all("span",{"class":"promedio-general"})
 
-    result = ["",""]
+    result = ["","", ""]
     for metric in metrics:
         tipo = metric.find("span", {"class":"promedios-texto"}).text
         valor = metric.find("span", {"class":"promedios-valor"}).text
@@ -27,6 +20,7 @@ def get_metrics(driver=None):
             result[0] = valor
         else:
             result[1] = valor
+    result[2] = page_soup.find("span", id = "pt1:r1:2:i12:0:pgl42").text
         
     return result
 
@@ -37,7 +31,8 @@ def create_table_metrics():
         CREATE TABLE metrics(
             username TEXT PRIMARY KEY, 
             papa TEXT NOT NULL,
-            promedio TEXT NOT NULL
+            promedio TEXT NOT NULL,
+            avance TEXT NOT NULL
         );
         """
     create_table(db,"metrics",query)
@@ -47,7 +42,7 @@ def add_metrics_user(data):
     sql="""
         INSERT INTO
             metrics
-            VALUES (?, ?, ?)
+            VALUES (?, ?, ?, ?)
         """
     insert_values_by_query([data], db, sql)
 
@@ -57,7 +52,8 @@ def update_metrics_user(data):
         UPDATE metrics
             SET
             papa = ?,
-            promedio = ?
+            promedio = ?,
+            avance = ?
             WHERE username = ?
         """
     
