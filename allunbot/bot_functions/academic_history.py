@@ -5,7 +5,10 @@ import pandas as pd
 from .utils import *
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-temp = os.path.join(BASE_DIR, 'bot_functions/temp')
+temp = os.path.join(BASE_DIR, 'temp')
+
+if not os.path.exists(temp): # Create the directory if it doesn't exist
+    os.makedirs(temp)
 
 def get_academic_history(driver=None):
     pag_academic_history = get_page_academic_history(driver)
@@ -60,7 +63,7 @@ def update_academic_history_user(data):
     username = data[0]
     data = data[1:]
     data.append(username)
-    select_data_query(sql, db, data)
+    update_data_query(sql, db, data)
 
 
 def academic_history(username, data):
@@ -70,12 +73,12 @@ def academic_history(username, data):
     data = pd.DataFrame(data)
     data = data.transpose()
     data = [
-                username, "-".join(data[0]), 
-                "-".join(data[1]), "-".join(data[2]), 
-                "-".join(data[3]), "-".join(data[4]), 
-                "-".join(data[5]), "-".join(data[6]),
-                "-".join(data[7]), "-".join(data[8])
-            ]
+        username, "-".join(data[0]), 
+        "-".join(data[1]), "-".join(data[2]), 
+        "-".join(data[3]), "-".join(data[4]), 
+        "-".join(data[5]), "-".join(data[6]),
+        "-".join(data[7]), "-".join(data[8])
+    ]
 
     if len(result) == 0:
         add_academic_history_user(data)
@@ -145,7 +148,7 @@ def generate_academic_history_img(username):
     fig.tight_layout()
 
     filename= os.path.join(temp, f'{username}-academic-history.png')
-    plt.savefig(filename, bbox_inches='tight')
+    plt.savefig(filename, bbox_inches = 'tight')
 
     return filename
 

@@ -60,7 +60,7 @@ def update_metrics_user(data):
     username = data[0]
     data = data[1:]
     data.append(username)
-    select_data_query(sql, db, data)
+    update_data_query(sql, db, data)
 
 
 def metrics(username, data):

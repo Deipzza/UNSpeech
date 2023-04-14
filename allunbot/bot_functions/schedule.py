@@ -1,8 +1,6 @@
 import os
 import time
 
-import prettytable as pt
-
 from .utils import *
 from .login import *
 
@@ -36,7 +34,6 @@ def get_schedule(driver):
             hours = dialog.find_element(by = By.XPATH, value = ".//td[@class='af_dialog_content']/span[3]")
             room = dialog.find_element(by = By.XPATH, value = ".//td[@class='af_dialog_content']/span[4]")
             
-            print(day, name.text, hours.text, room.text)
             subject_dic.setdefault(day, []).append([name.text, hours.text, room.text])
 
         arc = 0
@@ -60,7 +57,7 @@ def create_table_schedule():
 
 
 def add_schedule_user(data):
-    sql="""
+    sql = """
         INSERT INTO
             schedule
             VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -69,7 +66,7 @@ def add_schedule_user(data):
 
 
 def update_schedule_user(data):
-    sql="""
+    sql = """
         UPDATE schedule
             SET
             lunes = ?,
@@ -85,7 +82,7 @@ def update_schedule_user(data):
     username = data[0]
     data = data[1:]
     data.append(username)
-    select_data_query(sql, db, data)
+    update_data_query(sql, db, data)
 
 
 def schedule(username, data):
@@ -99,7 +96,7 @@ def schedule(username, data):
     for _, value in data.items():
         info = ""
         for subject in value:
-            info += "\n".join(subject) + "\n-------\n"
+            info += "\n".join(subject) + "\n---------------\n"
 
         insert_values.append(info)
 
@@ -124,6 +121,7 @@ def generate_schedule_user(username):
     
     return message
 
+# Not implemented yet
 def generate_schedule_img(username):
     import matplotlib.pyplot as plt
 
@@ -139,19 +137,19 @@ def generate_schedule_img(username):
 
     # Pop the headers from the data array
     row_headers = [x.pop(0) for x in data]
-    ax.table(cellText=data,
-                      rowLabels=row_headers,
-                      colLabels=column_headers,
-                      loc='center')
+    ax.table(cellText = data,
+            rowLabels = row_headers,
+            colLabels = column_headers,
+            loc = 'center')
     
-    # hide axes
+    # Hide axes
     fig.patch.set_visible(False)
     ax.axis('off')
     ax.axis('tight')
     fig.tight_layout()
 
     filename= os.path.join(temp, f'{username}-academic-history.png')
-    plt.savefig(filename, bbox_inches='tight',dpi=150)
+    plt.savefig(filename, bbox_inches = 'tight', dpi = 150)
 
     return filename
 
@@ -175,22 +173,3 @@ def process_table(table):
             result.append(data_row)
 
     return result
-
-
-# create_table_schedule()
-
-# home_path = os.path.expanduser("~")
-# with open(os.path.join(home_path, "ppi_02_credentials.txt"), "r") as file:
-#     creds = file.readlines()
-#     creds = list(map(lambda x: x.strip(), creds))
-#     creds = {i:j for i, j in zip(["username", "password"], creds)}
-
-# driver = auth({
-#     "username": creds["username"],
-#     "password": creds["password"],
-#     "chat_id": "YOUR CHAT ID"
-# })[1]
-
-# print(get_schedule(driver))
-# driver = auth({"username":"username","password":"password","chat_id":"YOUR CHAT ID"})[1]
-# driver = get_page_schedule(driver)

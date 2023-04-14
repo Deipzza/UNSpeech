@@ -29,7 +29,7 @@ def insert_values_by_query(insert_data, db, sql):
     con.close()
 
 
-def select_data_query(sql, db,params=[]):
+def select_data_query(sql, db, params = []):
     con = sqlite3.connect(db)
     cur = con.cursor()
 
@@ -39,6 +39,16 @@ def select_data_query(sql, db,params=[]):
 
     con.close()
     return consulta
+
+def update_data_query(sql, db, params = []):
+    """Updates the DB with the specified SQL"""
+
+    con = sqlite3.connect(db)
+    cur = con.cursor()
+
+    cur.execute(sql, params)
+    con.commit()
+    con.close()
 
 def select_data_all(table, db):
     con = sqlite3.connect(db)

@@ -6,9 +6,9 @@ Cuento con varias funcionalidades que pueden serte útiles, solo tienes que escr
 (o pulsarlo en mi mensaje) y seguir los pasos que te indique.
 
 Para comenzar escribe /comandos
-    """
+"""
 
-list_comands = """
+commands_list = """
 ===============
 FUNCIONALIDADES
 ===============
@@ -20,9 +20,13 @@ Información general.
 - Si quieres consultar la lista de grupos de las asignaturas, escribe /buscar_grupos.
 - Si quieres agregar un grupo de una asignatura al directorio de grupos, escribe /agregar_grupos.
 - Si quieres consultar información del SIA, escribe /informacion_sia.
+- Si quieres actualizar la información extraída del SIA, escribe /actualizar_info_sia.
   """
 
 time_out = "La respuesta tarda un poco en generar. Por favor espere."
 
+not_registered = "Lo sentimos, no tenemos registro de inicio de sesión de tu parte. Por favor, escribe /informacion_sia para autenticar e intenta nuevamente"
 
+not_authenticated = "Lo sentimos, no hemos podido autenticarte. Prueba nuevamente."
 
+search_directory = "Escribe las palabras clave para buscar en el directorio, separadas por espacios.\nPor ejemplo: bienestar minas facultad"
