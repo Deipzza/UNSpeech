@@ -1,3 +1,5 @@
+import socket
+
 from telebot import types
 from bot_functions.directory import *
 from bot_functions.groups import *
@@ -41,3 +43,14 @@ def add_groups_handler(message, subject_code, subject_name, bot):
    link = message.text
    insert_values_into_groups(subject_code, subject_name, link)
    bot.send_message(message.chat.id, "Grupo agregado.", parse_mode="Markdown")
+
+def auth_user(message, bot):
+   initial_login = f"""
+Para poder obtener la información del SIA necesitamos que ingreses al link:
+http://localhost:10000/login
+
+Utiliza este token para poder autenticarte:
+{message.chat.id}
+Mantén tu token seguro y guárdalo en un lugar seguro, ya que puede ser utilizado por cualquiera para acceder.
+   """
+   bot.send_message(message.chat.id, initial_login, parse_mode = "Markdown")
