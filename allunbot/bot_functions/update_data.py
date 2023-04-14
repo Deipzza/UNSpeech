@@ -10,4 +10,7 @@ update_request_calendar()
 update_directory()
 
 # Grupos de asignaturas
-create_table_groups()
+# create_table_groups()
+
+
+# MongoDB

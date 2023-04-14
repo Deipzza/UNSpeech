@@ -1,42 +1,44 @@
-from .database.manage_database import *
+from .database.mongodatabase import *
 
-db = 'allunbot.db'
-
-def create_table_groups():
-    sql = """
-            CREATE TABLE grupos(
-                id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                codigo INTEGER NOT NULL,
-                nombre NOT NULL,
-                enlace NOT NULL
-            )
-          """
-    create_table(db, "grupos", sql)
+mongo_db = get_database()
 
 def insert_values_into_groups(subject_code, subject_name, link):
-    insert_data = [[subject_code, subject_name, link]]
-    
-    sql = """
-            INSERT INTO
-            grupos(codigo, nombre, enlace)
-            VALUES (?,?,?)
-        """
-    insert_values_by_query(insert_data, db, sql)
+    collection = mongo_db["grupos"]
 
-def select_query_groups(subject_code, db):
-    param, response = [""], ""
-    param[0] += f"codigo = '{subject_code}'"
+    item = {
+        "codigo": subject_code,
+        "nombre": subject_name,
+        "enlace": link,
+    }
 
-    sql = f"SELECT * FROM grupos WHERE ({param[0]})"
-    query = select_data_query(sql, db)
+    collection.insert_one(item)
+
+def select_query_groups(subject_code):
+    response = ""
+
+    # Create query for the search
+    query = {
+        'codigo': {'$eq': subject_code}
+    }
     
-    if len(query) < 1:
-        return "Lo sentimos, no hemos encontrado registros."
+    # Select which fields to retrieve from the query
+    projection = {
+        "_id": 0, 
+        "codigo": 1, 
+        "nombre": 1,
+        "enlace": 1,
+    }
+
+    # Run query
+    results = mongo_db.grupos.find(query, projection)
+
+    if mongo_db.grupos.count_documents(query) < 1:
+        return "Lo siento, no he encontrado registros que coincidan."
     
-    for fila in query:
-        response += f"Código de la asignatura: {fila[1]}\n"
-        response += f"Nombre del grupo: {fila[2]}\n"
-        response += f"Enlace de TG del grupo: {fila[3]}\n"
+    for row in results:
+        response += f"Código de la asignatura: {row['codigo']}\n"
+        response += f"Nombre del grupo: {row['nombre']}\n"
+        response += f"Enlace de Telegram del grupo: {row['enlace']}\n"
         response += "----------------------------------\n"
 
     return response
