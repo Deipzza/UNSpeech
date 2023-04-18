@@ -10,6 +10,12 @@
     <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/carousel/"/>
     <link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="../assets/dist/css/carousel.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css">
+    
+    {% block styles %}{% endblock %}
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
+    
   </head>
 
   <body>
@@ -72,5 +78,6 @@
     </main>
 
     <script src="../assets/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
   </body>
 </html>

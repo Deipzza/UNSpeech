@@ -1,7 +1,8 @@
+import json
 import os
 
 import telebot
-from flask import Flask, request, session
+from flask import Flask, jsonify, request, session
 from flask import render_template
 
 from bot_functions.university_calendar import *
@@ -9,6 +10,7 @@ from bot_functions.login import *
 from bot_functions.academic_history import *
 from bot_functions.metrics import *
 from bot_functions.schedule import *
+from bot_functions.calculator import *
 from constants import *
 import messages_list as messages
 from utils import *
@@ -318,7 +320,83 @@ def login():
         
     return render_template('login.html')
 
+@app.route('/calculadora', methods = ['GET', 'POST'])
+def calculadora():
+    """
+    """
+    
+    headers = ["Asignatura", "Créditos", "Tipología", "Calificación", "Acciones"]
+    data = [
+        ["INGLÉS I (1000044-M)", "3", "NIVELACIÓN", "2018-1S", "APROBADA"],
+        ["INGLÉS II (1000045-M)", "3", "NIVELACIÓN", "2018-1S", "APROBADA"],
+        ["Cátedra Ingenierías Facultad de Minas (3009511)", "2", "LIBRE ELECCIÓN", "2018-1S", "APROBADA"],
+        ["Cátedra Nacional de Inducción y Preparación para", "2", "LIBRE ELECCIÓN", "2018-1S", "4.5"],
+        ["GEOMETRÍA VECTORIAL Y ANALÍTICA (1000008-M)", "4", "FUND. OBLIGATORIA", "2018-1S", "3.5"],
+        ["FUNDAMENTOS DE PROGRAMACIÓN (3007742)", "3", "FUND. OBLIGATORIA", "2018-1S", "4.7"],
+    ]
+
+    misCalificaciones = [
+        {
+            "id": "3010440",
+            "data_table": ["Calidad de software", "3", "DISCIPLINAR OBLIGATORIA", "1"],
+            "notas":[["nombre","10","3"], ["nombre2","50","5"]]
+        },
+        {
+            "id": "3010836",
+            "data_table": ["Cátedra de sistemas: una visión histórico-cultural de la computación", "3", "DISCIPLINAR OPTATIVA", "0"],
+            "notas":[["nombre","porcentaje","valor"]]
+        },
+        {
+            "id": "3011019",
+            "data_table": ["Desarrollo web", "3", "DISCIPLINAR OPTATIVA", "5"],
+            "notas":[["nombre","porcentaje","valor"]]
+        },
+        {
+            "id": "3011021",
+            "data_table": ["Programación para ingeniería", "3", "DISCIPLINAR OPTATIVA", "4"],
+            "notas":[["nombre","porcentaje","valor"]]
+        },
+        {
+            "id": "3010439",
+            "data_table": ["Proyecto Integrado de Ingeniería", "3", "DISCIPLINAR OBLIGATORIA", "5"],
+            "notas":[["nombre","porcentaje","valor"]]
+        }
+    ]
+        
+    return render_template('calculadora.html', headers = headers, misCalificaciones = misCalificaciones)
+
+
+@app.route('/data_subject', methods = ['POST'])
+def get_data_subject():
+    """
+    """
+
+    misCalificaciones = {
+        "3010440": {
+            "data_table": ["Calidad de software", "3", "DISCIPLINAR OBLIGATORIA", "1"],
+            "notas":[["nombre","10","3"], ["nombre2","50","5"]]
+        },
+        "3010836": {
+            "data_table": ["Cátedra de sistemas: una visión histórico-cultural de la computación", "3", "DISCIPLINAR OPTATIVA", "0"],
+            "notas":[["nombre","porcentaje","valor"]]
+        },
+        "3011019": {
+            "data_table": ["Desarrollo web", "3", "DISCIPLINAR OPTATIVA", "5"],
+            "notas":[["nombre","porcentaje","valor"]]
+        },
+        "3011021": {
+            "data_table": ["Programación para ingeniería", "3", "DISCIPLINAR OPTATIVA", "4"],
+            "notas":[["nombre","porcentaje","valor"]]
+        },
+        "3010439": {
+            "data_table": ["Proyecto Integrado de Ingeniería", "3", "DISCIPLINAR OBLIGATORIA", "5"],
+            "notas":[["nombre","porcentaje","valor"]]
+        }
+    }
+        
+    return jsonify(misCalificaciones)
+
 if __name__ == "__main__":
     """Main execution of the program"""
-
+    app.debug = True
     app.run(port = int(os.environ.get('PORT', 10000))) # Server execution port

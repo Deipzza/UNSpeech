@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block title %}calculadora{% endblock %}
+{% block styles %}<link href="../assets/dist/css/calculadora.css" rel="stylesheet" />{% endblock %}
+{% block scripts %}<script src="../assets/dist/js/calculadora.js"></script>{% endblock %}
+
+{% block content %}
+<div class="row">
+
+    <div class="col-4 info_metricas"> 
+        <div class="row info_metric">
+            
+            <div class="col-6 info_metric_value">
+                <p class = "item-value" id="metric_papa"></p>
+                <p class = "item-name">P.A.P.A.</p>
+            </div>
+
+            <div class="col-6 info_metric_value">
+                <p class = "item-value" id="metric_promedio"></p>
+                <p class = "item-name">Promedio</p>
+            </div>
+
+            <div class="col-12">
+                <button class="btn btn-primary calcular" type="buton" onclick="calcular_metricas()"> Calcular </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-8 container-table">
+        <div class="info_calificaciones">
+
+            <table class="table table-striped table-bordered" id="calificaciones">
+                <thead class="table-secondary">
+                <tr>
+                    {% for header in headers %}
+                    <th scope="col">{{header}}</th>
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+
+                    {% for row in misCalificaciones %}
+                        <tr id='{{ "row_"+row["id"] }}'>
+                            {% for cell in row['data_table'] %}
+                                <td>{{cell}}</td>
+                            {% endfor %}
+                            <td> 
+                                <div class="acciones">
+                                    <button type="button" class="btn btn-danger">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                            <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
+                                        </svg>
+                                    </button>
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target='{{ "#" + row["id"] }}'>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                            <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                            <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                                        </svg>
+                                    </button>
+                                    <div class="modal fade" id='{{ row["id"] }}' tabindex="-1" aria-labelledby='{{row["id"] + "Label" }}' aria-hidden="true">
+                                        <div class="modal-dialog">
+                                          <div class="modal-content">
+                                            <div class="modal-header">
+                                              <h1 class="modal-title fs-5" id='{{ row["id"] + "Label" }}'>Modal title</h1>
+                                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="d-flex flex-row-reverse">
+                                                    <div class="p-2">
+                                                        <button type="button" class="btn btn-success" id="add_row" onclick='add_subject({{row["id"]}})'>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                                                                <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/>
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <table class="table" id = '{{row["id"]}}'>
+                                                    <thead>
+                                                      <tr>
+                                                        <th scope="col">Nombre</th>
+                                                        <th scope="col">%</th>
+                                                        <th scope="col">Nota</th>
+                                                      </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for row_nota in row['notas'] %}
+                                                            <tr>
+                                                                <td>
+                                                                    {{row_nota[0]}}
+                                                                </td>
+                                                                <td>
+                                                                    <input type="number" min="0" max="100" class="form-control" value="{{row_nota[1]}}">
+                                                                </td>
+                                                                <td>
+                                                                    <input type="number" min="0" max="5" class="form-control" value="{{row_nota[2]}}">
+                                                                </td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="modal-footer">
+                                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                              <button type="button" class="btn btn-primary" onclick="save_values({{row['id']}})">Guardar valores</button>
+                                            </div>
+                                          </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
