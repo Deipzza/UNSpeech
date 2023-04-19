@@ -113,7 +113,8 @@ def initial_sia(message):
     else: # If it's already in the DB, return the interactive menu
         menu = [
             {"name": "Mi historia académica", "value": "sia_academic_history"},
-            {"name": "Mi Horario", "value": "sia_schedule"}
+            {"name": "Mi Horario", "value": "sia_schedule"},
+            {"name": "Calculadora de notas", "value": "sia_calculator_grades"},
         ]
         bot.send_message(message.chat.id,
                         "¿Qué deseas consultar?",
@@ -197,8 +198,7 @@ def callback_query(call):
     bot.answer_callback_query(call.id, messages.time_out)  
     calendar = generate_academic_calendar(call.data[3:])
     bot.send_message(call.message.chat.id,
-                     f"*Calendario académico.*\n{calendar}",
-                     parse_mode = "Markdown")
+                     f"*Calendario académico.*\n{calendar}", parse_mode = "Markdown")
 
 # Interactive messages for requests calendar handler
 @bot.callback_query_handler(func = lambda call: call.data in ["so_pregrado", "so_posgrado"])
@@ -245,6 +245,14 @@ def callback_login(call):
             bot.send_message(call.message.chat.id,
                             f'{schedule}',
                             parse_mode = "Markdown")
+        elif call.data == "sia_calculator_grades":
+                text = f"""
+Para poder utilizar la calculadora de notas necesitamos que ingreses al link:
+http://localhost:10000/calculadora?token={call.message.chat.id}
+
+Recuerda NO compartir este enlace ya que cualquiera podrá tener acceso a tu información.
+"""
+                bot.send_message(call.message.chat.id, text, parse_mode = "Markdown")
     else:
         text = messages.not_registered
         bot.send_message(call.message.chat.id, text, parse_mode = "Markdown")
@@ -363,6 +371,7 @@ def get_data_subject():
 
         projection = {
             "_id": 0, 
+            "username": 1,
             'plan_estudios': 1,
             'ponderado': 1,
             'fund_op': 1,

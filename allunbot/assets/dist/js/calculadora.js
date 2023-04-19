@@ -88,6 +88,11 @@ async function save_values(id){
 async function calcular_metricas(){
     //await get_subjects()
     initial_metrics = calificaciones["initial_metrics"]
+    var plan_estudios = initial_metrics["plan_estudios"];
+    plan_estudios = plan_estudios.charAt(0).toUpperCase() + plan_estudios.slice(1).toLowerCase();
+    var username = initial_metrics["username"];
+    $("#plan_estudios").text(`${plan_estudios} ~ ${username}`);
+
     var creditos = initial_metrics["creditos"];
     var ponderado = initial_metrics["ponderado"];
     var suma = initial_metrics["suma"];
