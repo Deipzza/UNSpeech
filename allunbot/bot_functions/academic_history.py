@@ -86,18 +86,18 @@ def academic_history(username, data):
         update_academic_history_user(data)
 
 
-def generete_academic_history_user(username):
-    sql = "SELECT * FROM academic_history WHERE username = ?"
-    result = select_data_query(sql, db, [username])
+# def generete_academic_history_user(username):
+#     sql = "SELECT * FROM academic_history WHERE username = ?"
+#     result = select_data_query(sql, db, [username])
 
-    if len(result) == 0:
-        return False
-    else:
-        table = pt.PrettyTable(['','Exigidos', 'Aprobados', 'Pendientes', 'Inscritos', 'cursados'])
-        data = [item.split("-") for item in result[0][1:]]
-        table.add_rows(data)
+#     if len(result) == 0:
+#         return False
+#     else:
+#         table = pt.PrettyTable(['','Exigidos', 'Aprobados', 'Pendientes', 'Inscritos', 'cursados'])
+#         data = [item.split("-") for item in result[0][1:]]
+#         table.add_rows(data)
     
-    return table
+#     return table
 
 def generate_academic_history_img(username):
     import matplotlib.pyplot as plt
@@ -155,23 +155,23 @@ def generate_academic_history_img(username):
 
 #--------------------------
 
-def process_table(table):
+# def process_table(table):
     
-    content = table.find("tbody")
-    result = []
+#     content = table.find("tbody")
+#     result = []
 
-    for row in content.find_all("tr"):
-        cells = row.findAll("td")
+#     for row in content.find_all("tr"):
+#         cells = row.findAll("td")
 
-        data_row = []
+#         data_row = []
 
-        if len(cells) > 2:
-            for cell in cells:
-                data_row.append(cell.find("span").text)
+#         if len(cells) > 2:
+#             for cell in cells:
+#                 data_row.append(cell.find("span").text)
 
-            result.append(data_row)
+#             result.append(data_row)
 
-    return result
+#     return result
 
 # generate_academic_history_img("cpatinore")
 # create_table_academic_history()

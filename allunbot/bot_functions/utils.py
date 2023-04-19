@@ -48,3 +48,23 @@ def get_page_schedule(driver):
     #     file.write(pag_schedule)
 
     return driver
+
+def process_table(table):
+    """
+    """
+    
+    content = table.find("tbody")
+    result = []
+
+    for row in content.find_all("tr"):
+        cells = row.findAll("td")
+
+        data_row = []
+
+        if len(cells) > 2:
+            for cell in cells:
+                data_row.append(cell.find("span").text)
+
+            result.append(data_row)
+
+    return result

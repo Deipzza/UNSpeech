@@ -21,7 +21,7 @@ def get_directory():
         try:
             URL = base + soup.find("a", {"title": position})["href"]
         except TypeError:
-            print("No hay más registros")
+            # print("No hay más registros") # Log print
             break
 
         position += 1

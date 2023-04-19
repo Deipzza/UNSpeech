@@ -6,8 +6,10 @@ from flask import render_template
 
 from bot_functions.university_calendar import *
 from bot_functions.login import *
-from bot_functions.academic_history import *
-from bot_functions.metrics import *
+# from bot_functions.academic_history import *
+from bot_functions.academic_history_mongo import *
+# from bot_functions.metrics import *
+from bot_functions.metrics_mongo import *
 from bot_functions.schedule import *
 from constants import *
 import messages_list as messages
@@ -266,7 +268,6 @@ def index():
 
     return render_template('index.html')
 
-
 @app.route('/actualizar', methods = ['GET', 'POST'])
 def update():
     """Returns the update (login) page."""
@@ -301,13 +302,16 @@ def login():
             data = get_metrics(driver)
             metrics(username, data)
 
-            data = get_schedule(driver)
-            schedule(username, data)
+            # data = get_schedule(driver)
+            # schedule(username, data)
 
             # Send message of the options to retrieve
             bot.send_message(chat_id, f"Hola, {username}")
             menu = [
-                {"name": "Mi historia académica","value": "sia_academic_history"},
+                {
+                    "name": "Mi historia académica",
+                    "value": "sia_academic_history"
+                },
                 {"name": "Mi Horario", "value": "sia_schedule"}
             ]
             bot.send_message(chat_id,

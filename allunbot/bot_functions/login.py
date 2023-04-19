@@ -15,7 +15,7 @@ def auth(payload) -> webdriver.Chrome:
     """
     chat_id = payload["chat_id"]
     options = ChromeOptions()
-    options.add_argument("--headless")
+    # options.add_argument("--headless")
     driver = webdriver.Chrome(options=options)
     driver.get("https://sia.unal.edu.co/ServiciosApp")
 
