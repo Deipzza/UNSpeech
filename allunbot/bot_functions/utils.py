@@ -66,6 +66,22 @@ def get_page_academic_history_by_plan(driver, id):
 
     return pag_academic_history
 
+def get_page_grades(driver):
+
+    try: 
+        my_grades = driver.find_element(By.XPATH, value="//a[@title='Mis Calificaciones']")
+    except:
+        academic_information = driver.find_element(By.XPATH, value="//td[@title='Información académica']")
+        driver.execute_script("arguments[0].click();", academic_information)    
+        time.sleep(2)
+        
+        my_grades = driver.find_element(By.XPATH, value="//a[@title='Mis Calificaciones']")
+
+    my_grades.click()
+    time.sleep(6)
+
+    return driver
+
 def isfloat(value):
     try:
         float(value)

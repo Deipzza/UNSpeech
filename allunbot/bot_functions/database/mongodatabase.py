@@ -2,6 +2,7 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
 
+
 def get_database():
   """Creates a connection to the database.
 
@@ -31,3 +32,5 @@ def reset_collection(db, collection_name):
 
     collection = db[f"{collection_name}"]
     collection.delete_many({})
+
+mongo_db = get_database()
