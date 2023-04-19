@@ -1,13 +1,12 @@
 import regex
-from utils import *
-from login import *
-from database.mongodatabase import *
+from .utils import *
+from .login import *
 
 def get_grades(driver):
 
     driver = get_page_grades(driver)
     
-    tabla = driver.find_element(By.XPATH, "//div[@id='pt1:r1:1:i1:0:pbl3']")
+    tabla = driver.find_element(By.CSS_SELECTOR, "span.nota-listado")
     total_rows = len(tabla.find_elements(By.XPATH, ".//span[@class='row af_panelGroupLayout']"))
 
     subject_dic = {}
@@ -19,7 +18,7 @@ def get_grades(driver):
         posible_grade = 0
 
         # My subjects in this semester
-        tabla = driver.find_element(By.XPATH, "//div[@id='pt1:r1:1:i1:0:pbl3']")
+        tabla = driver.find_element(By.CSS_SELECTOR, "span.nota-listado")
         row = tabla.find_elements(By.XPATH, ".//span[@class='row af_panelGroupLayout']")[i_row]
         
         # There are rows in blank, beacuse the try
@@ -119,7 +118,7 @@ def grades(username, data):
     username -> string of the student's username.
     data -> data to be added or updated.
     """
-    mongo_db["grades"]
+    
     query = {"username": username}
     results = mongo_db.grades.count_documents(query)
 
@@ -128,22 +127,6 @@ def grades(username, data):
     else:
         update_grades_user(data, username)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #-----------------------------------------
 def verify_exist(value, row_grade):
     try:
@@ -151,12 +134,4 @@ def verify_exist(value, row_grade):
         return grade_element
     except:
         return False
-    
-payload = {
-            "username": "username", 
-            "password": "pass",
-            "chat_id": "token"
-        }
-logged, driver = auth(payload)
-data = get_grades(driver)
-grades("cpatinore", data)
+

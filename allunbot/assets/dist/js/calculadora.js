@@ -19,7 +19,7 @@ $(document).ready(
 )
 
 async function save_values(id){
-    await get_subjects()
+    //await get_subjects()
     var subject_item = calificaciones[id];
     var nota = 0;
     var porcentaje = 0;
@@ -58,11 +58,11 @@ async function save_values(id){
         nota += parcial;
     });
 
-    if(porcentaje != 100 || porcentaje < 0 ){
+    if(porcentaje != 100){
         Swal.fire({
             icon: 'error',
             title: 'Porcentajes incorrectos',
-            text: 'La suma de los porcentajes ingresados debe ser igual al 100%, por favor corregirlos.'
+            text: `La suma de los porcentajes ingresados debe ser igual al 100%, por favor corregirlos. ${porcentaje}`
         })
     }else if(error["status"]){
         Swal.fire({
@@ -85,24 +85,29 @@ async function save_values(id){
     }   
 }
 
-function calcular_metricas(){
-    var creditos = 0;
-    var ponderado = 0;
-    var suma = 0;
-    var size = 0;
+async function calcular_metricas(){
+    //await get_subjects()
+    initial_metrics = calificaciones["initial_metrics"]
+    var creditos = initial_metrics["creditos"];
+    var ponderado = initial_metrics["ponderado"];
+    var suma = initial_metrics["suma"];
+    var size = initial_metrics["size"];
 
     Object.keys(calificaciones).forEach(key => {
-        var row = calificaciones[key]["data_table"];
-        var credito = parseInt(row[1]);
-        var nota = row[3];
-        console.log(row, credito, nota);
+        if(key != "initial_metrics"){
+            
+            var row = calificaciones[key]["data_table"];
+            var credito = parseInt(row[1]);
+            var nota = row[3];
+            console.log(row, credito, nota);
 
-        if(!isNaN(nota)){
-            nota = parseFloat(nota);
-            ponderado += nota * credito;
-            creditos += credito;
-            suma += nota;
-            size++;
+            if(!isNaN(nota)){
+                nota = parseFloat(nota);
+                ponderado += nota * credito;
+                creditos += credito;
+                suma += nota;
+                size++;
+            }
         }
         
     });
@@ -114,9 +119,14 @@ function calcular_metricas(){
 }
 
 async function get_subjects() {
+    const formData = new FormData();
+    formData.append("token", token);
     await $.ajax({
-        url: "../data_subject",
-        method: "POST",
+        url: "../calculadora",
+        data: formData,
+        type: "POST",
+        processData: false,
+        contentType: false,
         dataType: "json"
       }).done(function(response) {
         calificaciones = response;

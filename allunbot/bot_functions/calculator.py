@@ -1,14 +1,14 @@
 import regex
-from utils import *
+from .utils import *
 
-def get_subjects(driver):
+def get_calculator(driver):
     pag_academic_history = get_page_academic_history(driver)
     page_soup = BeautifulSoup(pag_academic_history, 'html5lib')
-    table = page_soup.find("div", id = "pt1:r1:1:t17::db").find("table")
+    table = page_soup.find("span", {"class":"asignaturas-expediente"}).find("table", {"class": "af_table_data-table"})
     result = process_table_subject(table)
 
-    now_plan = page_soup.find("select", id = "pt1:r1:1:soc1::content").get("title")
-    plans = page_soup.find("select", id = "pt1:r1:1:soc1::content").find_all("option")
+    now_plan = page_soup.find("select", {"class": "af_selectOneChoice_content"}).get("title")
+    plans = page_soup.find("select", {"class": "af_selectOneChoice_content"}).find_all("option")
 
     for plan in plans:
         plan_text = plan.text
@@ -18,62 +18,69 @@ def get_subjects(driver):
             print(plan_text)
             pag_academic_history = get_page_academic_history_by_plan(driver, plan.get("value"))
             page_soup = BeautifulSoup(pag_academic_history, 'html5lib')
-            table = page_soup.find("div", id = "pt1:r1:1:t17::db").find("table")
+            table = page_soup.find("span", {"class":"asignaturas-expediente"}).find("table", {"class": "af_table_data-table"})
             result = process_table_subject(table, result)
 
     return [now_plan[5:]] + result
 
-def create_table_calculator():
-    query = """
-        CREATE TABLE calculator(
-            username TEXT PRIMARY KEY,
-            plan_estudios TEXT NOT NULL, 
-            ponderado NUMBER NOT NULL,
-            creditos NUMBER NOT NULL,
-            suma NUMBER NOT NULL,
-            size NUMBER NOT NULL
-        );
-        """
-    create_table(db,"calculator",query)
+def add_calculator_user(data, username):
+    """Inserts the data scraped to the database.
+
+    Inputs:
+    db -> database connection.
+    data -> data to be inserted.
+    """
+
+    # Get or create collection
+    collection = mongo_db["calculator"]
+
+    # Organize and insert the data
+    document = {
+        'username': username, 
+        'plan_estudios': data[0],
+        'ponderado': data[1],
+        'creditos': data[2],
+        'suma': data[3],
+        'size': data[4]
+    }
+    collection.insert_one(document)
 
 
-def add_calculator_user(data):
-    sql="""
-        INSERT INTO
-            calculator
-            VALUES (?, ?, ?, ?, ?, ?)
-        """
-    insert_values_by_query([data], db, sql)
+def update_calculator_user(data, username):
+    """Updates the academic history for a user.
 
+    Inputs:
+    db -> database connection.
+    data -> data to be updated.
+    """
 
-def update_calculator_user(data):
-    sql="""
-        UPDATE calculator
-            SET
-            plan_estudios = ?,
-            ponderado = ?,
-            fund_op = ?,
-            creditos = ?,
-            suma = ?,
-            size = ?
-            WHERE username = ?
-        """
-    username = data[0]
-    data = data[1:]
-    data.append(username)
-    update_data_query(sql, db, data)
+    collection = mongo_db["grades"]
+
+    query = {"username": username}
+    update = {"$set": {
+        'plan_estudios': data[0],
+        'ponderado': data[1],        
+        'creditos': data[2],
+        'suma': data[3],
+        'size': data[4]
+    }}
+    collection.update_one(query, update)
 
 
 def calculator(username, data):
-    sql = "SELECT * FROM calculator WHERE username = ?;"
-    result = select_data_query(sql, db, [username])
+    """Adds or updates the academic history of a user.
 
-    data = [username] + data
+    Inputs:
+    username -> string of the student's username.
+    data -> data to be added or updated.
+    """
+    query = {"username": username}
+    results = mongo_db.calculator.count_documents(query)
 
-    if len(result) == 0:
-        add_calculator_user(data)
+    if results == 0:
+        add_calculator_user(data, username)
     else:
-        update_calculator_user(data)
+        update_calculator_user(data, username)
 
 #-----------------------------------------
 def process_table_subject(table, values = [0, 0, 0, 0]):

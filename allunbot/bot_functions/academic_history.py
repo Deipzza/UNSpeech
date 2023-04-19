@@ -1,8 +1,7 @@
 import os
 
 import pandas as pd
-from login import *
-from utils import *
+from .utils import *
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 temp = os.path.join(BASE_DIR, 'temp')

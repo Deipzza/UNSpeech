@@ -11,6 +11,7 @@ from bot_functions.academic_history import *
 from bot_functions.metrics import *
 from bot_functions.schedule import *
 from bot_functions.calculator import *
+from bot_functions.grades import *
 from constants import *
 import messages_list as messages
 from utils import *
@@ -300,14 +301,19 @@ def login():
             data = get_academic_history(driver)
             academic_history(username, data)
 
-            data = get_subjects(driver)
-            calculator(username, data)
-            
             data = get_metrics(driver)
             metrics(username, data)
 
+            data = get_calculator(driver)
+            calculator(username, data)
+
+            data = get_grades(driver)
+            grades(username, data)
+
             data = get_schedule(driver)
             schedule(username, data)
+
+            
 
             # Send message of the options to retrieve
             bot.send_message(chat_id, f"Hola, {username}")
@@ -323,77 +329,55 @@ def login():
         
     return render_template('login.html')
 
-@app.route('/calculadora', methods = ['GET', 'POST'])
+@app.route('/calculadora', methods = ['GET'])
 def calculadora():
     """
     """
     
     headers = ["Asignatura", "Créditos", "Tipología", "Calificación", "Acciones"]
+    chat_id = request.args.get('token')
+    if chat_id != None:
+        username = get_user_by_chat(chat_id)
 
-    misCalificaciones = [
-        {
-            "id": "3010440",
-            "data_table": ["Calidad de software", "3", "DISCIPLINAR OBLIGATORIA", "1"],
-            "notas":[["nombre","10","3"], ["nombre2","50","5"]]
-        },
-        {
-            "id": "3010836",
-            "data_table": ["Cátedra de sistemas: una visión histórico-cultural de la computación", "3", "DISCIPLINAR OPTATIVA", "0"],
-            "notas":[["nombre","porcentaje","valor"]]
-        },
-        {
-            "id": "3011019",
-            "data_table": ["Desarrollo web", "3", "DISCIPLINAR OPTATIVA", "5"],
-            "notas":[["nombre","porcentaje","valor"]]
-        },
-        {
-            "id": "3011021",
-            "data_table": ["Programación para ingeniería", "3", "DISCIPLINAR OPTATIVA", "4"],
-            "notas":[["nombre","porcentaje","valor"]]
-        },
-        {
-            "id": "3010439",
-            "data_table": ["Proyecto Integrado de Ingeniería", "3", "DISCIPLINAR OBLIGATORIA", "5"],
-            "notas":[["nombre","porcentaje","valor"]]
-        }
-    ]
-        
-    return render_template('calculadora.html', headers = headers, misCalificaciones = misCalificaciones)
+        projection_grades = {"_id": 0, "data": 1}
+        query = {"username": username}
+        misCalificaciones = mongo_db.grades.find(query, projection_grades)[0]["data"]    
+
+        return render_template('calculadora.html', headers = headers, misCalificaciones = misCalificaciones, token = chat_id)
+    else:
+        return render_template('ERROR_403.html')
 
 
-@app.route('/data_subject', methods = ['POST'])
+@app.route('/calculadora', methods = ['POST'])
 def get_data_subject():
     """
     """
 
-    sql = "SELECT * FROM calculator WHERE username = ?;"
-    result = select_data_query(sql, db, ["cpatinore"])
+    chat_id = request.form['token']
+    if chat_id != None:
+        username = get_user_by_chat(chat_id)
 
-    misCalificaciones = {
-        "3010440": {
-            "data_table": ["Calidad de software", "3", "DISCIPLINAR OBLIGATORIA", "1"],
-            "notas":[["nombre","10","3"], ["nombre2","50","5"]]
-        },
-        "3010836": {
-            "data_table": ["Cátedra de sistemas: una visión histórico-cultural de la computación", "3", "DISCIPLINAR OPTATIVA", "0"],
-            "notas":[["nombre","porcentaje","valor"]]
-        },
-        "3011019": {
-            "data_table": ["Desarrollo web", "3", "DISCIPLINAR OPTATIVA", "5"],
-            "notas":[["nombre","porcentaje","valor"]]
-        },
-        "3011021": {
-            "data_table": ["Programación para ingeniería", "3", "DISCIPLINAR OPTATIVA", "4"],
-            "notas":[["nombre","porcentaje","valor"]]
-        },
-        "3010439": {
-            "data_table": ["Proyecto Integrado de Ingeniería", "3", "DISCIPLINAR OBLIGATORIA", "5"],
-            "notas":[["nombre","porcentaje","valor"]]
-        },
-        "initial": result
-    }
-        
-    return jsonify(misCalificaciones)
+        projection= {"_id": 0, "data": 1}
+        query = {"username": username}
+        myGrades = mongo_db.grades.find(query, projection)[0]["data"]
+
+        projection = {
+            "_id": 0, 
+            'plan_estudios': 1,
+            'ponderado': 1,
+            'fund_op': 1,
+            'creditos': 1,
+            'suma': 1,
+            'size': 1
+        }
+
+        myMetrics = mongo_db.calculator.find(query, projection)[0]
+        myGrades["initial_metrics"] = myMetrics
+
+        return jsonify(myGrades)
+    else:
+        return jsonify({})
+    
 
 if __name__ == "__main__":
     """Main execution of the program"""

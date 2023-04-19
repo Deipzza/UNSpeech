@@ -4,7 +4,8 @@ import prettytable as pt
 from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
 
-from database.manage_database import *
+from .database.manage_database import *
+from .database.mongodatabase import *
 
 def get_page_academic_history(driver=None):
     if driver != None:
@@ -53,7 +54,7 @@ def get_page_academic_history_by_plan(driver, id):
     if driver != None:
 
         td = driver.find_element(By.XPATH, value="//td[@class='AFContentCell']") 
-        select = driver.find_element(By.XPATH, value=".//select[@id='pt1:r1:1:soc1::content']") 
+        select = driver.find_element(By.XPATH, value=".//select[@class='af_selectOneChoice_content']") 
         option = driver.find_element(By.XPATH, value=f".//option[@value={id}]")
         option.click()
         time.sleep(5)
