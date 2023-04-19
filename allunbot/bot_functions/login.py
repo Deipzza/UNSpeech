@@ -5,7 +5,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 
-from .database.manage_database import *
+from database.manage_database import *
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 db = os.path.join(BASE_DIR, 'allunbot.db')
@@ -15,7 +15,7 @@ def auth(payload) -> webdriver.Chrome:
     """
     chat_id = payload["chat_id"]
     options = ChromeOptions()
-    options.add_argument("--headless")
+    # options.add_argument("--headless")
     driver = webdriver.Chrome(options=options)
     driver.get("https://sia.unal.edu.co/ServiciosApp")
 

@@ -299,6 +299,9 @@ def login():
         if logged: # If the login is successful, load the student data
             data = get_academic_history(driver)
             academic_history(username, data)
+
+            data = get_subjects(driver)
+            calculator(username, data)
             
             data = get_metrics(driver)
             metrics(username, data)
@@ -326,14 +329,6 @@ def calculadora():
     """
     
     headers = ["Asignatura", "Créditos", "Tipología", "Calificación", "Acciones"]
-    data = [
-        ["INGLÉS I (1000044-M)", "3", "NIVELACIÓN", "2018-1S", "APROBADA"],
-        ["INGLÉS II (1000045-M)", "3", "NIVELACIÓN", "2018-1S", "APROBADA"],
-        ["Cátedra Ingenierías Facultad de Minas (3009511)", "2", "LIBRE ELECCIÓN", "2018-1S", "APROBADA"],
-        ["Cátedra Nacional de Inducción y Preparación para", "2", "LIBRE ELECCIÓN", "2018-1S", "4.5"],
-        ["GEOMETRÍA VECTORIAL Y ANALÍTICA (1000008-M)", "4", "FUND. OBLIGATORIA", "2018-1S", "3.5"],
-        ["FUNDAMENTOS DE PROGRAMACIÓN (3007742)", "3", "FUND. OBLIGATORIA", "2018-1S", "4.7"],
-    ]
 
     misCalificaciones = [
         {
@@ -371,6 +366,9 @@ def get_data_subject():
     """
     """
 
+    sql = "SELECT * FROM calculator WHERE username = ?;"
+    result = select_data_query(sql, db, ["cpatinore"])
+
     misCalificaciones = {
         "3010440": {
             "data_table": ["Calidad de software", "3", "DISCIPLINAR OBLIGATORIA", "1"],
@@ -391,7 +389,8 @@ def get_data_subject():
         "3010439": {
             "data_table": ["Proyecto Integrado de Ingeniería", "3", "DISCIPLINAR OBLIGATORIA", "5"],
             "notas":[["nombre","porcentaje","valor"]]
-        }
+        },
+        "initial": result
     }
         
     return jsonify(misCalificaciones)

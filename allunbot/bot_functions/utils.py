@@ -4,7 +4,7 @@ import prettytable as pt
 from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
 
-from .database.manage_database import *
+from database.manage_database import *
 
 def get_page_academic_history(driver=None):
     if driver != None:
@@ -48,3 +48,27 @@ def get_page_schedule(driver):
     #     file.write(pag_schedule)
 
     return driver
+
+def get_page_academic_history_by_plan(driver, id):
+    if driver != None:
+
+        td = driver.find_element(By.XPATH, value="//td[@class='AFContentCell']") 
+        select = driver.find_element(By.XPATH, value=".//select[@id='pt1:r1:1:soc1::content']") 
+        option = driver.find_element(By.XPATH, value=f".//option[@value={id}]")
+        option.click()
+        time.sleep(5)
+
+        pag_academic_history = driver.page_source
+        with open("page_source.html","w") as file:
+            file.write(pag_academic_history)
+    else:
+        pag_academic_history = open("page_source.html","r")
+
+    return pag_academic_history
+
+def isfloat(value):
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False

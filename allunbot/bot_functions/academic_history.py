@@ -1,8 +1,8 @@
 import os
 
 import pandas as pd
-
-from .utils import *
+from login import *
+from utils import *
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 temp = os.path.join(BASE_DIR, 'temp')
@@ -16,7 +16,6 @@ def get_academic_history(driver=None):
     table = page_soup.find("div", id = "pt1:r1:1:t10::db").find("table")
     result = process_table(table)
     return result
-
 
 def create_table_academic_history():
     query = """
@@ -84,7 +83,6 @@ def academic_history(username, data):
         add_academic_history_user(data)
     else:
         update_academic_history_user(data)
-
 
 def generete_academic_history_user(username):
     sql = "SELECT * FROM academic_history WHERE username = ?"
@@ -172,6 +170,7 @@ def process_table(table):
             result.append(data_row)
 
     return result
+
 
 # generate_academic_history_img("cpatinore")
 # create_table_academic_history()
