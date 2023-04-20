@@ -1,14 +1,15 @@
 import os
 
+from flask import Flask, jsonify, render_template, request
 import telebot
-from flask import Flask, request, session
-from flask import render_template
 
-from bot_functions.university_calendar import *
-from bot_functions.login import *
 from bot_functions.academic_history import *
+from bot_functions.calculator import *
+from bot_functions.grades import *
+from bot_functions.login import *
 from bot_functions.metrics import *
 from bot_functions.schedule import *
+from bot_functions.university_calendar import *
 from constants import *
 import messages_list as messages
 from utils import *
@@ -104,13 +105,15 @@ def initial_sia(message):
     """
 
     username = get_user_by_chat(message.chat.id) # Retrieves the user
+    print("username: ", username)
     
     if username == "": # If it's not in the DB, authenticate it
         auth_user(message, bot)
     else: # If it's already in the DB, return the interactive menu
         menu = [
             {"name": "Mi historia académica", "value": "sia_academic_history"},
-            {"name": "Mi Horario", "value": "sia_schedule"}
+            {"name": "Mi Horario", "value": "sia_schedule"},
+            {"name": "Calculadora de notas", "value": "sia_calculator_grades"},
         ]
         bot.send_message(message.chat.id,
                         "¿Qué deseas consultar?",
@@ -118,7 +121,7 @@ def initial_sia(message):
 
 
 @bot.message_handler(commands = ["directorio"])
-def requests_directorio(message):
+def requests_directory(message):
     """Request directory message handler.
     
     Returns a message for the user to search for the directory.
@@ -129,7 +132,7 @@ def requests_directorio(message):
 
     text = messages.search_directory
     sent_msg = bot.send_message(message.chat.id, text, parse_mode="Markdown")
-    bot.register_next_step_handler(sent_msg, requests_directorio_handler, bot)
+    bot.register_next_step_handler(sent_msg, requests_directory_handler, bot)
 
 
 @bot.message_handler(commands = ["buscar_grupos"])
@@ -191,10 +194,11 @@ def callback_query(call):
     call -> string with the user's chat and message information.
     """
 
+    student = call.data[3:]
     bot.answer_callback_query(call.id, messages.time_out)  
-    calendar = generate_academic_calendar(call.data[3:])
+    calendar = generate_academic_calendar(student)
     bot.send_message(call.message.chat.id,
-                     f"*Calendario académico.*\n{calendar}",
+                     f"*Calendario académico de {student}.*\n{calendar}",
                      parse_mode = "Markdown")
 
 # Interactive messages for requests calendar handler
@@ -206,10 +210,11 @@ def callback_query(call):
     call -> string with the user's chat and message information.
     """
 
+    student = call.data[3:]
     bot.answer_callback_query(call.id, messages.time_out)
-    calendar = generate_request_calendar(call.data[3:])
+    calendar = generate_request_calendar(student)
     bot.send_message(call.message.chat.id,
-                    f"*Calendario de solicitudes.*\n{calendar}",
+                    f"*Calendario de solicitudes {student}.*\n{calendar}",
                     parse_mode = "Markdown")
 
 # Interactive messages for the academic information handler
@@ -231,7 +236,6 @@ def callback_login(call):
             if "sentimos" not in filename:
                 photo = open(filename, 'rb')
                 bot.send_photo(call.message.chat.id, photo)
-                # os.remove(filename)
             else:
                 bot.send_message(call.message.chat.id,
                                 filename,
@@ -242,6 +246,13 @@ def callback_login(call):
             bot.send_message(call.message.chat.id,
                             f'{schedule}',
                             parse_mode = "Markdown")
+        elif call.data == "sia_calculator_grades":
+            text = f"""
+Para poder utilizar la calculadora de notas necesitamos que ingreses al link:
+http://localhost:10000/calculadora?token={call.message.chat.id}
+Recuerda NO compartir este enlace ya que cualquiera podrá tener acceso a tu información.
+"""
+            bot.send_message(call.message.chat.id, text, parse_mode = "Markdown")
     else:
         text = messages.not_registered
         bot.send_message(call.message.chat.id, text, parse_mode = "Markdown")
@@ -265,13 +276,6 @@ def index():
     """Return the index page of the bot."""
 
     return render_template('index.html')
-
-
-@app.route('/actualizar', methods = ['GET', 'POST'])
-def update():
-    """Returns the update (login) page."""
-
-    return login()
 
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
@@ -301,14 +305,30 @@ def login():
             data = get_metrics(driver)
             metrics(username, data)
 
+            data = get_calculator(driver)
+            calculator(username, data)
+
+            data = get_grades(driver)
+            grades(username, data)
+
             data = get_schedule(driver)
             schedule(username, data)
 
             # Send message of the options to retrieve
             bot.send_message(chat_id, f"Hola, {username}")
             menu = [
-                {"name": "Mi historia académica","value": "sia_academic_history"},
-                {"name": "Mi Horario", "value": "sia_schedule"}
+                {
+                    "name": "Mi historia académica",
+                    "value": "sia_academic_history"
+                },
+                {
+                    "name": "Mi Horario",
+                    "value": "sia_schedule"
+                },
+                {
+                    "name": "Calculadora de notas",
+                    "value": "sia_calculator_grades"
+                }
             ]
             bot.send_message(chat_id,
                             "¿Qué deseas consultar?",
@@ -318,7 +338,68 @@ def login():
         
     return render_template('login.html')
 
+@app.route('/actualizar', methods = ['GET', 'POST'])
+def update():
+    """Returns the update (login) page."""
+
+    return login()
+
+@app.route('/calculadora', methods = ['GET'])
+def calculadora():
+    """
+    """
+    
+    headers = ["Asignatura", "Créditos", "Tipología", "Calificación", "Acciones"]
+    chat_id = request.args.get('token')
+    if chat_id != None:
+        username = get_user_by_chat(chat_id)
+
+        projection_grades = {"_id": 0, "data": 1}
+        query = {"username": username}
+        my_grades = mongo_db.grades.find(query,
+                                                 projection_grades)[0]["data"]    
+
+        return render_template('calculadora.html',
+                               headers = headers,
+                               my_grades = my_grades,
+                               token = chat_id)
+    else:
+        return render_template('error_404.html')
+
+
+@app.route('/calculadora', methods = ['POST'])
+def get_data_subject():
+    """
+    """
+
+    chat_id = request.form['token']
+    if chat_id != None:
+        username = get_user_by_chat(chat_id)
+
+        projection= {"_id": 0, "data": 1}
+        query = {"username": username}
+        myGrades = mongo_db.grades.find(query, projection)[0]["data"]
+
+        projection = {
+            "_id": 0, 
+            "username": 1,
+            'plan_estudios': 1,
+            'ponderado': 1,
+            'fund_op': 1,
+            'creditos': 1,
+            'suma': 1,
+            'size': 1
+        }
+
+        myMetrics = mongo_db.calculator.find(query, projection)[0]
+        myGrades["initial_metrics"] = myMetrics
+
+        return jsonify(myGrades)
+    else:
+        return jsonify({})
+
 if __name__ == "__main__":
     """Main execution of the program"""
 
+    app.debug = True # Hot reloading
     app.run(port = int(os.environ.get('PORT', 10000))) # Server execution port

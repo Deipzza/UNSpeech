@@ -1,9 +1,7 @@
 from .database.mongodatabase import *
 
-mongo_db = get_database()
-
 def insert_values_into_groups(subject_code, subject_name, link):
-    collection = mongo_db["grupos"]
+    collection = mongo_db["groups"]
 
     item = {
         "codigo": subject_code,
@@ -30,15 +28,15 @@ def select_query_groups(subject_code):
     }
 
     # Run query
-    results = mongo_db.grupos.find(query, projection)
+    results = mongo_db.groups.find(query, projection)
 
-    if mongo_db.grupos.count_documents(query) < 1:
+    if mongo_db.groups.count_documents(query) < 1:
         return "Lo siento, no he encontrado registros que coincidan."
     
     for row in results:
         response += f"Código de la asignatura: {row['codigo']}\n"
         response += f"Nombre del grupo: {row['nombre']}\n"
-        response += f"Enlace de Telegram del grupo: {row['enlace']}\n"
+        response += f"Enlace de del grupo: {row['enlace']}\n"
         response += "----------------------------------\n"
 
     return response

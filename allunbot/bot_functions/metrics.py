@@ -1,20 +1,28 @@
-import os
-
+from .database.mongodatabase import *
 from .utils import *
 
-db = 'allunbot.db'
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-temp = os.path.join(BASE_DIR, 'bot_functions/temp')
+def get_metrics(driver = None):
+    """Retrieves the academic metrics for the user.
 
-def get_metrics(driver=None):
+    Inputs:
+    driver -> Selenium driver object.
+
+    Returns:
+    list with the metrics.
+    """
+
     pag_academic_history = get_page_academic_history(driver)
     page_soup = BeautifulSoup(pag_academic_history, 'html5lib')
-    metrics = page_soup.find("span",{"class":"promedios"}).find_all("span",{"class":"promedio-general"})
+    metrics = page_soup.find(
+        "span", {"class": "promedios"}
+    ).find_all(
+        "span", {"class": "promedio-general"}
+    )
 
-    result = ["","", ""]
+    result = ["", "", ""]
     for metric in metrics:
-        tipo = metric.find("span", {"class":"promedios-texto"}).text
-        valor = metric.find("span", {"class":"promedios-valor"}).text
+        tipo = metric.find("span", {"class": "promedios-texto"}).text
+        valor = metric.find("span", {"class": "promedios-valor"}).text
 
         if "P.A.P.A" in tipo:
             result[0] = valor
@@ -24,69 +32,59 @@ def get_metrics(driver=None):
         
     return result
 
-
-
-def create_table_metrics():
-    query = """
-        CREATE TABLE metrics(
-            username TEXT PRIMARY KEY, 
-            papa TEXT NOT NULL,
-            promedio TEXT NOT NULL,
-            avance TEXT NOT NULL
-        );
-        """
-    create_table(db,"metrics",query)
-
-
-def add_metrics_user(data):
-    sql="""
-        INSERT INTO
-            metrics
-            VALUES (?, ?, ?, ?)
-        """
-    insert_values_by_query([data], db, sql)
-
-
-def update_metrics_user(data):
-    sql="""
-        UPDATE metrics
-            SET
-            papa = ?,
-            promedio = ?,
-            avance = ?
-            WHERE username = ?
-        """
-    
-    username = data[0]
-    data = data[1:]
-    data.append(username)
-    update_data_query(sql, db, data)
-
-
 def metrics(username, data):
-    sql = "SELECT * FROM metrics WHERE username = ?;"
-    result = select_data_query(sql, db, [username])
+    """Adds or updates the metrics of a user.
 
-    if len(result) == 0:
-        data = [username] + data
+    Inputs:
+    username -> string of the student's username.
+    data -> data to be added or updated.
+    """
+
+    query = {"username": username}
+    results = mongo_db.metrics.count_documents(query)
+    data = [username] + data
+
+    # Verify if there's data already in the database.
+    if results == 0: # If there's no data, add it.
         add_metrics_user(data)
-    else:
-        data = data + [username]
+    else: # If there's data, update it.
         update_metrics_user(data)
 
 
-def generate_metrics_user(username):
-    sql = "SELECT * FROM metrics WHERE username = ?"
-    result = select_data_query(sql, db, [username])
+def add_metrics_user(data):
+    """Inserts the data scraped to the database.
 
-    if len(result) == 0:
-        return False
-    else:
-        table = pt.PrettyTable(['P.A.P.A', 'Promedio'])
-        data = [result[0][1:]]
-        table.add_rows(data)
-    
-    return table
+    Inputs:
+    data -> data to be inserted.
+    """
 
+    # Get or create collection
+    collection = mongo_db["metrics"]
 
-# create_table_metrics()
+    # Organize and insert the data
+    document = {
+        "username": data[0],
+        "papa": data[1],
+        "promedio": data[2],
+        "avance": data[3],
+    }
+    collection.insert_one(document)
+
+def update_metrics_user(data):
+    """Updates the metrics for a user.
+
+    Inputs:
+    data -> data to be updated.
+    """
+
+    collection = mongo_db["metrics"]
+    username = data[0]
+    data = data[1:]
+
+    query = {"username": username}
+    update = {"$set": {
+        "papa": data[0],
+        "promedio": data[1],
+        "avance": data[2],
+    }}
+    collection.update_one(query, update)

@@ -1,11 +1,8 @@
 import requests
-from bs4 import BeautifulSoup
-from .database.manage_database import *
-from .database.mongodatabase import *
 
-# Database
-db = 'allunbot.db'
-# mongo_db = get_database()
+from bs4 import BeautifulSoup
+
+from .database.mongodatabase import *
 
 def get_academic_calendar(student):
     """Scraps the academic calendar for the type of student received.
@@ -16,8 +13,6 @@ def get_academic_calendar(student):
     Returns:
     Information formated.
     """
-
-    print("Started retrieving data") # Log print
 
     # Start connection to URL
     URL = "https://minas.medellin.unal.edu.co/tramitesestudiantiles/calendarios/calendario-academico-sede-medellin.html"
@@ -30,43 +25,33 @@ def get_academic_calendar(student):
     for collapse in collapses:
         try:
             anchor = collapse.find("a").text
-            # print("1", anchor)
-            if (("CALENDARIO ACADÉMICO 2023-1S" in anchor) and (f"{student.upper()}" in anchor)):
+            if (
+                ("CALENDARIO ACADÉMICO 2023-1S" in anchor)
+                and (f"{student.upper()}" in anchor)
+            ):
                 URL = collapse.find("div").find("a")["href"]
-                # print(2, URL)
                 page_request = requests.get(URL)
                 soup = BeautifulSoup(page_request.content, 'html5lib')
                 scrapTable = True
 
                 if ("MODIFICACIÓN" in anchor):
-                    # print(3)
                     scrapTable = False
                     modif = soup.find_all("span")
 
                     for span in modif:
-                        # print(4)
                         if ("calendario del periodo académico 2023-1S" in span.text):
-                            # print(5)
                             scrapTable = True
                             break
 
                 if (scrapTable):
-                    # print(6)
                     table = soup.find_all("table", attrs = {"class": "MsoNormalTable"})
-                    # print("aaa")
-                    # result = process_table(table[0], [0, 1], student)
-                    result = process_table("a", "b", "c")
-                    # print("result", result)
-                    return result
+                    result = process_calendar_table(table[0], [0, 1], student)
+                    
+                    insert_values(result, "academic_calendar")
         except:
-            # print(7)
             pass
 
-    # print("Finalized retrieving data") # Log print
-    # print(result)
     return result
-
-# get_academic_calendar("pregrado")
 
 def get_request_calendar(student):
     """Scraps the request calendar for the type of student received.
@@ -77,8 +62,6 @@ def get_request_calendar(student):
     Returns:
     Information formated.
     """
-
-    # print("Started retrieving data") # Log print
 
     # Start connection to URL
     URL = "https://minas.medellin.unal.edu.co/tramitesestudiantiles/calendarios/calendario-academico-sede-medellin.html"
@@ -96,26 +79,24 @@ def get_request_calendar(student):
                 page_request = requests.get(URL)
                 soup = BeautifulSoup(page_request.content, 'html5lib')
                 table = soup.find_all("table", attrs = {"class": "MsoNormalTable"})
-                result = process_table(table[1], [1, 2], student)
+                result = process_calendar_table(table[1], [1, 2], student)
 
-                return result
+                insert_values(result, "request_calendar")
         except:
             pass
 
-    # print("Finalized retrieving data") # Log print
-    
     return result
-    # insert_values(mongo_db, result)
 
-def insert_values(db, data):
+def insert_values(data, collection_name):
     """Inserts the info into the database.
 
     Inputs:
     db -> database.
     data -> information to get inserted.
     """
+
     # Get or create collection
-    collection = db["calendario_academico"]
+    collection = mongo_db[collection_name]
 
     # Organize and insert the data
     for sublist in data:
@@ -127,89 +108,44 @@ def insert_values(db, data):
         }
         collection.insert_one(document)
 
-    print("Finalized inserting data") # Log print
-
 def update_academic_calendar():
     """Updates the academic calendar in case it changed."""
 
-    # Creation query
-    query = """
-            CREATE TABLE academic_calendar(
-                id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                indice INTEGER NOT NULL,
-                actividad TEXT NOT NULL,
-                fecha TEXT(20) NOT NULL,
-                tipo_estudiante TEXT(20) NOT NULL
-            );
-            """
-    create_table(db, "academic_calendar", query)
-
+    reset_collection("academic_calendar")
     students = ["pregrado", "posgrado"]
 
     for student in students:
-        insert_data = get_academic_calendar(student)
-        sql = """
-            INSERT INTO
-                academic_calendar(indice, actividad, fecha, tipo_estudiante)
-                VALUES (?, ?, ?, ?)
-            """
-        insert_values_by_query(insert_data, db, sql)
-
-# def update_academic_calendar():
-#     """Updates the academic calendar in case it changed."""
-#     reset_collection(mongo_db, "calendario_academico")
-
-#     students = ["pregrado","posgrado"]
-
-#     for student in students:
-#         get_academic_calendar(student)
+        get_academic_calendar(student)
 
 def update_request_calendar():
-    """Updates the request calendar in case it changed."""
+    """Updates the requests calendar in case it changed."""
 
-    # Creation query
-    query = """
-            CREATE TABLE request_calendar(
-                id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                indice INTEGER NOT NULL,
-                actividad TEXT NOT NULL,
-                fecha TEXT(20) NOT NULL,
-                tipo_estudiante TEXT(20) NOT NULL
-            );
-            """
-    create_table(db, "request_calendar", query)
-
+    reset_collection("request_calendar")
     students = ["pregrado", "posgrado"]
 
     for student in students:
-        insert_data = get_request_calendar(student)
-        sql="""
-            INSERT INTO
-                request_calendar(indice, actividad, fecha, tipo_estudiante)
-                VALUES (?, ?, ?, ?)
-            """
-        insert_values_by_query(insert_data, db, sql)
+        get_request_calendar(student)
 
-def process_table(table, positions, student):
-    """Formats the tables for a better handling.
+def process_calendar_table(table, positions, student):
+    """Formats the tables for better handling.
 
     Inputs:
     table -> information to be formated.
     positions -> 
     student -> type of student.
+
+    Returns:
+    formated table
     """
 
-    # print(8)
     content = table.find("tbody")
     result = []
     count = 0
 
     for row in content.find_all("tr"):
-        print(9)
         cells = row.findAll("td")
 
         if len(cells) > 2:
-            print(10)
             activity = cells[positions[0]].find("p").text
             date = cells[positions[1]].find("p").text
 
@@ -230,17 +166,20 @@ def generate_academic_calendar(student):
     """
 
     # Query for getting the data
-    sql = """
-            SELECT * 
-            FROM academic_calendar
-            WHERE tipo_estudiante = ?
-          """
-    response = select_data_query(sql, db, (student,))
+    query = {"tipo_estudiante": student}
+    # Select which fields to retrieve from the query
+    projection = {
+        "_id": 0, 
+        "indice": 1,
+        "actividad": 1,
+        "fecha": 1,
+    }
+    response = mongo_db.academic_calendar.find(query, projection)
     message = ""
     
     # Formatting the data retrieved
     for item in response:
-        message += f"{item[1]} | {item[2]} | {item[3]}.\n\n"
+        message += f"{item['indice']} | {item['actividad']} | {item['fecha']}.\n\n"
 
     return message
 
@@ -255,19 +194,22 @@ def generate_request_calendar(student):
     """
 
     # Query for getting the data
-    sql = """
-            SELECT * 
-            FROM request_calendar
-            WHERE tipo_estudiante = ?
-          """
-    response = select_data_query(sql, db, (student,))
+    query = {"tipo_estudiante": student}
+    # Select which fields to retrieve from the query
+    projection = {
+        "_id": 0, 
+        "indice": 1,
+        "actividad": 1,
+        "fecha": 1,
+    }
+    response = mongo_db.request_calendar.find(query, projection)
     message = ""
     
     # Formatting the data retrieved
     for item in response:
-        if len(item[3]) < 5:
-            message += f"**{item[1]}. {item[2]}** \n\n"    
+        if len(item["fecha"]) < 5:
+            message += f"**{item['indice']}. {item['actividad']}** \n\n"    
             continue
-        message += f"{item[1]} | {item[2]} | {item[3]}.\n\n"
+        message += f"{item['indice']} | {item['actividad']} | {item['fecha']}.\n\n"
 
     return message

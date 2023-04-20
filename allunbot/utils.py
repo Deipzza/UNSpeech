@@ -12,9 +12,9 @@ def gen_markup(menu):
 
   return markup
 
-def requests_directorio_handler(message, bot):
+def requests_directory_handler(message, bot):
     metadata = message.text.split()
-    response = select_query_directorio(metadata)
+    response = select_query_directory(metadata)
     
     if len(response) > 4095:
         for part in range(0, len(response), 4095):

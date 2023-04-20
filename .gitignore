@@ -99,3 +99,6 @@ instance/
 
 # Ngrok
 ngrok.exe
+
+# Pictures
+temp/
