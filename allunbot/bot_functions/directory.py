@@ -1,42 +1,37 @@
 import requests
-from bs4 import BeautifulSoup
-from .database.mongodatabase import *
 
-mongo_db = get_database()
+from bs4 import BeautifulSoup
+
+from .database.mongodatabase import *
 
 def get_directory():
     insert_data, position = [], 2
     base = "https://medellin.unal.edu.co/directoriotelefonico.html"
-    URL=base
-    
-    # print("Started retrieving data") # Log print
+    URL = base
 
     while(True):
         page_request = requests.get(URL)
         soup = BeautifulSoup(page_request.content, 'html5lib')
-        rows = soup.find_all("tr", attrs={"class": "fabrik_row"})
+        rows = soup.find_all("tr", attrs = {"class": "fabrik_row"})
 
         insert_data += select_data_scrap(rows)
         
         try:
             URL = base + soup.find("a", {"title": position})["href"]
         except TypeError:
-            # print("No hay más registros") # Log print
             break
 
         position += 1
-    
-    # print("Finalized retrieving data") # Log print
 
-    insert_values(mongo_db, insert_data)
+    insert_values(insert_data)
 
 def update_directory():
-    reset_collection(mongo_db, "directorio")
+    reset_collection("directory")
     get_directory()
 
-def insert_values(db, data):
+def insert_values(data):
     # Get or create collection
-    collection = db["directorio"]
+    collection = mongo_db["directory"]
 
     # Organize and insert the data
     for sublist in data:
@@ -50,8 +45,6 @@ def insert_values(db, data):
         }
         collection.insert_one(document)
 
-    print("Finalized inserting data")
-
 def select_data_scrap(rows):
     data=[]
 
@@ -61,7 +54,7 @@ def select_data_scrap(rows):
         data.append(cells)
     return data
 
-def select_query_directorio(metadata):
+def select_query_directory(metadata):
     response = ""
 
     # Create query for the search
@@ -84,9 +77,9 @@ def select_query_directorio(metadata):
     }
 
     # Run query
-    results = mongo_db.directorio.find(query, projection)
+    results = mongo_db.directory.find(query, projection)
 
-    if mongo_db.directorio.count_documents(query) < 1:
+    if mongo_db.directory.count_documents(query) < 1:
         return "Lo siento, no he encontrado registros que coincidan."
     
     # Format the results

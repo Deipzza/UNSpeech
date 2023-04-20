@@ -1,15 +1,13 @@
 import os
 
 import telebot
-from flask import Flask, request, session
+from flask import Flask, request
 from flask import render_template
 
 from bot_functions.university_calendar import *
 from bot_functions.login import *
-# from bot_functions.academic_history import *
-from bot_functions.academic_history_mongo import *
-# from bot_functions.metrics import *
-from bot_functions.metrics_mongo import *
+from bot_functions.academic_history import *
+from bot_functions.metrics import *
 from bot_functions.schedule import *
 from constants import *
 import messages_list as messages
@@ -106,6 +104,7 @@ def initial_sia(message):
     """
 
     username = get_user_by_chat(message.chat.id) # Retrieves the user
+    print("username: ", username)
     
     if username == "": # If it's not in the DB, authenticate it
         auth_user(message, bot)
@@ -120,7 +119,7 @@ def initial_sia(message):
 
 
 @bot.message_handler(commands = ["directorio"])
-def requests_directorio(message):
+def requests_directory(message):
     """Request directory message handler.
     
     Returns a message for the user to search for the directory.
@@ -131,7 +130,7 @@ def requests_directorio(message):
 
     text = messages.search_directory
     sent_msg = bot.send_message(message.chat.id, text, parse_mode="Markdown")
-    bot.register_next_step_handler(sent_msg, requests_directorio_handler, bot)
+    bot.register_next_step_handler(sent_msg, requests_directory_handler, bot)
 
 
 @bot.message_handler(commands = ["buscar_grupos"])
@@ -193,10 +192,11 @@ def callback_query(call):
     call -> string with the user's chat and message information.
     """
 
+    student = call.data[3:]
     bot.answer_callback_query(call.id, messages.time_out)  
-    calendar = generate_academic_calendar(call.data[3:])
+    calendar = generate_academic_calendar(student)
     bot.send_message(call.message.chat.id,
-                     f"*Calendario académico.*\n{calendar}",
+                     f"*Calendario académico {student}.*\n{calendar}",
                      parse_mode = "Markdown")
 
 # Interactive messages for requests calendar handler
@@ -208,10 +208,11 @@ def callback_query(call):
     call -> string with the user's chat and message information.
     """
 
+    student = call.data[3:]
     bot.answer_callback_query(call.id, messages.time_out)
-    calendar = generate_request_calendar(call.data[3:])
+    calendar = generate_request_calendar(student)
     bot.send_message(call.message.chat.id,
-                    f"*Calendario de solicitudes.*\n{calendar}",
+                    f"*Calendario de solicitudes {student}.*\n{calendar}",
                     parse_mode = "Markdown")
 
 # Interactive messages for the academic information handler

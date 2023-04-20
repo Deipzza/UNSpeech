@@ -1,74 +1,41 @@
-import os
-
+from bs4 import BeautifulSoup
 import pandas as pd
 
+from .database.mongodatabase import *
 from .utils import *
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-temp = os.path.join(BASE_DIR, 'temp')
+def get_academic_history(driver = None):
+    """Scraps the student's academic history.
+    
+    Inputs:
+    driver -> Selenium driver object
 
-if not os.path.exists(temp): # Create the directory if it doesn't exist
-    os.makedirs(temp)
+    Returns -> list of rows scraped.
+    """
 
-def get_academic_history(driver=None):
+    insert_data = []
+    
+    # print("Started retrieving data") # Log print
+
     pag_academic_history = get_page_academic_history(driver)
     page_soup = BeautifulSoup(pag_academic_history, 'html5lib')
-    table = page_soup.find("div", id = "pt1:r1:1:t10::db").find("table")
-    result = process_table(table)
-    return result
+    rows = page_soup.find("div", id = "pt1:r1:1:t10::db").find("table").find("tbody").find_all("tr")
+    insert_data += select_data_scrap(rows)
 
+    # print("Finalized retrieving data") # Log print
 
-def create_table_academic_history():
-    query = """
-        CREATE TABLE academic_history(
-            username TEXT PRIMARY KEY, 
-            disc_op TEXT NOT NULL,
-            fund_ob TEXT NOT NULL,
-            fund_op TEXT NOT NULL,
-            dis_ob TEXT NOT NULL,
-            libre_eleccion TEXT NOT NULL,
-            trabajo_grado TEXT NOT NULL,
-            total TEXT NOT NULL,
-            nivelacion TEXT NOT NULL,
-            total_estudiante TEXT NOT NULL
-        );
-        """
-    create_table(db,"academic_history",query)
-
-
-def add_academic_history_user(data):
-    sql="""
-        INSERT INTO
-            academic_history
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """
-    insert_values_by_query([data], db, sql)
-
-
-def update_academic_history_user(data):
-    sql="""
-        UPDATE academic_history
-            SET
-            disc_op = ?,
-            fund_ob = ?,
-            fund_op = ?,
-            dis_ob = ?,
-            libre_eleccion = ?,
-            trabajo_grado = ?,
-            total = ?,
-            nivelacion = ?,
-            total_estudiante = ?
-            WHERE username = ?
-        """
-    username = data[0]
-    data = data[1:]
-    data.append(username)
-    update_data_query(sql, db, data)
-
+    return insert_data
 
 def academic_history(username, data):
-    sql = "SELECT * FROM academic_history WHERE username = ?;"
-    result = select_data_query(sql, db, [username])
+    """Adds or updates the academic history of a user.
+
+    Inputs:
+    username -> string of the student's username.
+    data -> data to be added or updated.
+    """
+
+    query = {"username": username}
+    results = mongo_db.academic_history.count_documents(query)
     
     data = pd.DataFrame(data)
     data = data.transpose()
@@ -80,66 +47,157 @@ def academic_history(username, data):
         "-".join(data[7]), "-".join(data[8])
     ]
 
-    if len(result) == 0:
-        add_academic_history_user(data)
+    if results < 1:
+        add_academic_history_user(mongo_db, data)
     else:
-        update_academic_history_user(data)
+        update_academic_history_user(mongo_db, data)
 
+def add_academic_history_user(db, data):
+    """Inserts the data scraped to the database.
 
-# def generete_academic_history_user(username):
-#     sql = "SELECT * FROM academic_history WHERE username = ?"
-#     result = select_data_query(sql, db, [username])
+    Inputs:
+    db -> database connection.
+    data -> data to be inserted.
+    """
 
-#     if len(result) == 0:
-#         return False
-#     else:
-#         table = pt.PrettyTable(['','Exigidos', 'Aprobados', 'Pendientes', 'Inscritos', 'cursados'])
-#         data = [item.split("-") for item in result[0][1:]]
-#         table.add_rows(data)
-    
-#     return table
+    # print("Started inserting academic history data") # Log print
+
+    # Get or create collection
+    collection = db["academic_history"]
+
+    # Organize and insert the data
+    document = {
+        'username': data[0], 
+        'disc_op': data[1], 
+        'fund_ob': data[2], 
+        'fund_op': data[3],
+        'dis_ob': data[4],
+        'libre_eleccion': data[5],
+        'trabajo_grado': data[6],
+        'total': data[7],
+        'nivelacion': data[8],
+        'total_estudiante': data[9],
+    }
+    collection.insert_one(document)
+
+    # print("Finalized inserting academic history data") # Log print
+
+def update_academic_history_user(db, data):
+    """Updates the academic history for a user.
+
+    Inputs:
+    db -> database connection.
+    data -> data to be updated.
+    """
+
+    # print("Started updating academic history data") # Log print
+
+    collection = db["academic_history"]
+    username = data[0]
+    data = data[1:]
+
+    query = {"username": username}
+    update = {"$set": {
+        'disc_op': data[0], 
+        'fund_ob': data[1], 
+        'fund_op': data[2],
+        'dis_ob': data[3],
+        'libre_eleccion': data[4],
+        'trabajo_grado': data[5],
+        'total': data[6],
+        'nivelacion': data[7],
+        'total_estudiante': data[8],
+    }}
+    collection.update_one(query, update)
+
+    # print("Finalized updating academic history data") # Log print
+
+def select_data_scrap(rows):
+    """Organizes the scraped data to be inserted.
+
+    Inputs:
+    rows -> list of table rows retrieved from the web page.
+
+    Returns -> list of formated data
+    """
+
+    data = []
+
+    for row in rows:
+        cells = row.findAll("td")
+        cells = list(map(lambda x: x.text.strip(), cells))
+        data.append(cells)
+    return data
 
 def generate_academic_history_img(username):
+    """Generates an image with the user's academic history.
+
+    Inputs:
+    username -> student's username.
+
+    Returns:
+    string of the image filename.
+    """
+
     import matplotlib.pyplot as plt
     
     rows = 2
-    sql = "SELECT * FROM academic_history WHERE username = ?"
-    academic_history = select_data_query(sql, db, [username])
+    projection_academic_history = {
+        "_id": 0, 
+        "disc_op": 1,
+        "fund_ob": 1,
+        "fund_op": 1,
+        "dis_ob": 1,
+        "libre_eleccion": 1,
+        "trabajo_grado": 1,
+        "total": 1,
+        "nivelacion": 1,
+        "total_estudiante": 1,
+    }
+    projection_metrics = {
+        "_id": 0, 
+        "papa": 1,
+        "promedio": 1,
+        "avance": 1,
+    }
 
-    sql = "SELECT * FROM metrics WHERE username = ?"
-    metrics = select_data_query(sql, db, [username])
+    query = {"username": username}
+    academic_history = mongo_db.academic_history.find_one(query, 
+                                                    projection_academic_history)
+    len_academic_history = mongo_db.academic_history.count_documents(query)
+    metrics = mongo_db.metrics.find_one(query, projection_metrics)
+    len_metrics = mongo_db.metrics.count_documents(query)
 
-    if len(academic_history) == 0 or len(metrics) == 0:
+    if len_academic_history == 0 or len_metrics == 0:
         rows -= 1
-    elif len(academic_history) == 0 and (len(metrics) == 0):
+    elif len_academic_history == 0 and len_metrics == 0:
         return "Lo sentimos, no hemos podido encontrar tu historia academica, comunicate con el área de soporte."
     
-    fig, (table1, table2) = plt.subplots(2, 1, sharey=True)
+    fig, (table1, table2) = plt.subplots(2, 1, sharey = True)
 
-    if len(academic_history) != 0:
-        column_headers = ('Exigidos', 'Aprobados', 'Pendientes', 'Inscritos', 'cursados')
-        data = [item.split("-") for item in academic_history[0][1:]]
+    if len_academic_history != 0:
+        academic_column_headers = ('Exigidos', 'Aprobados', 'Pendientes', 'Inscritos', 'Cursados')
+        academic_history_data = [value.split("-") for _, value in academic_history.items()]
+        metrics_data = [[value for _, value in metrics.items()]]
         
         # Pop the headers from the data array
-        row_headers = [x.pop(0) for x in data]
+        row_headers = [x.pop(0) for x in academic_history_data]
         table2.table(
-            cellText=data,
-            rowLabels=row_headers,
-            colLabels=column_headers,
-            loc='center'
+            cellText = academic_history_data,
+            rowLabels = row_headers,
+            colLabels = academic_column_headers,
+            loc = 'center'
         )
 
-    if len(metrics) != 0:
-    
-        column_headers = ['P.A.P.A', 'Promedio',"Avance"]
-        data = [metrics[0][1:]]
+    if len_metrics != 0:
+        metrics_column_headers = ['P.A.P.A', 'Promedio', "Avance"]
         table1.table(
-            cellText=data,
-            colLabels=column_headers,
-            loc='center'
+            cellText = metrics_data,
+            colLabels = metrics_column_headers,
+            loc = 'center'
         )
     
-    # hide axes
+    # Hide axes
     fig.patch.set_visible(False)
     table1.axis('off')
     table1.axis('tight')
@@ -147,31 +205,17 @@ def generate_academic_history_img(username):
     table2.axis('tight')
     fig.tight_layout()
 
-    filename= os.path.join(temp, f'{username}-academic-history.png')
+    temp_folder = create_temp()
+    filename = os.path.join(temp_folder, f'{username}-academic-history.png')
     plt.savefig(filename, bbox_inches = 'tight')
 
     return filename
 
+def create_temp():
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    temp = os.path.join(BASE_DIR, os.path.join("bot_functions", "temp"))
 
-#--------------------------
+    if not os.path.exists(temp):
+        os.mkdir(temp)
 
-# def process_table(table):
-    
-#     content = table.find("tbody")
-#     result = []
-
-#     for row in content.find_all("tr"):
-#         cells = row.findAll("td")
-
-#         data_row = []
-
-#         if len(cells) > 2:
-#             for cell in cells:
-#                 data_row.append(cell.find("span").text)
-
-#             result.append(data_row)
-
-#     return result
-
-# generate_academic_history_img("cpatinore")
-# create_table_academic_history()
+    return temp

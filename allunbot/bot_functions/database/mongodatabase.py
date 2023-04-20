@@ -21,7 +21,7 @@ def get_database():
 
     return db
 
-def reset_collection(db, collection_name):
+def reset_collection(collection_name):
     """Deletes all documents of the collection.
 
     Inputs:
@@ -29,5 +29,7 @@ def reset_collection(db, collection_name):
     collection_name -> Collection to be cleared.
     """
 
-    collection = db[f"{collection_name}"]
+    collection = mongo_db[f"{collection_name}"]
     collection.delete_many({})
+
+mongo_db = get_database()
