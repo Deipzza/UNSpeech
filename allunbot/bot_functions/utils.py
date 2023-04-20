@@ -4,8 +4,6 @@ import prettytable as pt
 from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
 
-from .database.manage_database import *
-
 def get_page_academic_history(driver=None):
     if driver != None:
 
