@@ -303,8 +303,8 @@ def login():
             data = get_metrics(driver)
             metrics(username, data)
 
-            # data = get_schedule(driver)
-            # schedule(username, data)
+            data = get_schedule(driver)
+            schedule(username, data)
 
             # Send message of the options to retrieve
             bot.send_message(chat_id, f"Hola, {username}")
