@@ -14,15 +14,11 @@ def get_academic_history(driver = None):
     """
 
     insert_data = []
-    
-    # print("Started retrieving data") # Log print
 
     pag_academic_history = get_page_academic_history(driver)
     page_soup = BeautifulSoup(pag_academic_history, 'html5lib')
     rows = page_soup.find("div", id = "pt1:r1:1:t10::db").find("table").find("tbody").find_all("tr")
     insert_data += select_data_scrap(rows)
-
-    # print("Finalized retrieving data") # Log print
 
     return insert_data
 
@@ -60,8 +56,6 @@ def add_academic_history_user(db, data):
     data -> data to be inserted.
     """
 
-    # print("Started inserting academic history data") # Log print
-
     # Get or create collection
     collection = db["academic_history"]
 
@@ -80,8 +74,6 @@ def add_academic_history_user(db, data):
     }
     collection.insert_one(document)
 
-    # print("Finalized inserting academic history data") # Log print
-
 def update_academic_history_user(db, data):
     """Updates the academic history for a user.
 
@@ -89,8 +81,6 @@ def update_academic_history_user(db, data):
     db -> database connection.
     data -> data to be updated.
     """
-
-    # print("Started updating academic history data") # Log print
 
     collection = db["academic_history"]
     username = data[0]
@@ -109,8 +99,6 @@ def update_academic_history_user(db, data):
         'total_estudiante': data[8],
     }}
     collection.update_one(query, update)
-
-    # print("Finalized updating academic history data") # Log print
 
 def select_data_scrap(rows):
     """Organizes the scraped data to be inserted.
