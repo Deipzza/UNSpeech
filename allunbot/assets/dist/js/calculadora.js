@@ -26,11 +26,12 @@ async function save_values(id) {
 
   $("#" + id + " tbody tr").each(function (element) {
     parcial = 1;
+    position_porcentaje = 0;
     $(this).find("input").each(function (i_cell) {
       item = $(this).val();
       if (!isNaN(item)) {
         value = parseFloat(item);
-        if (i_cell == 0) {
+        if (i_cell == position_porcentaje) {
 
           if (value > 100) {
             error = { "status": true, "title": "Valores fuera de rango", "text": "Ha puesto un porcentaje por encima del 100%, por favor corrigalo e intente nuevamente." }
@@ -39,7 +40,7 @@ async function save_values(id) {
 
           porcentaje += value;
           value /= 100;
-        } else {
+        } else if(position_porcentaje == position_porcentaje + 1){
           if (value > 5) {
             error = { "status": true, "title": "Valores fuera de rango", "text": "Ha puesto un nota por encima de 5, por favor corrigala e intente nuevamente." }
             return false;
@@ -52,6 +53,8 @@ async function save_values(id) {
         }
 
         parcial *= parseFloat(value);
+      }else{
+        position_porcentaje = 1
       }
     });
     nota += parcial;
