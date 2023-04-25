@@ -84,6 +84,7 @@ async function save_values(id) {
       showConfirmButton: false,
       timer: 1500
     })
+    calcular_metricas();
   }
 }
 
@@ -91,8 +92,8 @@ async function calcular_metricas() {
   initial_metrics = calificaciones["initial_metrics"]
   var plan_estudios = initial_metrics["plan_estudios"];
   plan_estudios = plan_estudios.charAt(0).toUpperCase() + plan_estudios.slice(1).toLowerCase();
-  var username = initial_metrics["username"];
-  $("#plan_estudios").text(`${plan_estudios} ~ ${username}`);
+
+  $("#plan_estudios").text(`${plan_estudios}`);
 
   var creditos = initial_metrics["creditos"];
   var ponderado = initial_metrics["ponderado"];
@@ -126,7 +127,7 @@ async function calcular_metricas() {
 
 async function get_subjects() {
   const formData = new FormData();
-  formData.append("token", token);
+  formData.append("username", username);
   await $.ajax({
     url: "../calculadora",
     data: formData,

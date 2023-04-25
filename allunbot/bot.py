@@ -1,6 +1,10 @@
 import os
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, redirect, render_template, request, url_for
+from flask_login import LoginManager, current_user, login_required
+from flask_login import login_user
+import secrets
+
 import telebot
 
 from bot_functions.academic_history import *
@@ -20,6 +24,20 @@ bot.set_webhook(url = URL)
 
 # Server initialization
 app = Flask(__name__, static_folder = 'assets',)
+app.secret_key = secrets.token_hex(16)
+
+#Login managger
+login_manager = LoginManager(app)
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(username):
+    users_collection = mongo_db["user_logged"]
+    user_data = users_collection.find_one({'username': username})
+    if user_data:
+        return User(username=user_data['username'], data = user_data['data'])
+    return None
+    
 
 
 """------------------------------ MESSAGES ----------------------------------"""
@@ -336,7 +354,7 @@ def login():
         else:
             bot.send_message(chat_id, messages.not_authenticated)
         
-    return render_template('login.html')
+    return render_template('login.html', logged = False)
 
 @app.route('/actualizar', methods = ['GET', 'POST'])
 def update():
@@ -344,37 +362,80 @@ def update():
 
     return login()
 
+
+@app.route('/auth_ldap', methods = ['GET', 'POST'])
+def auth_ldap_page():
+    
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+    
+    if request.method == 'GET':
+        return render_template('auth_ldap.html')
+
+    username = request.form['username']
+    password = request.form['password']
+    user = auth_ldap(username, password)
+    
+    if user is not None:
+        login_user(user)
+        return redirect(url_for('dashboard'))
+    else:
+        return render_template('auth_ldap.html', logged = False)
+
+@app.route('/dashboard', methods = ['GET', 'POST'])
+def dashboard():
+
+    is_auth, info_sia, username = user_authenticated(current_user)
+    if not is_auth:
+        return redirect(url_for('auth_ldap_page'))
+
+    return render_template('dashboard.html', 
+                           username = username, 
+                           logged = is_auth, 
+                           info_sia = info_sia)
+
 @app.route('/calculadora', methods = ['GET'])
 def calculadora():
-    """
-    """
+    """ """
+    is_auth, info_sia, username = user_authenticated(current_user)
+    if not is_auth:
+        return redirect(url_for('auth_ldap_page'))
     
     headers = ["Asignatura", "Créditos", "Tipología", "Calificación", "Acciones"]
-    chat_id = request.args.get('token')
-    if chat_id != None:
-        username = get_user_by_chat(chat_id)
 
-        projection_grades = {"_id": 0, "data": 1}
-        query = {"username": username}
-        my_grades = mongo_db.grades.find(query,
-                                                 projection_grades)[0]["data"]    
+    projection_grades = {"_id": 0, "data": 1}
+    query = {"username": username}
+    my_grades = mongo_db.grades.find(query,
+                                     projection_grades)[0]["data"]    
 
-        return render_template('calculadora.html',
-                               headers = headers,
-                               my_grades = my_grades,
-                               token = chat_id)
-    else:
-        return render_template('error_404.html')
+    return render_template('calculadora.html',
+                            headers = headers,
+                            my_grades = my_grades,
+                            username = username,
+                            logged = is_auth, 
+                            info_sia = info_sia)
+
+@app.route('/tasks', methods = ['GET', 'POST'])
+def task():
+    is_auth, info_sia, username = user_authenticated(current_user)
+    if not is_auth:
+        return redirect(url_for('auth_ldap_page'))
+    
+    return render_template('tasks.html', 
+                           username = username, 
+                           logged = is_auth, 
+                           info_sia = info_sia)
 
 
+
+"""--------------------------------- API ----------------------------------"""
 @app.route('/calculadora', methods = ['POST'])
 def get_data_subject():
     """
     """
-
-    chat_id = request.form['token']
-    if chat_id != None:
-        username = get_user_by_chat(chat_id)
+    
+    username = request.form['username']
+    if username != None:
 
         projection= {"_id": 0, "data": 1}
         query = {"username": username}
@@ -400,6 +461,5 @@ def get_data_subject():
 
 if __name__ == "__main__":
     """Main execution of the program"""
-
     app.debug = True # Hot reloading
     app.run(port = int(os.environ.get('PORT', 10000))) # Server execution port

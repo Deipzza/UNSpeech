@@ -1,4 +1,5 @@
 import socket
+from flask import redirect, url_for
 
 from telebot import types
 from bot_functions.directory import *
@@ -54,3 +55,13 @@ Utiliza este token para poder autenticarte:
 Mantén tu token seguro y guárdalo en un lugar seguro, ya que puede ser utilizado por cualquiera para acceder.
    """
    bot.send_message(message.chat.id, initial_login, parse_mode = "Markdown")
+
+
+def user_authenticated(current_user):
+   if not current_user.is_authenticated:
+        return (False, False)
+    
+   username = current_user.get_id()
+   search_user = mongo_db.users.count_documents({"username": username})
+
+   return (True,  False if search_user == 0 else True, username)
