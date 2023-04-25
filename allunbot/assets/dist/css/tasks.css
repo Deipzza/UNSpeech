@@ -24,13 +24,14 @@
   display: flex;
   justify-content: space-between;
   position: relative;
-  margin-bottom: 16px;
+  padding-bottom: 16px;
   padding-left: 30px;
   color: var(--task-color);
   font-size: 13px;
   font-weight: 500;
   padding: 1.5% 1%;
-  border-bottom: 1px solid lightgray;
+  border: 1px solid lightgray;
+  border-top: none;
 }
 
 .task:hover {
@@ -132,7 +133,7 @@ label .label-text:before {
 .page-content .header {
   font-size: 26px;
   color: var(--main-color);
-  margin-top: 30px;
+  margin-top: 0px;
 }
 
 .collapse_description {
@@ -152,5 +153,45 @@ label .label-text:before {
   padding: 1% 3%;
   border: 1px solid lightgray;
   border-top: none;
-  border-radius: 0 0 10px 10px;
+  /* border-radius: 0 0 10px 10px; */
+}
+
+.task.task_header {
+  background: black;
+  color: white;
+  border-radius: 10px 10px 0 0;
+}
+
+.Acciones {
+  gap: 0.5%;
+  margin-top: 1.5%;
+}
+
+.Acciones .yellow {
+  background-color: var(--box-color);
+  color: #c3950a;
+  border: 1px solid;
+}
+
+.Acciones .blue {
+  background-color: var(--box-color-2);
+  color: #073c8b;
+  border: 1px solid;
+}
+
+.Acciones .red {
+  background-color: var(--box-color-3);
+  color: #68161e;
+  border: 1px solid;
+}
+
+.Acciones .green {
+  background-color: var(--box-color-4);
+  color: #0f4d30;
+  border: 1px solid;
+}
+.Acciones .btn:hover{
+  color: white;
+  background-color: var(--bs-btn-hover-bg);
+  border-color: var(--bs-btn-hover-border-color);
 }

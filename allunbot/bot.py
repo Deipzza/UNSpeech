@@ -423,13 +423,16 @@ def task():
     if not is_auth:
         return redirect(url_for('auth_ldap_page'))
     
-    tasks = select_query_tasks(username)
+    tasks_recordatorios = select_query_tasks(username)
     
     return render_template('tasks.html', 
                            username = username, 
                            logged = is_auth, 
                            info_sia = info_sia,
-                           tasks = tasks
+                           tasks_recordatorios = tasks_recordatorios,
+                           tasks_today = [],
+                           tasks_upcoming = [],
+                           tasks_archivados = []
                            )
 
 
