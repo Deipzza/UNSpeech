@@ -3,11 +3,12 @@ import locale
 
 from database.mongodatabase import *
 
-# Set the locale to French
+# Set the locale to Spanish and Colombian locale
 locale.setlocale(locale.LC_ALL, 'es_CO.utf8')
 
-def insert_values_into_tasks(username, name = None, description = None,
-                             date = None, notification_time = None, subject = None):
+def insert_values_into_tasks(username, name, description = None,
+                             date = None, notification_time = None,
+                             subject = None):
     """Inserts a task into the database with the given fields.
 
     Inputs:
@@ -25,14 +26,14 @@ def insert_values_into_tasks(username, name = None, description = None,
         "username": username,
         "name": name,
         "description": description,
+        "subject": subject,
         "date": date,
         "notification_time": notification_time,
-        "subject": subject,
     }
 
     collection.insert_one(item)
 
-def select_query_tasks(username):
+def select_query_tasks(query):
     """Retrieves the list of tasks for a given username.
 
     Inputs:
@@ -42,16 +43,9 @@ def select_query_tasks(username):
     The list of tasks in message format.
     """
 
-    response = "Tareas.\n"
-
-    # Create query for the search
-    query = {
-        'username': {'$eq': username}
-    }
-    
     # Select which fields to retrieve from the query
     projection = {
-        "_id": 0, 
+        "_id": 1, 
         "name": 1,
         "description": 1,
         "date": 1,
@@ -64,25 +58,8 @@ def select_query_tasks(username):
 
     if mongo_db.tasks.count_documents(query) < 1:
         return "No tienes tareas guardadas."
-    
-    for row in results:
-        response += f"Nombre: {row['name']}\n"
 
-        if "description" in row:
-            response += f"Descripción: {row['description']}\n"
-
-        if "subject" in row:
-            response += f"Asignatura: {row['subject']}\n"
-
-        if "date" in row:
-            response += f"Fecha: {parse_date(row['date'])}\n"
-        
-        if "notification_time" in row:
-            response += f"Fecha alerta: {parse_date(row['notification_time'])}\n"
-        
-        response += "----------------------------------\n"
-
-    return response
+    return results
 
 def parse_date(date_input):
     date, time = [x for x in date_input.split(",")]
@@ -98,4 +75,114 @@ def parse_date(date_input):
 
     return complete_date_string
 
-# print(select_query_tasks("dperezz"))
+def get_past_tasks(username):
+    """Returns a list of the tasks that already passed.
+
+    Inputs:
+    username -> string.
+    """
+
+    today = str(datetime.date.today())
+    query = {
+        "date": {"$exists": True},
+        "$expr": {
+            "$lt": [{"$substr": ["$date", 0, 10]}, today]
+        }
+    }
+
+    results = select_query_tasks(query) # Make the search
+    task_list = parse_task_list(results) # Format the results
+
+    return task_list
+
+def get_today_tasks(username):
+    """Returns a list of the tasks that occur the day of the query.
+
+    Inputs:
+    username -> string.
+    """
+
+    today = str(datetime.date.today())
+
+    # Create query for the search
+    query = {
+        "$and": [
+            {"username": username},
+            {"date": {"$regex": f"^{today}"}}
+        ]
+    }
+
+    results = select_query_tasks(query) # Make the search
+    task_list = parse_task_list(results) # Format the results
+
+    return task_list
+
+def get_future_tasks(username):
+    """Returns a list of the tasks that haven't occurred.
+
+    Inputs:
+    username -> string.
+    """
+
+    today = str(datetime.date.today())
+
+    # Create query for the search
+    query = {
+        "date": {"$exists": True},
+        "$expr": {
+            "$gt": [{"$substr": ["$date", 0, 10]}, today]
+        }
+    }
+
+    results = select_query_tasks(query) # Make the search
+    task_list = parse_task_list(results) # Format the results
+
+    return task_list
+
+def get_dateless_tasks(username):
+    """Returns a list of the tasks that don't have date.
+
+    Inputs:
+    username -> string.
+    """
+
+    # Create query for the search
+    query = {
+        "$and": [
+            {"username": username},
+            {"date": {"$exists": False}}
+        ]
+    }
+
+    results = select_query_tasks(query) # Make the search
+    task_list = parse_task_list(results) # Format the results
+
+    return task_list
+
+def parse_task_list(task_list):
+    """Format the list of tasks to fill the blank fields.
+
+    Inputs:
+    task_list -> MongoDB cursor object with the results of the query.
+    Returns:
+    list of dictionaries with the tasks.
+    """
+
+    formated_list = []
+
+    for task in task_list:
+        task["description"] = (
+            "" if "description" not in task else task["description"]
+        )
+        task["subject"] = (
+            "" if "subject" not in task else task["subject"]
+        )
+        task["date"] = (
+            "" if "date" not in task else task["date"]
+        )
+        task["notification_time"] = (
+            "" if "notification_time" not in task else task["notification_time"]
+        )
+        formated_list.append(task)
+
+    return formated_list
