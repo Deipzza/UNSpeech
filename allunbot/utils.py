@@ -59,7 +59,7 @@ Mantén tu token seguro y guárdalo en un lugar seguro, ya que puede ser utiliza
 
 def user_authenticated(current_user):
    if not current_user.is_authenticated:
-        return (False, False)
+        return (False, False, "")
     
    username = current_user.get_id()
    search_user = mongo_db.users.count_documents({"username": username})

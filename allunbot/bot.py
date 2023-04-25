@@ -1,3 +1,4 @@
+import json
 import os
 
 from flask import Flask, jsonify, redirect, render_template, request, url_for
@@ -14,6 +15,7 @@ from bot_functions.login import *
 from bot_functions.metrics import *
 from bot_functions.schedule import *
 from bot_functions.university_calendar import *
+from bot_functions.task import *
 from constants import *
 import messages_list as messages
 from utils import *
@@ -421,10 +423,14 @@ def task():
     if not is_auth:
         return redirect(url_for('auth_ldap_page'))
     
+    tasks = select_query_tasks(username)
+    
     return render_template('tasks.html', 
                            username = username, 
                            logged = is_auth, 
-                           info_sia = info_sia)
+                           info_sia = info_sia,
+                           tasks = tasks
+                           )
 
 
 
@@ -458,6 +464,27 @@ def get_data_subject():
         return jsonify(myGrades)
     else:
         return jsonify({})
+    
+@app.route('/api/task', methods = ['POST'])
+def add_task_db():
+    """
+    """
+    
+    username = current_user.get_id()
+    name = request.form['name']
+
+    if username != None and name != None:
+
+        description = request.form['description']
+        date = request.form['date']
+        notification_time = request.form['notification_time']
+        subject = request.form['subject']
+
+        item = insert_values_into_tasks(username, name, description, date, notification_time, subject)
+        return json.dumps(item, default=str)
+    else:
+        return jsonify({})
+
 
 if __name__ == "__main__":
     """Main execution of the program"""
