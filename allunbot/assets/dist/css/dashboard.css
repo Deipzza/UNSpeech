@@ -1,0 +1,303 @@
+* {
+  box-sizing: border-box;
+  outline: none;
+}
+
+:root {
+  --bg-color: #f5f8ff;
+  --main-color: #353536;
+  --secondary-color: #8e92a4;
+  --main-text-color: #5d606b;
+  --secondary-dark-color: #9496a5;
+  --tag-color-one: #e0fbf6;
+  --tag-color-text-one: #58c2a9;
+  --tag-color-two: #ece7fe;
+  --tag-color-text-two: #8972f3;
+  --tag-color-three: #fde7ea;
+  --tag-color-text-three: #e77f89;
+  --tag-color-four: #f7f8fc;
+  --tag-color-text-four: #a0a6b5;
+  --checkbox-color: #009e90;
+  --button-color: #49beb7;
+  --box-color: #fff1d6;
+  --box-color-2: #d3e6ff;
+  --box-color-3: #ffd9d9;
+  --box-color-4: #daffe5;
+  --task-color: #777982;
+}
+
+body {
+  margin: 0;
+  width: 100%;
+  font-family: "DM Sans", sans-serif;
+  font-size: 12px;
+  background-color: rgb(201, 201, 201);
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.task-manager {
+  width: 100%;
+  background: #fff;
+  box-shadow: 0 0.3px 2.2px rgba(0, 0, 0, 0.011),
+    0 0.7px 5.3px rgba(0, 0, 0, 0.016), 0 1.3px 10px rgba(0, 0, 0, 0.02),
+    0 2.2px 17.9px rgba(0, 0, 0, 0.024), 0 4.2px 33.4px rgba(0, 0, 0, 0.029),
+    0 10px 80px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  margin: 0;
+}
+
+.left-bar {
+  background-color: var(--bg-color);
+  border-right: 1px solid #e3e7f7;
+  position: relative;
+}
+
+.left-content {
+  padding: 30px 8px 30px 4px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  color: var(--main-color);
+  /* margin-bottom: 14px; */
+  font-weight: 500;
+  gap: 3%;
+  font-size: 10pt;
+  padding: 5% 6%;
+}
+
+.item a svg {
+  width: 18px;
+  height: 18px;
+  color: currentcolor;
+}
+
+.item a{
+  width: 100%;
+  color: currentColor;
+  text-decoration: none;
+}
+
+.item:hover{
+  background-color: rgb(197, 196, 196);
+}
+
+.category-list {
+  margin-top: 50px;
+}
+
+.category-list .item {
+  color: var(--secondary-color);
+}
+
+.actions {
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.circle {
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  background-color: #fe4d46;
+  box-shadow: 14px 0 0 0 #fbc023, 28px 0 0 0 #7dd21f;
+}
+
+.circle-2 {
+  border-radius: 50%;
+  width: 4px;
+  height: 4px;
+  background-color: #d5d7e3;
+  box-shadow: -6px 0 0 0 #d5d7e3, 6px 0 0 0 #d5d7e3;
+}
+
+.right-bar {
+  border-left: 1px solid #e3e7f7;
+  display: flex;
+  flex-direction: column;
+}
+
+.right-bar .header {
+  font-size: 20px;
+  color: var(--main-text-color);
+  margin-left: 30px;
+}
+
+.top-part {
+  padding: 20px 30px 13px;
+  display: flex;
+  align-items: center;
+  align-self: flex-end;
+  border-bottom: 1px solid lightgray;
+}
+
+.top-part svg {
+  width: 24px;
+  height: 24px;
+  color: var(--main-color);
+  margin-right: 14px;
+}
+
+.top-part .count {
+  font-size: 14px;
+  border-radius: 10px;
+  padding: 5px;
+  /* background-color: #623ce8; */
+  /* color: #fff; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.right-content {
+  padding: 10px 40px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.task-name {
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.6;
+}
+
+.task-box {
+  position: relative;
+  border-radius: 12px;
+  width: 100%;
+  margin: 20px 0;
+  padding: 16px;
+  cursor: pointer;
+  box-shadow: 2px 2px 4px 0px rgba(235, 235, 235, 1);
+}
+
+.task-box:hover {
+  transform: scale(1.02);
+}
+
+.time {
+  margin-bottom: 6px;
+  opacity: 0.4;
+  font-size: 10px;
+}
+
+.yellow {
+  background-color: var(--box-color);
+}
+
+.blue {
+  background-color: var(--box-color-2);
+}
+
+.red {
+  background-color: var(--box-color-3);
+}
+
+.green {
+  background-color: var(--box-color-4);
+}
+
+.more-button {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background-color: #8e92a4;
+  box-shadow: 0 -4px 0 0 #8e92a4, 0 4px 0 0 #8e92a4;
+  opacity: 0.4;
+  right: 20px;
+  top: 30px;
+  cursor: pointer;
+}
+
+.members {
+  display: flex;
+  margin-top: 14px;
+}
+
+.members img {
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  margin-right: 4px;
+  object-fit: cover;
+}
+
+
+
+.content-categories {
+  display: flex;
+  justify-content: space-evenly;
+  width: 100%;
+  border-bottom: 1px solid #ddd;
+  padding: 20px 0 0;
+}
+
+.label-wrapper .nav-item {
+  display: none;
+}
+
+.category {
+  font-weight: 500;
+  color: var(--secondary-color);
+  border-bottom: 1px solid #ddd;
+  transition: 0.4s ease-in;
+  padding: 20px 30px;
+  cursor: pointer;
+}
+
+
+
+
+.main-page{
+    padding: 20px;
+}
+
+@media screen and (max-width: 900px) {
+  .left-bar {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 700px) {
+  .right-bar {
+    width: 100%;
+    display: block;
+  }
+}
+
+@media screen and (max-width: 520px) {
+  .right-content {
+    padding: 10px 16px;
+  }
+}
+
+.nota {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    font-size: 11pt;
+    text-align: center;
+}
+
+.logout {
+  width: 100%;
+  font-size: 9pt;
+}
+
+/*Tomado y adaptado de: Task Management Dashboard UI ~ codepen.
+Creditos: Aybüke Ceylan*/
