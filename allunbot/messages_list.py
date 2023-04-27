@@ -19,7 +19,7 @@ Información general.
 - Si quieres consultar el directorio UN, escribe /directorio.
 - Si quieres consultar la lista de grupos de las asignaturas, escribe /buscar_grupos.
 - Si quieres agregar un grupo de una asignatura al directorio de grupos, escribe /agregar_grupos.
-- Si quieres consultar información del SIA, escribe /informacion_sia.
+- Si quieres consultar información académica, escribe /informacion_academica.
 - Si quieres actualizar la información extraída del SIA, escribe /actualizar_info_sia.
   """
 

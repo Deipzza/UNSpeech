@@ -138,7 +138,7 @@ function template_task_edit_with_date(id_table, task_id) {
   var task_name = task_edit.find(".name_task").text();
   var task_subject = task_edit.find(".subject_task").text();
   var task_description = task_edit.find(".description_task").text();
-  var task_date = task_edit.find(".task_date").text();
+  var task_date = task_edit.find(".date_task").text();
   var task_notification_time = task_edit
     .find(".task_notification_time")
     .text();

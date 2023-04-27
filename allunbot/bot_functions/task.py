@@ -8,6 +8,17 @@ from .database.mongodatabase import *
 locale.setlocale(locale.LC_ALL, 'es_CO.utf8')
 
 def add_task(data):
+    """Inserts a task into the database with the given fields.
+
+    Inputs:
+    username -> string with the name of the user that sent the data.
+    name -> string with the name of the task.
+    description -> string with the description of the task.
+    date -> datetime with the date of the task.
+    notification_time -> dictionary with the information for the task's alert.
+    subject -> string with the name of the subject of the task.
+    """
+
     # Get or create collection
     collection = mongo_db["tasks"]
 
@@ -28,10 +39,11 @@ def add_task(data):
         return False
 
 def update_task(data, id):
-    """Updates the task.
+    """Updates the task of the given ID.
 
     Inputs:
     data -> data to be updated.
+    id -> id of the task to be updated.
     """
 
     collection = mongo_db["tasks"]
@@ -52,7 +64,11 @@ def update_task(data, id):
         return False
     
 def remove_task(id):
-    """"""
+    """Removes the task of the given ID.
+
+    Inputs:
+    id -> id of the task to be removed.
+    """
 
     collection = mongo_db["tasks"]
     query = {"_id": ObjectId(id)}
@@ -69,16 +85,17 @@ def verify_field_null(field):
     return field
 
 def task_add(id, data):
-    """Adds or updates the task.
-    """
+    """Adds or updates the task."""
+
     try:
-        query = {"_id": ObjectId(id)}
+        ObjectId(id) # Checks if it's a valid ID object
         return update_task(data, id)
     except:
         return add_task(data)
 
 def get_dateless_tasks(username):
     """Returns a list of the tasks that don't have date.
+    
     Inputs:
     username -> string.
     """

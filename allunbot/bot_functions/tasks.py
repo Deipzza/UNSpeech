@@ -1,3 +1,4 @@
+from bson import ObjectId
 import datetime
 import locale
 
@@ -6,32 +7,100 @@ from .database.mongodatabase import *
 # Set the locale to Spanish and Colombian locale
 locale.setlocale(locale.LC_ALL, 'es_CO.utf8')
 
-def insert_values_into_tasks(username, name, description = "",
-                             date = "", notification_time = "",
-                             subject = ""):
+def add_task(data):
     """Inserts a task into the database with the given fields.
 
     Inputs:
-    username -> string with the name of the user that sent the data.
-    name -> string with the name of the task.
-    description -> string with the description of the task.
-    date -> datetime with the date of the task.
-    notification_time -> dictionary with the information for the task's alert.
-    subject -> string with the name of the subject of the task.
+    data -> task object with the corresponding fields
+
+    Returns:
+    boolean indicating if the task was inserted
+    """
+
+    # Get or create collection
+    collection = mongo_db["tasks"]
+
+    # Organize and insert the data
+    item = {
+        "username": verify_field_null(data["username"]),
+        "name": verify_field_null(data["name"]),
+        "description": verify_field_null(data["description"]),
+        "subject": verify_field_null(data["subject"]),
+        "date": verify_field_null(data["date"]),
+        "notification_time": verify_field_null(data["notification_time"]),
+    }
+    
+    try:
+        collection.insert_one(item)
+        return True
+    except:
+        return False
+
+def update_task(data, id):
+    """Updates the task of the given ID.
+
+    Inputs:
+    data -> data to be updated.
+    id -> id of the task to be updated.
     """
 
     collection = mongo_db["tasks"]
 
-    item = {
-        "username": username,
-        "name": name,
-        "description": description,
-        "subject": subject,
-        "date": date,
-        "notification_time": notification_time,
+    query = {"_id": ObjectId(id)}
+    update = {
+        "$set": {
+            "username": verify_field_null(data["username"]),
+            "name": verify_field_null(data["name"]),
+            "description": verify_field_null(data["description"]),
+            "subject": verify_field_null(data["subject"]),
+            "date": verify_field_null(data["date"]),
+            "notification_time": verify_field_null(data["notification_time"]),
+        }
     }
+    try:
+        collection.update_one(query, update)
+        return True
+    except:
+        return False
+    
+def remove_task(id):
+    """Removes the task of the given ID.
 
-    collection.insert_one(item)
+    Inputs:
+    id -> id of the task to be removed.
+    """
+
+    collection = mongo_db["tasks"]
+    query = {"_id": ObjectId(id)}
+
+    try:
+        collection.delete_one(query)
+        return True
+    except:
+        return False
+    
+def verify_field_null(field):
+    if field == "" or field == "undefined":
+        return None
+    return field
+
+def task_add(id, data):
+    """Checks if the task is going to be added or updated
+    depending on the ID.
+
+    Inputs:
+    id -> string with the task identifier.
+    data -> dict with the task data.
+
+    Returns:
+    boolean that indicates whether the task could be added or updated.
+    """
+
+    try:
+        ObjectId(id) # Checks if it's a valid ID object
+        return update_task(data, id)
+    except:
+        return add_task(data)
 
 def select_query_tasks(query):
     """Retrieves the list of tasks for a given username.
@@ -53,11 +122,7 @@ def select_query_tasks(query):
         "subject": 1,
     }
 
-    # Run query
-    results = mongo_db.tasks.find(query, projection)
-
-    if mongo_db.tasks.count_documents(query) < 1:
-        return None
+    results = mongo_db.tasks.find(query, projection) # Run query
 
     return results
 
@@ -92,10 +157,6 @@ def get_past_tasks(username):
     }
 
     results = select_query_tasks(query) # Make the search
-
-    if results is None:
-        return "No tienes tareas."
-    
     task_list = parse_task_list(results) # Format the results
 
     return task_list
@@ -118,10 +179,6 @@ def get_today_tasks(username):
     }
 
     results = select_query_tasks(query) # Make the search
-
-    if results is None:
-        return "No tienes tareas."
-    
     task_list = parse_task_list(results) # Format the results
 
     return task_list
@@ -145,10 +202,6 @@ def get_future_tasks(username):
     }
 
     results = select_query_tasks(query) # Make the search
-
-    if results is None:
-        return "No tienes tareas."
-    
     task_list = parse_task_list(results) # Format the results
 
     return task_list
@@ -162,17 +215,14 @@ def get_dateless_tasks(username):
 
     # Create query for the search
     query = {
-        "$and": [
-            {"username": username},
+        "$or": [
+            {"date": {"$type": 10}},  # Verify null
             {"date": ""}
-        ]
+        ],
+        "username": username,
     }
 
     results = select_query_tasks(query) # Make the search
-
-    if results is None:
-        return "No tienes tareas."
-    
     task_list = parse_task_list(results) # Format the results
 
     return task_list

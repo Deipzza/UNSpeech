@@ -15,9 +15,9 @@ from bot_functions.grades import *
 from bot_functions.login import *
 from bot_functions.metrics import *
 from bot_functions.schedule import *
+from bot_functions.tasks import *
 from bot_functions.university_calendar import *
 from bot_functions.users import *
-from bot_functions.task import *
 from constants import *
 import messages_list as messages
 from utils import *
@@ -42,7 +42,6 @@ def load_user(username):
         return User(username=user_data['username'], data = user_data['data'])
     return None
     
-
 
 """------------------------------ MESSAGES ----------------------------------"""
 
@@ -115,7 +114,7 @@ def requests_calendar(message):
                     reply_markup = gen_markup(menu))
 
 
-@bot.message_handler(commands = ["informacion_sia"])
+@bot.message_handler(commands = ["informacion_academica"])
 def initial_sia(message):
     """Academic information message handler.
     
@@ -127,7 +126,6 @@ def initial_sia(message):
     """
 
     username = get_user_by_chat(message.chat.id) # Retrieves the user
-    print("username: ", username)
     
     if username == "": # If it's not in the DB, authenticate it
         auth_user(message, bot)
@@ -136,6 +134,7 @@ def initial_sia(message):
             {"name": "Mi historia académica", "value": "sia_academic_history"},
             {"name": "Mi Horario", "value": "sia_schedule"},
             {"name": "Calculadora de notas", "value": "sia_calculator_grades"},
+            {"name": "Mis tareas", "value": "sia_my_tasks"},
         ]
         bot.send_message(message.chat.id,
                         "¿Qué deseas consultar?",
@@ -187,6 +186,7 @@ def add_groups(message):
     sent_msg = bot.send_message(message.chat.id, text, parse_mode = "Markdown")
     bot.register_next_step_handler(sent_msg, add_groups_name_handler, bot)
 
+
 @bot.message_handler(commands = ["agregar_tarea"])
 def add_tasks(message):
     """Add tasks message handler.
@@ -201,6 +201,7 @@ http://localhost:10000/tareas?token={message.chat.id}
 Recuerda **NO** compartir este enlace ya que cualquiera podrá tener acceso a tu información.
 """
     bot.send_message(message.chat.id, text, parse_mode = "Markdown")
+
 
 @bot.message_handler(commands = ["actualizar_info_sia"])
 def update_info_sia(message):
@@ -220,11 +221,13 @@ Recuerda guardar tu token en un lugar seguro, ya que puede ser utilizado por cua
 """
     bot.send_message(message.chat.id, text, parse_mode = "Markdown")
 
+
 @bot.message_handler(func = lambda msg: True)
 def echo_all(message):
     """Message handler for other messages."""
 
     bot.send_message(message.chat.id, "No reconozco ese comando.\nPara ver mi lista de comandos escribe /comandos", parse_mode = "Markdown")
+
 
 def send_alert():
     """Sends alert message with their tasks to all users."""
@@ -313,6 +316,13 @@ http://localhost:10000/calculadora?token={call.message.chat.id}
 Recuerda **NO** compartir este enlace ya que cualquiera podrá tener acceso a tu información.
 """
             bot.send_message(call.message.chat.id, text, parse_mode = "Markdown")
+        elif call.data == "sia_my_tasks":
+            text = f"""
+Para poder ver tus tareas debes ingresar al enlace:
+http://localhost:10000/auth-ldap
+"""
+            bot.send_message(call.message.chat.id, text, parse_mode = "Markdown")
+            print("Entró acá")
     else:
         text = messages.not_registered
         bot.send_message(call.message.chat.id, text, parse_mode = "Markdown")
@@ -388,6 +398,10 @@ def login():
                 {
                     "name": "Calculadora de notas",
                     "value": "sia_calculator_grades"
+                },
+                {
+                    "name": "Mis tareas",
+                    "value": "sia_my_tasks"
                 }
             ]
             bot.send_message(chat_id,
@@ -398,7 +412,7 @@ def login():
         
     return render_template('login.html', logged = False)
 
-@app.route('/auth_ldap', methods = ['GET', 'POST'])
+@app.route('/auth-ldap', methods = ['GET', 'POST'])
 def auth_ldap_page():
     
     if current_user.is_authenticated:
@@ -415,7 +429,9 @@ def auth_ldap_page():
         login_user(user)
         return redirect(url_for('dashboard'))
     else:
-        return render_template('auth_ldap.html', logged = False, error = "Fallo en la autenticación")
+        return render_template('auth_ldap.html',
+                               logged = False,
+                               error = "Fallo en la autenticación")
 
 @app.route('/actualizar', methods = ['GET', 'POST'])
 def update():
@@ -475,17 +491,19 @@ def task():
 @app.route('/logout')
 @login_required
 def logout():
-    
-    is_auth, info_sia, username = user_authenticated(current_user)
+    is_auth, _, username = user_authenticated(current_user)
     if not is_auth:
         return redirect(url_for('auth_ldap_page'))
 
-    mongo_db.user_logged.delete_many({"username":username})
+    mongo_db.user_logged.delete_many({"username": username})
 
     logout_user()
     return redirect(url_for('auth_ldap_page'))
 
+
 """--------------------------------- API ----------------------------------"""
+
+
 @app.route('/calculadora', methods = ['POST'])
 def get_data_subject():
     """
@@ -518,8 +536,7 @@ def get_data_subject():
     
 @app.route('/api/task', methods = ['POST'])
 def add_task_db():
-    """
-    """
+    """Endpoint for adding tasks."""
     
     username = current_user.get_id()
     name = request.form['name']
@@ -533,10 +550,10 @@ def add_task_db():
         return json.dumps(item, default=str)
     else:
         return jsonify({})
+
 @app.route('/api/task', methods = ['DELETE'])
 def remove_task_db():
-    """
-    """
+    """Endpoint for removing tasks."""
 
     id = request.form['id']
 
@@ -548,11 +565,13 @@ def remove_task_db():
 
 
 """--------------------------------- MAIN ----------------------------------"""
+
+
 if __name__ == "__main__":
     """Main execution of the program"""
     
     create_schedule_thread(send_alert)
 
     mongo_db.user_logged.delete_many({})
-    app.debug = True # Hot reloading
+    # app.debug = True # Hot reloading
     app.run(port = int(os.environ.get('PORT', 10000))) # Server execution port
