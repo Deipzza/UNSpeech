@@ -149,11 +149,14 @@ def get_past_tasks(username):
 
     today = str(datetime.date.today())
     query = {
-        "username" : username,
-        "date": {"$exists": True},
-        "$expr": {
-            "$lt": [{"$substr": ["$date", 0, 10]}, today]
-        }
+        "$and": [
+            {"date": {"$ne": None}},  # Verify not null
+            {"date": {"$ne": ""}},  # Verify not empty string
+            {"$expr": {
+                "$lt": [{"$substr": ["$date", 0, 10]}, today]
+            }}
+        ],
+        "username": username,
     }
 
     results = select_query_tasks(query) # Make the search

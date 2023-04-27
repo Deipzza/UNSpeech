@@ -75,10 +75,10 @@ styles %}
                 {% for task in tasks_recordatorios %}
                 <tr class="task" id="{{task['_id']}}">
                   <td class="name_task" style="width: 200px;">{{task["name"]}}</td>
-                  <td class="subject_task" style="width: 200px;">{{task["subject"] | default('') }}</td>
+                  <td class="subject_task" style="width: 200px;">{{task["subject"] if task["subject"] is not none else ""}}</td>
                   <!-- <td class="date_task" style="width: 100px;">{{task["date"] | default('') }}</td>
                   <td class="task_notification_time" style="width: 100px;">{{task["notification_time"] | default('')}}</td> -->
-                  <td class="description_task" style="width: 300px;">{{task["description"] | default('') }}</td>
+                  <td class="description_task" style="width: 300px;">{{task["description"] if task["description"] is not none else ""}}</td>
                   <td class="accion fix_column" style="width: 100px;">
                     <div class="Acciones">
                       <button class="btn btn-primary blue" onclick="save_task('{{task._id}}')">
@@ -120,7 +120,7 @@ styles %}
                 <tr>
                   <th>Tarea</th>
                   <th>Asignatura</th>
-                  <th>Fecha</th>
+                  <th>Fecha y hora</th>
                   <th>Notificación</th>
                   <th>Descripción</th>
                   <th class="fix_column">Acciones</th>
@@ -178,7 +178,7 @@ styles %}
                 <tr>
                   <th>Tarea</th>
                   <th>Asignatura</th>
-                  <th>Fecha</th>
+                  <th>Fecha y hora</th>
                   <th>Notificación</th>
                   <th>Descripción</th>
                   <th class="fix_column">Acciones</th>
@@ -251,7 +251,7 @@ styles %}
               <tr>
                 <th>Tarea</th>
                 <th>Asignatura</th>
-                <th>Fecha</th>
+                <th>Fecha y hora</th>
                 <th>Notificación</th>
                 <th>Descripción</th>
                 <th class="fix_column">Acciones</th>

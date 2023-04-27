@@ -21,7 +21,7 @@ var tem_table =[
           '<tr>',
             '<th>Tarea</th>',
             '<th>Asignatura</th>',
-            '<th>Fecha</th>',
+            '<th>Fecha y hora</th>',
             '<th>Notificación</th>',
             '<th>Descripción</th>',
             '<th class="fix_column">Acciones</th>',
@@ -73,10 +73,10 @@ function add_task(tab, task = null) {
 function template_task() {
   var tem_content = [
     '<td class="name_task" style="width: 200px;">',
-    `<input type="text" class="form-control" value="">`,
+    `<input type="text" class="form-control" value="" placeholder = 'Tarea'>`,
     "</td>",
     '<td class="subject_task" style="width: 200px;">',
-    `<input type="text" class="form-control" value="">`,
+    `<input type="text" class="form-control" value="" placeholder = 'Asignatura'>`,
     "</td>",
     // '<td class="date_task" style="width: 100px;">',
     // `<input type="date" class="form-control" value=${task_date}>`,
@@ -85,7 +85,7 @@ function template_task() {
     // `<input type="date" class="form-control" value=${task_notification_time}>`,
     // '</td>',
     '<td class="description_task" style="width: 300px;">',
-    `<textarea class="form-control"></textarea>`,
+    `<textarea class="form-control" placeholder = 'Descripción'></textarea>`,
     "</td>",
   ];
 
@@ -106,19 +106,20 @@ function templae_task_date() {
 
   var tem_content = [
     '<td class="name_task" style="width: 200px;">',
-    `<input type="text" class="form-control" value=''>`,
+    `<input type="text" class="form-control" value='' placeholder = 'Tarea'>`,
     "</td>",
     '<td class="subject_task" style="width: 200px;">',
-    `<input type="text" class="form-control" value=''>`,
+    `<input type="text" class="form-control" value='' placeholder = 'Asignatura'>`,
     "</td>",
     '<td class="date_task" style="width: 100px;">',
     `<input type="date" class="form-control" value=''>`,
+    `<input type="time" class="form-control" value=''>`,
     "</td>",
     '<td class="task_notification_time" style="width: 100px;">',
     `<input type="date" class="form-control" value=''>`,
     "</td>",
     '<td class="description_task" style="width: 300px;">',
-    `<textarea class="form-control"></textarea>`,
+    `<textarea class="form-control" placeholder = 'Descripción'></textarea>`,
     "</td>",
   ];
 
@@ -138,26 +139,32 @@ function template_task_edit_with_date(id_table, task_id) {
   var task_name = task_edit.find(".name_task").text();
   var task_subject = task_edit.find(".subject_task").text();
   var task_description = task_edit.find(".description_task").text();
-  var task_date = task_edit.find(".date_task").text();
+  
+  var task_date_time = task_edit.find(".date_task").text().split(" ")
+  console.log(task_date_time)
+  var task_date = task_date_time[0];
+  var task_time = task_date_time[1];
+
   var task_notification_time = task_edit
     .find(".task_notification_time")
     .text();
 
   var tem_content = [
     '<td class="name_task" style="width: 200px;">',
-    `<input type="text" class="form-control" value=${task_name}>`,
+    `<input type="text" class="form-control" value='${task_name}' placeholder = 'Tarea'>`,
     "</td>",
     '<td class="subject_task" style="width: 200px;">',
-    `<input type="text" class="form-control" value=${task_subject}>`,
+    `<input type="text" class="form-control" value='${task_subject}' placeholder = 'Asignatura'>`,
     "</td>",
     '<td class="date_task" style="width: 100px;">',
     `<input type="date" class="form-control" value=${task_date}>`,
+    `<input type="time" class="form-control" value=${task_time}>`,
     "</td>",
     '<td class="task_notification_time" style="width: 100px;">',
     `<input type="date" class="form-control" value=${task_notification_time}>`,
     "</td>",
     '<td class="description_task" style="width: 300px;">',
-    `<textarea class="form-control">${task_description}</textarea>`,
+    `<textarea class="form-control" placeholder = 'Descripción'>${task_description}</textarea>`,
     "</td>",
   ];
   $(`#${task_id}`).find(".accion .btn-warning").addClass("disabled");
@@ -179,10 +186,10 @@ function template_task_edit(id_table, task_id) {
 
   var tem_content = [
     '<td class="name_task" style="width: 200px;">',
-    `<input type="text" class="form-control" value=${task_name}>`,
+    `<input type="text" class="form-control" value='${task_name}' placeholder = 'Tarea'>`,
     "</td>",
     '<td class="subject_task" style="width: 200px;">',
-    `<input type="text" class="form-control" value=${task_subject}>`,
+    `<input type="text" class="form-control" value='${task_subject}' placeholder = 'Asignatura'>`,
     "</td>",
     // '<td class="date_task" style="width: 100px;">',
     // `<input type="date" class="form-control" value=${task_date}>`,
@@ -191,7 +198,7 @@ function template_task_edit(id_table, task_id) {
     // `<input type="date" class="form-control" value=${task_notification_time}>`,
     // "</td>",
     '<td class="description_task" style="width: 300px;">',
-    `<textarea class="form-control">${task_description}</textarea>`,
+    `<textarea class="form-control" placeholder = 'Descripción'>${task_description}</textarea>`,
     "</td>",
   ];
   $(`#${task_id}`).find(".accion .btn-warning").addClass("disabled");
@@ -210,7 +217,16 @@ async function save_task(task_id) {
   var task_description = $(`#${task_id}`)
     .find(".description_task textarea")
     .val();
-  var task_date = $(`#${task_id}`).find(".date_task input").val();
+  if($(`#${task_id}`).find(".date_task input").length == 2) {
+    var task_date = $(`#${task_id}`).find(".date_task input")[0].value;
+    var task_time = $(`#${task_id}`).find(".date_task input")[1].value;
+    var task_date_time = task_date + " " + task_time;
+  }
+  else {
+    var task_date_time = "";
+  }
+
+  console.log(task_time)
   var task_notification_time = $(`#${task_id}`)
     .find(".task_notification_time input")
     .val();
@@ -220,7 +236,7 @@ async function save_task(task_id) {
   formData.append("name", task_name);
   formData.append("subject", task_subject);
   formData.append("description", task_description);
-  formData.append("date", task_date);
+  formData.append("date", task_date_time);
   formData.append("notification_time", task_notification_time);
   await request_save_task(formData, task_id);
 }
