@@ -67,15 +67,14 @@ def request_auth(username, password):
     payload = {'username': username, 'password': password}
 
     response = requests.post(URL, json = payload).json()
-
     return response
 
 def auth_ldap(username, password):
     """Authenticates the student with its credentials."""
 
     response = request_auth(username, password)
-    
-    if response["user"]["uid"] == username:
+
+    if "token" in response and response["token"]:
         mongo_db["user_logged"].insert_one({"username":username, "data": response})
         return User(username = username, data = response)
 

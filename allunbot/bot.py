@@ -2,7 +2,7 @@ import json
 import os
 
 from flask import Flask, jsonify, redirect, render_template, request, url_for
-from flask_login import LoginManager, current_user, login_required
+from flask_login import LoginManager, current_user, login_required, logout_user
 from flask_login import login_user
 import secrets
 
@@ -294,8 +294,9 @@ def webhook():
 @app.route('/', methods=['GET'])
 def index():
     """Return the index page of the bot."""
+    is_auth, info_sia, username = user_authenticated(current_user)
 
-    return render_template('index.html')
+    return render_template('index.html', logged = is_auth, username = username)
 
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
@@ -358,13 +359,6 @@ def login():
         
     return render_template('login.html', logged = False)
 
-@app.route('/actualizar', methods = ['GET', 'POST'])
-def update():
-    """Returns the update (login) page."""
-
-    return login()
-
-
 @app.route('/auth_ldap', methods = ['GET', 'POST'])
 def auth_ldap_page():
     
@@ -382,7 +376,13 @@ def auth_ldap_page():
         login_user(user)
         return redirect(url_for('dashboard'))
     else:
-        return render_template('auth_ldap.html', logged = False)
+        return render_template('auth_ldap.html', logged = False, error = "Fallo en la autenticación")
+
+@app.route('/actualizar', methods = ['GET', 'POST'])
+def update():
+    """Returns the update (login) page."""
+
+    return login()
 
 @app.route('/dashboard', methods = ['GET', 'POST'])
 def dashboard():
@@ -433,7 +433,18 @@ def task():
                            tasks_archivados = get_past_tasks(username)
                            )
 
+@app.route('/logout')
+@login_required
+def logout():
+    
+    is_auth, info_sia, username = user_authenticated(current_user)
+    if not is_auth:
+        return redirect(url_for('auth_ldap_page'))
 
+    mongo_db.user_logged.delete_many({"username":username})
+
+    logout_user()
+    return redirect(url_for('auth_ldap_page'))
 
 """--------------------------------- API ----------------------------------"""
 @app.route('/calculadora', methods = ['POST'])
@@ -483,7 +494,6 @@ def add_task_db():
         return json.dumps(item, default=str)
     else:
         return jsonify({})
-
 @app.route('/api/task', methods = ['DELETE'])
 def remove_task_db():
     """
@@ -497,7 +507,10 @@ def remove_task_db():
     else:
         return jsonify({})
 
+
+"""--------------------------------- MAIN ----------------------------------"""
 if __name__ == "__main__":
     """Main execution of the program"""
+    mongo_db.user_logged.delete_many({})
     app.debug = True # Hot reloading
     app.run(port = int(os.environ.get('PORT', 10000))) # Server execution port

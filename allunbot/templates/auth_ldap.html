@@ -2,8 +2,13 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-center align-items-center">
+<div class="d-flex justify-content-center align-items-center" style="min-height: calc(100vh - 56px - 54px);">
+    
     <form method="post">
+        {% if error %}
+            <div class="alert alert-danger" role="alert">{{error}}</div>
+        {% endif %}
+
         <div class="mb-3">
             <label for="username" class="form-label">Usuario institucional</label>
             <input type="text" class="form-control" id="username" name="username" required>

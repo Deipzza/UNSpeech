@@ -3,14 +3,18 @@
 /* Padding below the footer and lighter body text */
 
 body {
-  padding-top: 3.5rem;
   color: rgb(var(--bs-tertiary-color-rgb));
+  min-height: 100vh;
 }
 
-.container{
+main > .container{
   margin: 0;
   max-width: 100%;
   padding: 0;
+  min-height: calc(100vh - 56px - 54px);
+}
+.row{
+  margin: 0;
 }
 
 /* CUSTOMIZE THE CAROUSEL
@@ -219,11 +223,46 @@ body {
 
 footer {
   padding: 0.5% 4%;
-  margin-top: 2%;
+  /* margin-top: 2%; */
 }
 
 footer a {
   color: white;
   text-decoration: none;
   font-weight: 500;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 5px;
+}
+
+/* button */
+::-webkit-scrollbar-button {
+  background: #808080;
+  width: 0;
+  height: 0;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #000;
+  border-radius: 11px;
+}
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #666; 
+}
+/* Track */
+::-webkit-scrollbar-track {
+  background: #9797976e;
+}
+/* The track NOT covered by the handle.
+::-webkit-scrollbar-track-piece {
+  background: #000; 
+}
+/* Corner */
+::-webkit-scrollbar-corner {
+  background: #999; 
 }
