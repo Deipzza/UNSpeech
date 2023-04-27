@@ -9,12 +9,14 @@ import secrets
 import telebot
 
 from bot_functions.academic_history import *
+from bot_functions.alerts import *
 from bot_functions.calculator import *
 from bot_functions.grades import *
 from bot_functions.login import *
 from bot_functions.metrics import *
 from bot_functions.schedule import *
 from bot_functions.university_calendar import *
+from bot_functions.users import *
 from bot_functions.task import *
 from constants import *
 import messages_list as messages
@@ -175,38 +177,77 @@ def requests_groups(message):
 def add_groups(message):
     """Add groups message handler.
 
+    Returns an interactive menu for the user to write the group's information.
+
+    Inputs:
+    message -> string with the user's message.
     """
 
     text = "Escribe el código de la asignatura de la cual quieres agregar el grupo."
     sent_msg = bot.send_message(message.chat.id, text, parse_mode = "Markdown")
     bot.register_next_step_handler(sent_msg, add_groups_name_handler, bot)
 
-@bot.message_handler(commands = ["actualizar_info_sia"])
-def update_info_sia(message):
-    """
+@bot.message_handler(commands = ["agregar_tarea"])
+def add_tasks(message):
+    """Add tasks message handler.
+
+    Inputs:
+    message -> string with the user's message.
     """
 
     text = f"""
-Para poder actualizar tu información del SIA necesitamos que ingreses al link:
+Para agregar una tarea debes ingresar al enlace:
+http://localhost:10000/tareas?token={message.chat.id}
+Recuerda **NO** compartir este enlace ya que cualquiera podrá tener acceso a tu información.
+"""
+    bot.send_message(message.chat.id, text, parse_mode = "Markdown")
+
+@bot.message_handler(commands = ["actualizar_info_sia"])
+def update_info_sia(message):
+    """Academic info updater handler.
+
+    Inputs:
+    message -> string with the user's message.
+    """
+
+    text = f"""
+Para poder actualizar tu información del SIA debes ingresar al enlace:
 http://localhost:10000/actualizar
 
 Utiliza este token para poder autenticarte:
 {message.chat.id}
-Mantén tu token seguro y guárdalo en un lugar seguro, ya que puede ser utilizado por cualquiera para acceder.
+Recuerda guardar tu token en un lugar seguro, ya que puede ser utilizado por cualquiera para acceder.
 """
     bot.send_message(message.chat.id, text, parse_mode = "Markdown")
 
-
-# Handler for other messages
 @bot.message_handler(func = lambda msg: True)
 def echo_all(message):
+    """Message handler for other messages."""
+
     bot.send_message(message.chat.id, "No reconozco ese comando.\nPara ver mi lista de comandos escribe /comandos", parse_mode = "Markdown")
+
+def send_alert():
+    """Sends alert message with their tasks to all users."""
+
+    users = get_users()
+
+    for user in users:
+        tasks = get_user_message_tasks(user)
+        message = f"""
+*¡Recuerda!*
+Tus notificaciones para hoy son:
+{tasks}
+"""
+        bot.send_message(int(user["chat_id"]),
+                         text = message,
+                         parse_mode = "Markdown")
 
 
 """----------------------------- CALLBACKS ----------------------------------"""
 
-# Interactive messages for academic calendar handler
-@bot.callback_query_handler(func=lambda call: call.data in ["ac_pregrado", "ac_posgrado"])
+
+@bot.callback_query_handler(func=lambda call: call.data in ["ac_pregrado",
+                                                            "ac_posgrado"])
 def callback_query(call):
     """Callback function for the user request of the academic calendar.
 
@@ -221,8 +262,8 @@ def callback_query(call):
                      f"*Calendario académico de {student}.*\n{calendar}",
                      parse_mode = "Markdown")
 
-# Interactive messages for requests calendar handler
-@bot.callback_query_handler(func = lambda call: call.data in ["so_pregrado", "so_posgrado"])
+@bot.callback_query_handler(func = lambda call: call.data in ["so_pregrado",
+                                                              "so_posgrado"])
 def callback_query(call):
     """Callback function for the user request of the requests calendar.
 
@@ -237,7 +278,6 @@ def callback_query(call):
                     f"*Calendario de solicitudes {student}.*\n{calendar}",
                     parse_mode = "Markdown")
 
-# Interactive messages for the academic information handler
 @bot.callback_query_handler(func = lambda call: "sia" in call.data)
 def callback_login(call):
     """Callback function for the user request of the academic information.
@@ -268,9 +308,9 @@ def callback_login(call):
                             parse_mode = "Markdown")
         elif call.data == "sia_calculator_grades":
             text = f"""
-Para poder utilizar la calculadora de notas necesitamos que ingreses al link:
+Para poder utilizar la calculadora de notas debes ingresar al enlace:
 http://localhost:10000/calculadora?token={call.message.chat.id}
-Recuerda NO compartir este enlace ya que cualquiera podrá tener acceso a tu información.
+Recuerda **NO** compartir este enlace ya que cualquiera podrá tener acceso a tu información.
 """
             bot.send_message(call.message.chat.id, text, parse_mode = "Markdown")
     else:
@@ -280,11 +320,10 @@ Recuerda NO compartir este enlace ya que cualquiera podrá tener acceso a tu inf
 
 """--------------------------------- FLASK ----------------------------------"""
 
-# Server settings
+
 @app.route('/', methods=["POST"])
 def webhook():
-    """
-    """
+    """Establish server settings"""
 
     bot.process_new_updates(
         [telebot.types.Update.de_json(request.stream.read().decode("utf-8"))]
@@ -511,6 +550,9 @@ def remove_task_db():
 """--------------------------------- MAIN ----------------------------------"""
 if __name__ == "__main__":
     """Main execution of the program"""
+    
+    create_schedule_thread(send_alert)
+
     mongo_db.user_logged.delete_many({})
     app.debug = True # Hot reloading
     app.run(port = int(os.environ.get('PORT', 10000))) # Server execution port
