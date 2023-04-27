@@ -84,6 +84,7 @@ def get_past_tasks(username):
 
     today = str(datetime.date.today())
     query = {
+        "username" : username,
         "date": {"$exists": True},
         "$expr": {
             "$lt": [{"$substr": ["$date", 0, 10]}, today]
@@ -128,6 +129,7 @@ def get_future_tasks(username):
 
     # Create query for the search
     query = {
+        "username" : username,
         "date": {"$exists": True},
         "$expr": {
             "$gt": [{"$substr": ["$date", 0, 10]}, today]
