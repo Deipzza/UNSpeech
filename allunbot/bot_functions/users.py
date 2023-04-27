@@ -52,3 +52,15 @@ def get_user_by_chat(chat_id):
         return ""
     else:
         return result["username"]
+
+def get_users():
+    """Returns a list of all user's chat IDs."""
+
+    projection = {
+        "_id": 0,
+        "username": 1,
+        "chat_id": 1,
+    }
+    result = mongo_db.users.find({}, projection)
+    
+    return list(result)

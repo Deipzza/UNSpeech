@@ -4,12 +4,14 @@ from flask import Flask, jsonify, render_template, request
 import telebot
 
 from bot_functions.academic_history import *
+from bot_functions.alerts import *
 from bot_functions.calculator import *
 from bot_functions.grades import *
 from bot_functions.login import *
 from bot_functions.metrics import *
 from bot_functions.schedule import *
 from bot_functions.university_calendar import *
+from bot_functions.users import *
 from constants import *
 import messages_list as messages
 from utils import *
@@ -203,6 +205,22 @@ def echo_all(message):
     """Message handler for other messages."""
 
     bot.send_message(message.chat.id, "No reconozco ese comando.\nPara ver mi lista de comandos escribe /comandos", parse_mode = "Markdown")
+
+def send_alert():
+    """Sends alert message with their tasks to all users."""
+
+    users = get_users()
+
+    for user in users:
+        tasks = get_user_message_tasks(user)
+        message = f"""
+*¡Recuerda!*
+Tus notificaciones para hoy son:
+{tasks}
+"""
+        bot.send_message(int(user["chat_id"]),
+                         text = message,
+                         parse_mode = "Markdown")
 
 
 """----------------------------- CALLBACKS ----------------------------------"""
@@ -421,6 +439,8 @@ def get_data_subject():
 
 if __name__ == "__main__":
     """Main execution of the program"""
+    
+    create_schedule_thread(send_alert)
 
     app.debug = True # Hot reloading
     app.run(port = int(os.environ.get('PORT', 10000))) # Server execution port
