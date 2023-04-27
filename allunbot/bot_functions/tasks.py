@@ -6,9 +6,9 @@ from database.mongodatabase import *
 # Set the locale to Spanish and Colombian locale
 locale.setlocale(locale.LC_ALL, 'es_CO.utf8')
 
-def insert_values_into_tasks(username, name, description = None,
-                             date = None, notification_time = None,
-                             subject = None):
+def insert_values_into_tasks(username, name, description = "",
+                             date = "", notification_time = "",
+                             subject = ""):
     """Inserts a task into the database with the given fields.
 
     Inputs:
@@ -152,7 +152,7 @@ def get_dateless_tasks(username):
     query = {
         "$and": [
             {"username": username},
-            {"date": {"$exists": False}}
+            {"date": ""}
         ]
     }
 
@@ -188,3 +188,5 @@ def parse_task_list(task_list):
         formated_list.append(task)
 
     return formated_list
+
+get_dateless_tasks("dperezz")

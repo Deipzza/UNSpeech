@@ -6,7 +6,7 @@ import time
 from constants import *
 
 bot = telebot.TeleBot(BOT_TOKEN, threaded = False)
-chat_id = '6158731448'
+chat_id = 'X'
 message = 'Hello, world!'
 send_time = str(datetime.datetime(2023, 4, 25, 18, 46))[:16]  # Set the time to send the message
 # send_time = datetime.date(2023, 4, 25)  # Set the time to send the message
