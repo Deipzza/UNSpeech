@@ -1,11 +1,17 @@
 import os
 import time
+import requests
 
+from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 
 from .users import *
+
+from .models import User
+
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 db = os.path.join(BASE_DIR, 'allunbot.db')
@@ -52,3 +58,32 @@ def auth(payload):
         return (True, driver)
     else:
         return (False, None)
+
+
+def request_auth(username, password):
+    load_dotenv(os.path.join(BASE_DIR, 'allunbot/.env'))
+    URL = os.environ.get("CONNECTION_LDAP")
+
+    payload = {'username': username, 'password': password}
+
+    response = requests.post(URL, json = payload).json()
+    return response
+
+def auth_ldap(username, password):
+    """Authenticates the student with its credentials."""
+
+    response = request_auth(username, password)
+
+    if "token" in response and response["token"]:
+        mongo_db["user_logged"].insert_one({"username":username, "data": response})
+        return User(username = username, data = response)
+
+    return None
+
+def load_user(username):
+    response = mongo_db["user_logged"].find_one({"username":username})
+    
+    if response["user"]["uid"] == username:
+        return User(username = username, data = response["data"])
+
+    return None

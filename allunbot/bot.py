@@ -1,6 +1,11 @@
+import json
 import os
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, redirect, render_template, request, url_for
+from flask_login import LoginManager, current_user, login_required, logout_user
+from flask_login import login_user
+import secrets
+
 import telebot
 
 from bot_functions.academic_history import *
@@ -10,6 +15,7 @@ from bot_functions.login import *
 from bot_functions.metrics import *
 from bot_functions.schedule import *
 from bot_functions.university_calendar import *
+from bot_functions.task import *
 from constants import *
 import messages_list as messages
 from utils import *
@@ -20,6 +26,20 @@ bot.set_webhook(url = URL)
 
 # Server initialization
 app = Flask(__name__, static_folder = 'assets',)
+app.secret_key = secrets.token_hex(16)
+
+#Login managger
+login_manager = LoginManager(app)
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(username):
+    users_collection = mongo_db["user_logged"]
+    user_data = users_collection.find_one({'username': username})
+    if user_data:
+        return User(username=user_data['username'], data = user_data['data'])
+    return None
+    
 
 
 """------------------------------ MESSAGES ----------------------------------"""
@@ -274,8 +294,9 @@ def webhook():
 @app.route('/', methods=['GET'])
 def index():
     """Return the index page of the bot."""
+    is_auth, info_sia, username = user_authenticated(current_user)
 
-    return render_template('index.html')
+    return render_template('index.html', logged = is_auth, username = username)
 
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
@@ -336,7 +357,26 @@ def login():
         else:
             bot.send_message(chat_id, messages.not_authenticated)
         
-    return render_template('login.html')
+    return render_template('login.html', logged = False)
+
+@app.route('/auth_ldap', methods = ['GET', 'POST'])
+def auth_ldap_page():
+    
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+    
+    if request.method == 'GET':
+        return render_template('auth_ldap.html')
+
+    username = request.form['username']
+    password = request.form['password']
+    user = auth_ldap(username, password)
+    
+    if user is not None:
+        login_user(user)
+        return redirect(url_for('dashboard'))
+    else:
+        return render_template('auth_ldap.html', logged = False, error = "Fallo en la autenticación")
 
 @app.route('/actualizar', methods = ['GET', 'POST'])
 def update():
@@ -344,37 +384,76 @@ def update():
 
     return login()
 
+@app.route('/dashboard', methods = ['GET', 'POST'])
+def dashboard():
+
+    is_auth, info_sia, username = user_authenticated(current_user)
+    if not is_auth:
+        return redirect(url_for('auth_ldap_page'))
+
+    return render_template('dashboard.html', 
+                           username = username, 
+                           logged = is_auth, 
+                           info_sia = info_sia)
+
 @app.route('/calculadora', methods = ['GET'])
 def calculadora():
-    """
-    """
+    """ """
+    is_auth, info_sia, username = user_authenticated(current_user)
+    if not is_auth:
+        return redirect(url_for('auth_ldap_page'))
     
     headers = ["Asignatura", "Créditos", "Tipología", "Calificación", "Acciones"]
-    chat_id = request.args.get('token')
-    if chat_id != None:
-        username = get_user_by_chat(chat_id)
 
-        projection_grades = {"_id": 0, "data": 1}
-        query = {"username": username}
-        my_grades = mongo_db.grades.find(query,
-                                                 projection_grades)[0]["data"]    
+    projection_grades = {"_id": 0, "data": 1}
+    query = {"username": username}
+    my_grades = mongo_db.grades.find(query,
+                                     projection_grades)[0]["data"]    
 
-        return render_template('calculadora.html',
-                               headers = headers,
-                               my_grades = my_grades,
-                               token = chat_id)
-    else:
-        return render_template('error_404.html')
+    return render_template('calculadora.html',
+                            headers = headers,
+                            my_grades = my_grades,
+                            username = username,
+                            logged = is_auth, 
+                            info_sia = info_sia)
 
+@app.route('/tasks', methods = ['GET', 'POST'])
+def task():
+    is_auth, info_sia, username = user_authenticated(current_user)
+    if not is_auth:
+        return redirect(url_for('auth_ldap_page'))
+    
+    return render_template('tasks.html', 
+                           username = username, 
+                           logged = is_auth, 
+                           info_sia = info_sia,
+                           tasks_recordatorios = get_dateless_tasks(username),
+                           tasks_today = get_today_tasks(username),
+                           tasks_upcoming = get_future_tasks(username),
+                           tasks_archivados = get_past_tasks(username)
+                           )
 
+@app.route('/logout')
+@login_required
+def logout():
+    
+    is_auth, info_sia, username = user_authenticated(current_user)
+    if not is_auth:
+        return redirect(url_for('auth_ldap_page'))
+
+    mongo_db.user_logged.delete_many({"username":username})
+
+    logout_user()
+    return redirect(url_for('auth_ldap_page'))
+
+"""--------------------------------- API ----------------------------------"""
 @app.route('/calculadora', methods = ['POST'])
 def get_data_subject():
     """
     """
-
-    chat_id = request.form['token']
-    if chat_id != None:
-        username = get_user_by_chat(chat_id)
+    
+    username = request.form['username']
+    if username != None:
 
         projection= {"_id": 0, "data": 1}
         query = {"username": username}
@@ -397,9 +476,41 @@ def get_data_subject():
         return jsonify(myGrades)
     else:
         return jsonify({})
+    
+@app.route('/api/task', methods = ['POST'])
+def add_task_db():
+    """
+    """
+    
+    username = current_user.get_id()
+    name = request.form['name']
+    id = request.form['id']
 
+    data = request.form.copy()
+    data["username"] = username
+
+    if username != None and name != None and id != None:
+        item = task_add(id, data)
+        return json.dumps(item, default=str)
+    else:
+        return jsonify({})
+@app.route('/api/task', methods = ['DELETE'])
+def remove_task_db():
+    """
+    """
+
+    id = request.form['id']
+
+    if id != None:
+        item = remove_task(id)
+        return json.dumps(item, default=str)
+    else:
+        return jsonify({})
+
+
+"""--------------------------------- MAIN ----------------------------------"""
 if __name__ == "__main__":
     """Main execution of the program"""
-
+    mongo_db.user_logged.delete_many({})
     app.debug = True # Hot reloading
     app.run(port = int(os.environ.get('PORT', 10000))) # Server execution port
