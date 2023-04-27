@@ -423,16 +423,14 @@ def task():
     if not is_auth:
         return redirect(url_for('auth_ldap_page'))
     
-    tasks_recordatorios = select_query_tasks(username)
-    
     return render_template('tasks.html', 
                            username = username, 
                            logged = is_auth, 
                            info_sia = info_sia,
-                           tasks_recordatorios = tasks_recordatorios,
-                           tasks_today = [],
-                           tasks_upcoming = [],
-                           tasks_archivados = []
+                           tasks_recordatorios = get_dateless_tasks(username),
+                           tasks_today = get_today_tasks(username),
+                           tasks_upcoming = get_future_tasks(username),
+                           tasks_archivados = get_past_tasks(username)
                            )
 
 
@@ -475,19 +473,29 @@ def add_task_db():
     
     username = current_user.get_id()
     name = request.form['name']
+    id = request.form['id']
 
-    if username != None and name != None:
+    data = request.form.copy()
+    data["username"] = username
 
-        description = request.form['description']
-        date = request.form['date']
-        notification_time = request.form['notification_time']
-        subject = request.form['subject']
-
-        item = insert_values_into_tasks(username, name, description, date, notification_time, subject)
+    if username != None and name != None and id != None:
+        item = task_add(id, data)
         return json.dumps(item, default=str)
     else:
         return jsonify({})
 
+@app.route('/api/task', methods = ['DELETE'])
+def remove_task_db():
+    """
+    """
+
+    id = request.form['id']
+
+    if id != None:
+        item = remove_task(id)
+        return json.dumps(item, default=str)
+    else:
+        return jsonify({})
 
 if __name__ == "__main__":
     """Main execution of the program"""

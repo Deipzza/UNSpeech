@@ -25,18 +25,9 @@
   --box-color-4: #daffe5;
   --task-color: #777982;
 }
-main {
-  margin-top: 4%;
-  width: 100%;
-}
 
 body {
   margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  overflow: auto;
   width: 100%;
   height: 100vh;
   font-family: "DM Sans", sans-serif;
@@ -56,22 +47,18 @@ button {
 }
 
 .task-manager {
-  display: flex;
-  justify-content: space-between;
   width: 100%;
-  height: 90vh;
-  max-height: 900px;
   background: #fff;
   box-shadow: 0 0.3px 2.2px rgba(0, 0, 0, 0.011),
     0 0.7px 5.3px rgba(0, 0, 0, 0.016), 0 1.3px 10px rgba(0, 0, 0, 0.02),
     0 2.2px 17.9px rgba(0, 0, 0, 0.024), 0 4.2px 33.4px rgba(0, 0, 0, 0.029),
     0 10px 80px rgba(0, 0, 0, 0.04);
   overflow: hidden;
+  margin: 0;
 }
 
 .left-bar {
   background-color: var(--bg-color);
-  width: 230px;
   border-right: 1px solid #e3e7f7;
   position: relative;
 }
@@ -126,7 +113,6 @@ button {
 }
 
 .right-bar {
-  width: 320px;
   border-left: 1px solid #e3e7f7;
   display: flex;
   flex-direction: column;

@@ -3,8 +3,14 @@
 /* Padding below the footer and lighter body text */
 
 body {
-  padding-top: 4.5rem;
+  padding-top: 3.5rem;
   color: rgb(var(--bs-tertiary-color-rgb));
+}
+
+.container{
+  margin: 0;
+  max-width: 100%;
+  padding: 0;
 }
 
 /* CUSTOMIZE THE CAROUSEL

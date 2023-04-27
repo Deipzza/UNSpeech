@@ -21,17 +21,12 @@
 }
 
 .task {
-  display: flex;
-  justify-content: space-between;
-  position: relative;
   padding-bottom: 16px;
   padding-left: 30px;
   color: var(--task-color);
   font-size: 13px;
   font-weight: 500;
-  padding: 1.5% 1%;
-  border: 1px solid lightgray;
-  border-top: none;
+  text-align: justify;
 }
 
 .task:hover {
@@ -96,6 +91,7 @@ label .label-text:before {
   border-bottom: 1px solid #ddd;
   padding-bottom: 30px;
   margin-bottom: 30px;
+  margin-top: 4% !important;
 }
 
 @media screen and (max-width: 700px) {
@@ -162,10 +158,7 @@ label .label-text:before {
   border-radius: 10px 10px 0 0;
 }
 
-.Acciones {
-  gap: 0.5%;
-  margin-top: 1.5%;
-}
+
 
 .Acciones .yellow {
   background-color: var(--box-color);
@@ -194,4 +187,57 @@ label .label-text:before {
   color: white;
   background-color: var(--bs-btn-hover-bg);
   border-color: var(--bs-btn-hover-border-color);
+}
+
+.Acciones {
+  gap: 1.8%;
+  margin-top: 1.5%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  align-content: center;
+}
+
+.Acciones.d-flex {
+  margin-bottom: 2%;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 5px;
+}
+
+/* button */
+::-webkit-scrollbar-button {
+  background: #808080;
+  width: 0;
+  height: 0;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #000;
+  border-radius: 11px;
+}
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #666; 
+}
+/* Track */
+::-webkit-scrollbar-track {
+  background: #9797976e;
+}
+/* The track NOT covered by the handle.
+::-webkit-scrollbar-track-piece {
+  background: #000; 
+}
+/* Corner */
+::-webkit-scrollbar-corner {
+  background: #999; 
+}
+
+table{
+  min-width:100%
 }
