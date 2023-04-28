@@ -197,8 +197,7 @@ def add_tasks(message):
 
     text = f"""
 Para agregar una tarea debes ingresar al enlace:
-http://localhost:10000/tareas?token={message.chat.id}
-Recuerda **NO** compartir este enlace ya que cualquiera podrá tener acceso a tu información.
+{URL}/tareas
 """
     bot.send_message(message.chat.id, text, parse_mode = "Markdown")
 
@@ -213,7 +212,7 @@ def update_info_sia(message):
 
     text = f"""
 Para poder actualizar tu información del SIA debes ingresar al enlace:
-http://localhost:10000/actualizar
+{URL}/actualizar
 
 Utiliza este token para poder autenticarte:
 {message.chat.id}
@@ -312,14 +311,14 @@ def callback_login(call):
         elif call.data == "sia_calculator_grades":
             text = f"""
 Para poder utilizar la calculadora de notas debes ingresar al enlace:
-http://localhost:10000/calculadora?token={call.message.chat.id}
+{URL}/calculadora
 Recuerda **NO** compartir este enlace ya que cualquiera podrá tener acceso a tu información.
 """
             bot.send_message(call.message.chat.id, text, parse_mode = "Markdown")
         elif call.data == "sia_my_tasks":
             text = f"""
 Para poder ver tus tareas debes ingresar al enlace:
-http://localhost:10000/auth-ldap
+{URL}/tasks
 """
             bot.send_message(call.message.chat.id, text, parse_mode = "Markdown")
             print("Entró acá")

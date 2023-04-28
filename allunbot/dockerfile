@@ -1,0 +1,33 @@
+# Usa una imagen base de Python
+FROM python:3.7
+
+# Establece el directorio de trabajo dentro del contenedor
+WORKDIR /app
+
+# Establece la zona horaria en el contenedor
+ENV TZ=America/Bogota
+
+# Instala las dependencias necesarias para la configuración del locale
+RUN apt-get update && \
+    apt-get install -y locales && \
+    rm -rf /var/lib/apt/lists/* && \
+    localedef -i es_CO -c -f UTF-8 -A /usr/share/locale/locale.alias es_CO.UTF-8
+
+# Establece las variables de entorno para el locale
+ENV LANG es_CO.utf8
+ENV LC_ALL es_CO.utf8
+
+# Copia el archivo requirements.txt al contenedor
+COPY requirements.txt .
+
+# Instala las dependencias del proyecto
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copia el resto de los archivos fuente al contenedor
+COPY . .
+
+# Expone el puerto en el que se ejecuta el servidor
+EXPOSE 10000
+
+# Ejecuta el servidor con Gunicorn
+CMD ["gunicorn", "--bind", "0.0.0.0:10000", "bot:app"]

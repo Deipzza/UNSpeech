@@ -1,0 +1,10 @@
+services:
+
+  # A Docker web service
+  - type: web
+    name: allunbot
+    env: docker
+    repo: https://github.com/cpatinore/ppi_02.git # optional
+    plan: free
+    branch: main
+    rootDir: allunbot
