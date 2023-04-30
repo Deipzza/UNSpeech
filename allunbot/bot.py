@@ -11,6 +11,7 @@ import telebot
 from bot_functions.academic_history import *
 from bot_functions.alerts import *
 from bot_functions.calculator import *
+from bot_functions.events import *
 from bot_functions.grades import *
 from bot_functions.login import *
 from bot_functions.metrics import *
@@ -444,11 +445,14 @@ def dashboard():
     is_auth, info_sia, username = user_authenticated(current_user)
     if not is_auth:
         return redirect(url_for('auth_ldap_page'))
+    
+    today_events = get_today_events()
 
     return render_template('dashboard.html', 
                            username = username, 
                            logged = is_auth, 
-                           info_sia = info_sia)
+                           info_sia = info_sia,
+                           today_events = today_events)
 
 @app.route('/calculadora', methods = ['GET'])
 def calculadora():
@@ -463,19 +467,24 @@ def calculadora():
     query = {"username": username}
     my_grades = mongo_db.grades.find(query,
                                      projection_grades)[0]["data"]    
+    
+    today_events = get_today_events()
 
     return render_template('calculadora.html',
                             headers = headers,
                             my_grades = my_grades,
                             username = username,
                             logged = is_auth, 
-                            info_sia = info_sia)
+                            info_sia = info_sia,
+                            today_events = today_events)
 
 @app.route('/tasks', methods = ['GET', 'POST'])
 def task():
     is_auth, info_sia, username = user_authenticated(current_user)
     if not is_auth:
         return redirect(url_for('auth_ldap_page'))
+    
+    today_events = get_today_events()
     
     return render_template('tasks.html', 
                            username = username, 
@@ -484,7 +493,38 @@ def task():
                            tasks_recordatorios = get_dateless_tasks(username),
                            tasks_today = get_today_tasks(username),
                            tasks_upcoming = get_future_tasks(username),
-                           tasks_archivados = get_past_tasks(username)
+                           tasks_archivados = get_past_tasks(username),
+                           today_events = today_events
+                           )
+
+@app.route('/events', methods = ['GET', 'POST'])
+def events():
+    is_auth, info_sia, username = user_authenticated(current_user)
+    if not is_auth:
+        return redirect(url_for('auth_ldap_page'))
+    
+    today_events = get_today_events()
+
+    return render_template('events.html', 
+                           username = username, 
+                           logged = is_auth, 
+                           info_sia = info_sia,
+                           events = get_events_by_user(username),
+                           today_events = today_events
+                           )
+@app.route('/create_event', methods = ['GET', 'POST'])
+def create_event():
+    is_auth, info_sia, username = user_authenticated(current_user)
+    if not is_auth:
+        return redirect(url_for('auth_ldap_page'))
+    
+    today_events = get_today_events()
+
+    return render_template('create_events.html', 
+                           username = username, 
+                           logged = is_auth, 
+                           info_sia = info_sia,
+                           today_events = today_events
                            )
 
 @app.route('/logout')
@@ -562,6 +602,51 @@ def remove_task_db():
     else:
         return jsonify({})
 
+@app.route('/api/event', methods = ['PUT'])
+def update_event_db():
+    """Endpoint for adding event."""
+    
+    username = current_user.get_id()
+    name = request.form['name']
+    id = request.form['id']
+
+    data = request.form.copy()
+    data["username"] = username
+
+    if username != None and name != None and id != None:
+        item = update_event(id, data)
+        return json.dumps(item, default=str)
+    else:
+        return jsonify({})
+
+@app.route('/api/event', methods = ['DELETE'])
+def remove_event_db():
+    """Endpoint for removing event."""
+
+    id = request.form['id']
+
+    if id != None:
+        item = remove_event(id)
+        return json.dumps(item, default=str)
+    else:
+        return jsonify({})
+
+
+@app.route('/api/event', methods = ['POST'])
+def add_event_db():
+    """Endpoint for adding events."""
+    
+    username = current_user.get_id()
+    name = request.form['name']
+
+    data = request.form.copy()
+    data["username"] = username
+
+    if username != None and name != None:
+        item = add_event(request.form)
+        return json.dumps(item, default=str)
+    else:
+        return jsonify({})
 
 """--------------------------------- MAIN ----------------------------------"""
 
@@ -569,8 +654,8 @@ def remove_task_db():
 if __name__ == "__main__":
     """Main execution of the program"""
     
-    create_schedule_thread(send_alert)
+    # create_schedule_thread(send_alert)
 
     mongo_db.user_logged.delete_many({})
-    # app.debug = True # Hot reloading
+    app.debug = True # Hot reloading
     app.run(port = int(os.environ.get('PORT', 10000))) # Server execution port

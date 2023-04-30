@@ -74,6 +74,28 @@ styles %}
           </a>
         </li>
         {% endif %}
+
+        <li class="item">
+          <a href="{{ url_for('events') }}">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            class="feather feather-calendar"
+            viewBox="0 0 24 24"
+          >
+            <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+            <path d="M16 2v4M8 2v4m-5 4h18" />
+          </svg>
+            <span>Mis eventos</span>
+          </a>
+        </li>
+
       </ul>
     </div>
     <a role="button" class="btn btn-primary logout" href="{{url_for('logout')}}">Cerrar sesión</a>
@@ -108,48 +130,28 @@ styles %}
   <div class="right-bar col-3">
     <div class="header">Eventos</div>
     <div class="right-content">
-      <div class="task-box yellow">
-        <div class="description-task">
-          <div class="time">08:00 - 09:00 AM</div>
-          <div class="task-name">Product Review</div>
+      {% for event in today_events %}
+      <a href="{{event['url'] if event['url'] != none else ""}}" target="_blank" class="enlace">
+        <div class="event-box {{event['status']}}">
+          <div class="description-task">
+            <div class="time">{{event['start-time']}} - {{event['final-time']}}</div>
+            <div class="event-name">{{event['name']}}</div>
+            <div class="event-dependecy">
+              <p><strong>Invita:</strong> {{event['dependecy']}}</p>
+            </div>
+          </div>
+
+          <a class="more-button" data-bs-toggle="collapse" href="#collapse_{{event['_id']}}" aria-expanded="false">
+            <svg width="16px" height="16px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="1.656"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M12 4C12.5523 4 13 4.44772 13 5V11H19C19.5523 11 20 11.4477 20 12C20 12.5523 19.5523 13 19 13H13V19C13 19.5523 12.5523 20 12 20C11.4477 20 11 19.5523 11 19V13H5C4.44772 13 4 12.5523 4 12C4 11.4477 4.44772 11 5 11H11V5C11 4.44772 11.4477 4 12 4Z" fill="#000000"></path> </g></svg>
+          </a>
+
+          <div class="collapse" id="collapse_{{event['_id']}}">
+            <div class="task-description">{{event['description']}}</div>
+          </div>
         </div>
-        <div class="more-button"></div>
-      </div>
-      <div class="task-box blue">
-        <div class="description-task">
-          <div class="time">10:00 - 11:00 AM</div>
-          <div class="task-name">Design Meeting</div>
-        </div>
-        <div class="more-button"></div>
-      </div>
-      <div class="task-box red">
-        <div class="description-task">
-          <div class="time">01:00 - 02:00 PM</div>
-          <div class="task-name">Team Meeting</div>
-        </div>
-        <div class="more-button"></div>
-      </div>
-      <div class="task-box green">
-        <div class="description-task">
-          <div class="time">03:00 - 04:00 PM</div>
-          <div class="task-name">Release Event</div>
-        </div>
-        <div class="more-button"></div>
-      </div>
-      <div class="task-box blue">
-        <div class="description-task">
-          <div class="time">08:00 - 09:00 PM</div>
-          <div class="task-name">Release Event</div>
-        </div>
-        <div class="more-button"></div>
-      </div>
-      <div class="task-box yellow">
-        <div class="description-task">
-          <div class="time">11:00 - 12:00 PM</div>
-          <div class="task-name">Practise</div>
-        </div>
-        <div class="more-button"></div>
-      </div>
+      </a>
+      {% endfor %}
+      
     </div>
   </div>
 </div>
