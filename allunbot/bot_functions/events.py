@@ -85,7 +85,6 @@ def remove_event(id):
     except:
         return False
 
-
 def verify_field_null(field):
     if field == "" or field == "undefined":
         return None
