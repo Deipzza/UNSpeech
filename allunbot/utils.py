@@ -4,6 +4,7 @@ from flask import redirect, url_for
 from telebot import types
 from bot_functions.directory import *
 from bot_functions.groups import *
+from bot_functions.permissions import *
 
 def gen_markup(menu):
   markup = types.InlineKeyboardMarkup()
@@ -59,9 +60,10 @@ Mantén tu token seguro y guárdalo en un lugar seguro, ya que puede ser utiliza
 
 def user_authenticated(current_user):
    if not current_user.is_authenticated:
-        return (False, False, "")
+        return (False, False, "", [])
     
    username = current_user.get_id()
    search_user = mongo_db.users.count_documents({"username": username})
+   permissions = get_permissions_by_user(username)
 
-   return (True,  False if search_user == 0 else True, username)
+   return (True,  False if search_user == 0 else True, username, permissions)

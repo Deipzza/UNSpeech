@@ -343,7 +343,7 @@ def webhook():
 @app.route('/', methods=['GET'])
 def index():
     """Return the index page of the bot."""
-    is_auth, info_sia, username = user_authenticated(current_user)
+    is_auth, info_sia, username, _ = user_authenticated(current_user)
 
     return render_template('index.html', logged = is_auth, username = username)
 
@@ -442,7 +442,7 @@ def update():
 @app.route('/dashboard', methods = ['GET', 'POST'])
 def dashboard():
 
-    is_auth, info_sia, username = user_authenticated(current_user)
+    is_auth, info_sia, username, permissions = user_authenticated(current_user)
     if not is_auth:
         return redirect(url_for('auth_ldap_page'))
     
@@ -452,12 +452,13 @@ def dashboard():
                            username = username, 
                            logged = is_auth, 
                            info_sia = info_sia,
-                           today_events = today_events)
+                           today_events = today_events,
+                           permissions = permissions)
 
 @app.route('/calculadora', methods = ['GET'])
 def calculadora():
     """ """
-    is_auth, info_sia, username = user_authenticated(current_user)
+    is_auth, info_sia, username, permissions = user_authenticated(current_user)
     if not is_auth:
         return redirect(url_for('auth_ldap_page'))
     
@@ -476,11 +477,12 @@ def calculadora():
                             username = username,
                             logged = is_auth, 
                             info_sia = info_sia,
-                            today_events = today_events)
+                            today_events = today_events,
+                            permissions = permissions)
 
 @app.route('/tasks', methods = ['GET', 'POST'])
 def task():
-    is_auth, info_sia, username = user_authenticated(current_user)
+    is_auth, info_sia, username, permissions = user_authenticated(current_user)
     if not is_auth:
         return redirect(url_for('auth_ldap_page'))
     
@@ -494,12 +496,13 @@ def task():
                            tasks_today = get_today_tasks(username),
                            tasks_upcoming = get_future_tasks(username),
                            tasks_archivados = get_past_tasks(username),
-                           today_events = today_events
+                           today_events = today_events,
+                           permissions = permissions
                            )
 
 @app.route('/events', methods = ['GET'])
 def events():
-    is_auth, info_sia, username = user_authenticated(current_user)
+    is_auth, info_sia, username, permissions = user_authenticated(current_user)
     if not is_auth:
         return redirect(url_for('auth_ldap_page'))
     
@@ -510,12 +513,13 @@ def events():
                            logged = is_auth, 
                            info_sia = info_sia,
                            events = get_events_by_user(username),
-                           today_events = today_events
+                           today_events = today_events,
+                           permissions = permissions
                            )
 
 @app.route('/all_events', methods = ['GET'])
 def all_events():
-    is_auth, info_sia, username = user_authenticated(current_user)
+    is_auth, info_sia, username, permissions = user_authenticated(current_user)
     if not is_auth:
         return redirect(url_for('auth_ldap_page'))
     
@@ -526,13 +530,14 @@ def all_events():
                            logged = is_auth, 
                            info_sia = info_sia,
                            events = get_events(),
-                           today_events = today_events
+                           today_events = today_events,
+                           permissions = permissions
                            )
 
 @app.route('/create_event', methods = ['GET', 'POST'])
 def create_event():
-    is_auth, info_sia, username = user_authenticated(current_user)
-    if not is_auth:
+    is_auth, info_sia, username, permissions = user_authenticated(current_user)
+    if not is_auth or not 1 in permissions:
         return redirect(url_for('auth_ldap_page'))
     
     today_events = get_today_events()
@@ -541,13 +546,14 @@ def create_event():
                            username = username, 
                            logged = is_auth, 
                            info_sia = info_sia,
-                           today_events = today_events
+                           today_events = today_events,
+                           permissions = permissions
                            )
 
 @app.route('/logout')
 @login_required
 def logout():
-    is_auth, _, username = user_authenticated(current_user)
+    is_auth, _, username, _ = user_authenticated(current_user)
     if not is_auth:
         return redirect(url_for('auth_ldap_page'))
 
