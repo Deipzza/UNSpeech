@@ -137,6 +137,9 @@ def select_query_events(query):
 def get_events_by_user(username):
     return parse_event_list(select_query_events({"username":username}))
 
+def get_events():
+    return parse_event_list(select_query_events({}))
+
 def parse_date(date_input):
     date, time = [x for x in date_input.split(",")]
     year, month, day = [int(x) for x in date.split("-")]

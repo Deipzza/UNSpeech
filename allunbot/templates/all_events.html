@@ -1,0 +1,54 @@
+{% extends 'dashboard.html' %} {% block title %}Eventos{% endblock %} {% block
+styles %}
+<link href="../assets/dist/css/dashboard.css" rel="stylesheet" />
+<link href="../assets/dist/css/events.css" rel="stylesheet" />
+{% endblock %} {% block scripts %}{% endblock %} {% block page_content %}
+<div class="header">Todos los eventos.</div>
+
+{% if events | length > 0 %}
+
+<div class="table-responsive">
+    <table class="table table-striped" style="width: max-content;">
+        <thead class="table-dark">
+            <tr>
+                <th>Evento</th>
+                <th>Estado</th>
+                <th>Enlace</th>
+                <th>Dependencia</th>
+                <th>Fecha</th>
+                <th>Inicio</th>
+                <th>Fin</th>
+                <th>Descripción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in events %}
+            <tr class="event" id="{{event['_id']}}">
+                <td class="event_name" style="width: 200px;">{{event["name"]}}</td>
+                <td class="event_status" style="width: 200px;">{{event["status"] if event["status"] is not none else
+                    ""}}</td>
+                <td class="event_url" style="width: 200px;">
+                    <div style="overflow-wrap: break-word; width: inherit;">{{event["url"] if event["url"] is not none
+                        else ""}}</div>
+                </td>
+                <td class="event_dependecy" style="width: 200px;">{{event["dependecy"] if event["dependecy"] is not none
+                    else ""}}</td>
+                <td class="event_date" style="width: 100px;">{{event["date"] if event["date"] is not none else "" }}
+                </td>
+                <td class="event_start-time" style="width: 100px;">{{event["start-time"] if event["start-time"] is not
+                    none else ""}}</td>
+                <td class="event_final-time" style="width: 100px;">{{event["final-time"] if event["final-time"] is not
+                    none else ""}}</td>
+                <td class="event_description" style="width: 300px;">{{event["description"] if event["description"] is
+                    not none else ""}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% else %}
+<p class="notificación"> No hay eventos disponibles.</p>
+{% endif %}
+
+{% endblock %}

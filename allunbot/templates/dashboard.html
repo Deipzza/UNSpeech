@@ -96,6 +96,27 @@ styles %}
           </a>
         </li>
 
+        <li class="item">
+          <a href="{{ url_for('all_events') }}">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            class="feather feather-calendar"
+            viewBox="0 0 24 24"
+          >
+            <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+            <path d="M16 2v4M8 2v4m-5 4h18" />
+          </svg>
+            <span>Eventos</span>
+          </a>
+        </li>
+
       </ul>
     </div>
     <a role="button" class="btn btn-primary logout" href="{{url_for('logout')}}">Cerrar sesión</a>
@@ -128,7 +149,7 @@ styles %}
   </div>
 
   <div class="right-bar col-3">
-    <div class="header">Eventos</div>
+    <div class="header">Eventos de hoy</div>
     <div class="right-content">
       {% for event in today_events %}
       <a href="{{event['url'] if event['url'] != none else ""}}" target="_blank" class="enlace">

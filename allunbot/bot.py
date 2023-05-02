@@ -497,7 +497,7 @@ def task():
                            today_events = today_events
                            )
 
-@app.route('/events', methods = ['GET', 'POST'])
+@app.route('/events', methods = ['GET'])
 def events():
     is_auth, info_sia, username = user_authenticated(current_user)
     if not is_auth:
@@ -512,6 +512,23 @@ def events():
                            events = get_events_by_user(username),
                            today_events = today_events
                            )
+
+@app.route('/all_events', methods = ['GET'])
+def all_events():
+    is_auth, info_sia, username = user_authenticated(current_user)
+    if not is_auth:
+        return redirect(url_for('auth_ldap_page'))
+    
+    today_events = get_today_events()
+
+    return render_template('all_events.html', 
+                           username = username, 
+                           logged = is_auth, 
+                           info_sia = info_sia,
+                           events = get_events(),
+                           today_events = today_events
+                           )
+
 @app.route('/create_event', methods = ['GET', 'POST'])
 def create_event():
     is_auth, info_sia, username = user_authenticated(current_user)

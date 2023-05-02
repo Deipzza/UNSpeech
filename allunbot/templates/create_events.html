@@ -12,14 +12,14 @@
         
         <div class="row">
             <div class="col mb-3">
-            <label for="name" class="form-label">Nombre del evento</label>
+            <label for="name" class="form-label">Nombre del evento <span class="require">*</span></label>
             <input type="text" class="form-control" id="name" name="name" required>
             </div>
 
             <div class="col-3 mb-3">
-                <label for="status" class="form-label">Estado</label>
+                <label for="status" class="form-label">Estado <span class="require">*</span></label>
                 <select class="form-select" id="status" name="status" required>
-                    <option selected>--Seleccione--</option>
+                    <option value="">--Seleccione--</option>
                     <option value="activo">Activo</option>
                     <option value="cancelado">Cancelado</option>
                     <option value="pospuesto">Pospuesto</option>
@@ -29,7 +29,7 @@
 
         <div class="row">
             <div class="col mb-3">
-                <label for="dependecy" class="form-label">Dependencia</label>
+                <label for="dependecy" class="form-label">Dependencia <span class="require">*</span></label>
                 <input type="text" class="form-control" id="dependecy" name="dependecy" required>
             </div>
 
@@ -42,7 +42,7 @@
         <div class="row">
 
             <div class="col mb-3">
-                <label for="date" class="form-label">Fecha</label>
+                <label for="date" class="form-label">Fecha <span class="require">*</span></label>
                 <input type="date" class="form-control" id="date" name="date" required>
             </div>
 
@@ -63,7 +63,7 @@
           <textarea class="form-control" id="description" name="description" rows="3"></textarea>
         </div>
 
-        <button type="button" id="event_button" class="btn btn-primary">Crear</button>
+        <button type="submit" id="event_button" class="btn btn-primary">Crear</button>
     </form>
     
     {% endblock %}

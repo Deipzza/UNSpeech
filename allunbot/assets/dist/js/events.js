@@ -1,4 +1,4 @@
-$("#event_button").on("click", async function(e) {
+$("#event").on("submit", async function(e) {
 
     var formData = new FormData(document.querySelector("form#event"));
 
@@ -142,7 +142,7 @@ async function request_remove_event(formData, id) {
     if (response) {
       Swal.fire({
         icon: "success",
-        title: "El evento ha sido borrada.",
+        title: "El evento ha sido borrado.",
         showConfirmButton: false,
         timer: 1500,
       });

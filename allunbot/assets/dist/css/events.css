@@ -40,3 +40,8 @@
   .Acciones.d-flex {
     margin-bottom: 2%;
   }
+
+.require{
+  color: red;
+  font-size: 11pt;
+}
