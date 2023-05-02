@@ -343,7 +343,6 @@ Para poder ver tus tareas debes ingresar al enlace:
 {URL}/tasks
 """
             bot.send_message(call.message.chat.id, text, parse_mode = "Markdown")
-            print("Entró acá")
     else:
         text = messages.not_registered
         bot.send_message(call.message.chat.id, text, parse_mode = "Markdown")
