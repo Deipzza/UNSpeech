@@ -103,8 +103,6 @@ def event(data):
     boolean that indicates whether the event could be added or updated.
     """
     return add_event(data)
-    
-
 
 def select_query_events(query):
     """Retrieves the list of events for a given username.
@@ -140,50 +138,8 @@ def get_events_by_user(username):
 def get_events():
     return parse_event_list(select_query_events({}))
 
-def parse_date(date_input):
-    date, time = [x for x in date_input.split(",")]
-    year, month, day = [int(x) for x in date.split("-")]
-    new_date = datetime.date(year, month, day)
-    date_string = new_date.strftime("%B %d, %Y")
-
-    hour, minute = [int(x) for x in time.split(":")]
-    new_time = datetime.time(hour, minute)
-    time_string = new_time.strftime("%I:%M %p")
-
-    complete_date_string = f"{date_string}. {time_string}"
-
-    return complete_date_string
-
-def get_past_events(username):
-    """Returns a list of the events that already passed.
-
-    Inputs:
-    username -> string.
-    """
-
-    today = str(datetime.date.today())
-    query = {
-        "$and": [
-            {"date": {"$ne": None}},  # Verify not null
-            {"date": {"$ne": ""}},  # Verify not empty string
-            {"$expr": {
-                "$lt": [{"$substr": ["$date", 0, 10]}, today]
-            }}
-        ],
-        "username": username,
-    }
-
-    results = select_query_events(query) # Make the search
-    event_list = parse_event_list(results) # Format the results
-
-    return event_list
-
 def get_today_events():
-    """Returns a list of the events that occur the day of the query.
-
-    Inputs:
-    username -> string.
-    """
+    """Returns a list of the events that occur the day of the query."""
 
     today = str(datetime.date.today())
 
@@ -192,50 +148,6 @@ def get_today_events():
         "$and": [
             {"date": {"$regex": f"^{today}"}}
         ]
-    }
-
-    results = select_query_events(query) # Make the search
-    event_list = parse_event_list(results) # Format the results
-
-    return event_list
-
-def get_future_events(username):
-    """Returns a list of the events that haven't occurred.
-
-    Inputs:
-    username -> string.
-    """
-
-    today = str(datetime.date.today())
-
-    # Create query for the search
-    query = {
-        "username" : username,
-        "date": {"$exists": True},
-        "$expr": {
-            "$gt": [{"$substr": ["$date", 0, 10]}, today]
-        }
-    }
-
-    results = select_query_events(query) # Make the search
-    event_list = parse_event_list(results) # Format the results
-
-    return event_list
-
-def get_dateless_events(username):
-    """Returns a list of the events that don't have date.
-
-    Inputs:
-    username -> string.
-    """
-
-    # Create query for the search
-    query = {
-        "$or": [
-            {"date": {"$type": 10}},  # Verify null
-            {"date": ""}
-        ],
-        "username": username,
     }
 
     results = select_query_events(query) # Make the search
@@ -258,33 +170,41 @@ def parse_event_list(event_list):
         event["description"] = (
             "" if "description" not in event else event["description"]
         )
-        event["subject"] = (
-            "" if "subject" not in event else event["subject"]
+        event["url"] = (
+            "" if "url" not in event else event["url"]
         )
-        event["date"] = (
-            "" if "date" not in event else event["date"]
+        event["dependency"] = (
+            "" if "dependency" not in event else event["dependency"]
         )
-        event["notification_time"] = (
-            "" if "notification_time" not in event else event["notification_time"]
+        event["start-time"] = (
+            "" if "start-time" not in event else event["start-time"]
+        )
+        event["final-time"] = (
+            "" if "final-time" not in event else event["final-time"]
         )
         formated_list.append(event)
 
     return formated_list
 
-def get_user_message_events(user):
-    """Returns the list of events formatted as a message."""
+def get_message_today_events():
+    """Returns the list of today's events formatted as a message."""
 
-    message = ""
-    events = get_today_events(user["username"])
-    
+    message = "*Eventos de hoy.*\n"
+    events = get_today_events()
+
     for event in events:
         message += f"\nNombre: {event['name']}\n"
+        message += f"Dependencia: {event['dependency']}\n"
+        message += f"Fecha: {event['date']}\n"
+        message += f"Estado: {event['status']}\n"
         message += (f"Descripción: {event['description']}\n" 
                     if event['description'] != "" else "")
-        message += (f"Materia: {event['subject']}\n" 
-                    if event['subject'] != "" else "")
-        message += (f"Fecha: {event['date']}\n" 
-                    if event['date'] != "" else "")
+        message += (f"Hora inicio: {event['start-time']}\n" 
+                    if event['start-time'] != "" else "")
+        message += (f"Hora fin: {event['final-time']}\n" 
+                    if event['final-time'] != "" else "")
+        message += (f"Más información: {event['url']}\n" 
+                    if event['url'] != "" else "")
         message += "--------------------------------"
     
     return message
