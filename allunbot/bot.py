@@ -11,6 +11,7 @@ import telebot
 from bot_functions.academic_history import *
 from bot_functions.alerts import *
 from bot_functions.calculator import *
+from bot_functions.events import *
 from bot_functions.grades import *
 from bot_functions.login import *
 from bot_functions.metrics import *
@@ -221,6 +222,27 @@ Recuerda guardar tu token en un lugar seguro, ya que puede ser utilizado por cua
     bot.send_message(message.chat.id, text, parse_mode = "Markdown")
 
 
+@bot.message_handler(commands = ["eventos"])
+def requests_calendar(message):
+    """Events message handler.
+    
+    Returns (sends) an interactive menu for the user to select
+    one option for seeing or managing events.
+
+    Inputs:
+    message -> string with the user's message.
+    """
+
+    menu = [
+        {"name": "Ver eventos de hoy", "value": "today_events"}, 
+        {"name": "Ver todos los eventos", "value": "all_events"},
+        {"name": "Editar tus eventos", "value": "edit_events"}
+    ]
+    bot.send_message(message.chat.id,
+                    "¿Qué deseas hacer?",
+                    reply_markup = gen_markup(menu))
+
+
 @bot.message_handler(func = lambda msg: True)
 def echo_all(message):
     """Message handler for other messages."""
@@ -327,6 +349,34 @@ Para poder ver tus tareas debes ingresar al enlace:
         bot.send_message(call.message.chat.id, text, parse_mode = "Markdown")
 
 
+@bot.callback_query_handler(func=lambda call: call.data in ["today_event",
+                                                            "all_events",
+                                                            "edit_events"])
+def callback_query(call):
+    """Callback function for the user request of the events.
+
+    Inputs:
+    call -> string with the user's chat and message information.
+    """
+
+    if call.data == "today_event":
+        bot.send_message(call.message.chat.id,
+                         get_message_today_events(),
+                         parse_mode = "Markdown")
+    elif call.data == "all_events":
+        text = f"""
+Para ver todos los eventos debes ingresar al enlace:
+http://localhost:10000/all_events
+"""
+        bot.send_message(call.message.chat.id, text, parse_mode = "Markdown")
+    elif call.data == "edit_events":
+        text = f"""
+Para poder editar tus eventos debes ingresar al enlace:
+http://localhost:10000/events
+"""
+        bot.send_message(call.message.chat.id, text, parse_mode = "Markdown")
+
+
 """--------------------------------- FLASK ----------------------------------"""
 
 
@@ -342,7 +392,7 @@ def webhook():
 @app.route('/', methods=['GET'])
 def index():
     """Return the index page of the bot."""
-    is_auth, info_sia, username = user_authenticated(current_user)
+    is_auth, info_sia, username, _ = user_authenticated(current_user)
 
     return render_template('index.html', logged = is_auth, username = username)
 
@@ -441,19 +491,23 @@ def update():
 @app.route('/dashboard', methods = ['GET', 'POST'])
 def dashboard():
 
-    is_auth, info_sia, username = user_authenticated(current_user)
+    is_auth, info_sia, username, permissions = user_authenticated(current_user)
     if not is_auth:
         return redirect(url_for('auth_ldap_page'))
+    
+    today_events = get_today_events()
 
     return render_template('dashboard.html', 
                            username = username, 
                            logged = is_auth, 
-                           info_sia = info_sia)
+                           info_sia = info_sia,
+                           today_events = today_events,
+                           permissions = permissions)
 
 @app.route('/calculadora', methods = ['GET'])
 def calculadora():
     """ """
-    is_auth, info_sia, username = user_authenticated(current_user)
+    is_auth, info_sia, username, permissions = user_authenticated(current_user)
     if not is_auth:
         return redirect(url_for('auth_ldap_page'))
     
@@ -463,19 +517,25 @@ def calculadora():
     query = {"username": username}
     my_grades = mongo_db.grades.find(query,
                                      projection_grades)[0]["data"]    
+    
+    today_events = get_today_events()
 
     return render_template('calculadora.html',
                             headers = headers,
                             my_grades = my_grades,
                             username = username,
                             logged = is_auth, 
-                            info_sia = info_sia)
+                            info_sia = info_sia,
+                            today_events = today_events,
+                            permissions = permissions)
 
 @app.route('/tasks', methods = ['GET', 'POST'])
 def task():
-    is_auth, info_sia, username = user_authenticated(current_user)
+    is_auth, info_sia, username, permissions = user_authenticated(current_user)
     if not is_auth:
         return redirect(url_for('auth_ldap_page'))
+    
+    today_events = get_today_events()
     
     return render_template('tasks.html', 
                            username = username, 
@@ -484,13 +544,65 @@ def task():
                            tasks_recordatorios = get_dateless_tasks(username),
                            tasks_today = get_today_tasks(username),
                            tasks_upcoming = get_future_tasks(username),
-                           tasks_archivados = get_past_tasks(username)
+                           tasks_archivados = get_past_tasks(username),
+                           today_events = today_events,
+                           permissions = permissions
+                           )
+
+@app.route('/events', methods = ['GET'])
+def events():
+    is_auth, info_sia, username, permissions = user_authenticated(current_user)
+    if not is_auth or not 1 in permissions:
+        return redirect(url_for('auth_ldap_page'))
+    
+    today_events = get_today_events()
+
+    return render_template('events.html', 
+                           username = username, 
+                           logged = is_auth, 
+                           info_sia = info_sia,
+                           events = get_events_by_user(username),
+                           today_events = today_events,
+                           permissions = permissions
+                           )
+
+@app.route('/all_events', methods = ['GET'])
+def all_events():
+    is_auth, info_sia, username, permissions = user_authenticated(current_user)
+    if not is_auth:
+        return redirect(url_for('auth_ldap_page'))
+    
+    today_events = get_today_events()
+
+    return render_template('all_events.html', 
+                           username = username, 
+                           logged = is_auth, 
+                           info_sia = info_sia,
+                           events = get_events(),
+                           today_events = today_events,
+                           permissions = permissions
+                           )
+
+@app.route('/create_event', methods = ['GET', 'POST'])
+def create_event():
+    is_auth, info_sia, username, permissions = user_authenticated(current_user)
+    if not is_auth or not 1 in permissions:
+        return redirect(url_for('auth_ldap_page'))
+    
+    today_events = get_today_events()
+
+    return render_template('create_events.html', 
+                           username = username, 
+                           logged = is_auth, 
+                           info_sia = info_sia,
+                           today_events = today_events,
+                           permissions = permissions
                            )
 
 @app.route('/logout')
 @login_required
 def logout():
-    is_auth, _, username = user_authenticated(current_user)
+    is_auth, _, username, _ = user_authenticated(current_user)
     if not is_auth:
         return redirect(url_for('auth_ldap_page'))
 
@@ -562,6 +674,51 @@ def remove_task_db():
     else:
         return jsonify({})
 
+@app.route('/api/event', methods = ['PUT'])
+def update_event_db():
+    """Endpoint for adding event."""
+    
+    username = current_user.get_id()
+    name = request.form['name']
+    id = request.form['id']
+
+    data = request.form.copy()
+    data["username"] = username
+
+    if username != None and name != None and id != None:
+        item = update_event(id, data)
+        return json.dumps(item, default=str)
+    else:
+        return jsonify({})
+
+@app.route('/api/event', methods = ['DELETE'])
+def remove_event_db():
+    """Endpoint for removing event."""
+
+    id = request.form['id']
+
+    if id != None:
+        item = remove_event(id)
+        return json.dumps(item, default=str)
+    else:
+        return jsonify({})
+
+
+@app.route('/api/event', methods = ['POST'])
+def add_event_db():
+    """Endpoint for adding events."""
+    
+    username = current_user.get_id()
+    name = request.form['name']
+
+    data = request.form.copy()
+    data["username"] = username
+
+    if username != None and name != None:
+        item = add_event(request.form)
+        return json.dumps(item, default=str)
+    else:
+        return jsonify({})
 
 """--------------------------------- MAIN ----------------------------------"""
 
@@ -569,8 +726,8 @@ def remove_task_db():
 if __name__ == "__main__":
     """Main execution of the program"""
     
-    create_schedule_thread(send_alert)
+    # create_schedule_thread(send_alert)
 
     mongo_db.user_logged.delete_many({})
-    # app.debug = True # Hot reloading
+    app.debug = True # Hot reloading
     app.run(port = int(os.environ.get('PORT', 10000))) # Server execution port
