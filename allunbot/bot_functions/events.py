@@ -85,7 +85,6 @@ def remove_event(id):
     except:
         return False
 
-
 def verify_field_null(field):
     if field == "" or field == "undefined":
         return None
@@ -104,8 +103,6 @@ def event(data):
     """
     return add_event(data)
     
-
-
 def select_query_events(query):
     """Retrieves the list of events for a given username.
 

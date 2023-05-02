@@ -503,7 +503,7 @@ def task():
 @app.route('/events', methods = ['GET'])
 def events():
     is_auth, info_sia, username, permissions = user_authenticated(current_user)
-    if not is_auth:
+    if not is_auth or not 1 in permissions:
         return redirect(url_for('auth_ldap_page'))
     
     today_events = get_today_events()
