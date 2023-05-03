@@ -285,8 +285,8 @@ button {
 }
 
 @media screen and (max-width: 900px) {
-  .left-bar {
-    display: none;
+  .right-content{
+    min-height: 12vh;
   }
 }
 

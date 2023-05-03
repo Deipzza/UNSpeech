@@ -1,7 +1,7 @@
 .container-table {
   padding: 1%;
-  padding-right: calc(var(--bs-gutter-x) * .5);
-  padding-left: var(--bs-gutter-x);
+  /* padding-right: calc(var(--bs-gutter-x) * .5);
+  padding-left: var(--bs-gutter-x); */
 
 }
 

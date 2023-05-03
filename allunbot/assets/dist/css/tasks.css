@@ -3,9 +3,9 @@
   color: var(--secondary-color);
   border-bottom: 1px solid #ddd;
   transition: 0.4s ease-in;
-  padding: 20px 30px;
+  padding: 1% 2%;
   cursor: pointer;
-  font-size: 13pt;
+  font-size: 12pt;
 }
 
 .page-content .nav-link.active {
@@ -125,7 +125,6 @@ label .label-text:before {
   display: flex;
   flex-direction: column;
   flex: 1;
-  padding: 40px 20px 0 20px;
 }
 .page-content .header {
   font-size: 26px;
