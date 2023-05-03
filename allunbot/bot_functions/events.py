@@ -188,7 +188,7 @@ def parse_event_list(event_list):
 def get_message_today_events():
     """Returns the list of today's events formatted as a message."""
 
-    message = "*Eventos de hoy.*\n"
+    message = "*Eventos de hoy.*"
     events = get_today_events()
 
     for event in events:
