@@ -1,3 +1,4 @@
+from constants import *
 welcome = """
 ¡Hola!
 Me llamo AllUNBot, soy un bot académico y estoy aquí para ayudarte a tener tu información académica a la mano.

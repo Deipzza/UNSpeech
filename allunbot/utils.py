@@ -5,6 +5,7 @@ from telebot import types
 from bot_functions.directory import *
 from bot_functions.groups import *
 from bot_functions.permissions import *
+from constants import *
 
 def gen_markup(menu):
   markup = types.InlineKeyboardMarkup()
