@@ -222,6 +222,27 @@ Recuerda guardar tu token en un lugar seguro, ya que puede ser utilizado por cua
     bot.send_message(message.chat.id, text, parse_mode = "Markdown")
 
 
+@bot.message_handler(commands = ["eventos"])
+def requests_calendar(message):
+    """Events message handler.
+    
+    Returns (sends) an interactive menu for the user to select
+    one option for seeing or managing events.
+
+    Inputs:
+    message -> string with the user's message.
+    """
+
+    menu = [
+        {"name": "Ver eventos de hoy", "value": "today_events"}, 
+        {"name": "Ver todos los eventos", "value": "all_events"},
+        {"name": "Editar tus eventos", "value": "edit_events"}
+    ]
+    bot.send_message(message.chat.id,
+                    "¿Qué deseas hacer?",
+                    reply_markup = gen_markup(menu))
+
+
 @bot.message_handler(func = lambda msg: True)
 def echo_all(message):
     """Message handler for other messages."""
@@ -325,6 +346,34 @@ Para poder ver tus tareas debes ingresar al enlace:
             print("Entró acá")
     else:
         text = messages.not_registered
+        bot.send_message(call.message.chat.id, text, parse_mode = "Markdown")
+
+
+@bot.callback_query_handler(func=lambda call: call.data in ["today_event",
+                                                            "all_events",
+                                                            "edit_events"])
+def callback_query(call):
+    """Callback function for the user request of the events.
+
+    Inputs:
+    call -> string with the user's chat and message information.
+    """
+
+    if call.data == "today_event":
+        bot.send_message(call.message.chat.id,
+                         get_message_today_events(),
+                         parse_mode = "Markdown")
+    elif call.data == "all_events":
+        text = f"""
+Para ver todos los eventos debes ingresar al enlace:
+http://localhost:10000/all_events
+"""
+        bot.send_message(call.message.chat.id, text, parse_mode = "Markdown")
+    elif call.data == "edit_events":
+        text = f"""
+Para poder editar tus eventos debes ingresar al enlace:
+http://localhost:10000/events
+"""
         bot.send_message(call.message.chat.id, text, parse_mode = "Markdown")
 
 
