@@ -26,7 +26,7 @@ def add_event(data):
         "name": verify_field_null(data["name"]),
         "description": verify_field_null(data["description"]),
         "url": verify_field_null(data["url"]),
-        "dependecy": verify_field_null(data["dependecy"]),
+        "dependency": verify_field_null(data["dependency"]),
         "status": verify_field_null(data["status"]),
         "date": verify_field_null(data["date"]),
         "start-time": verify_field_null(data["start-time"]),
@@ -56,7 +56,7 @@ def update_event(id, data):
             "name": verify_field_null(data["name"]),
             "description": verify_field_null(data["description"]),
             "url": verify_field_null(data["url"]),
-            "dependecy": verify_field_null(data["dependecy"]),
+            "dependency": verify_field_null(data["dependency"]),
             "status": verify_field_null(data["status"]),
             "date": verify_field_null(data["date"]),
             "start-time": verify_field_null(data["start-time"]),
@@ -120,7 +120,7 @@ def select_query_events(query):
         "name": 1,
         "description": 1,
         "url": 1,
-        "dependecy": 1,
+        "dependency": 1,
         "status": 1,
         "date": 1,
         "start-time": 1,
@@ -197,13 +197,13 @@ def get_message_today_events():
         message += f"Fecha: {event['date']}\n"
         message += f"Estado: {event['status']}\n"
         message += (f"Descripción: {event['description']}\n" 
-                    if event['description'] != "" else "")
+                    if event['description'] else "")
         message += (f"Hora inicio: {event['start-time']}\n" 
-                    if event['start-time'] != "" else "")
+                    if event['start-time'] else "")
         message += (f"Hora fin: {event['final-time']}\n" 
-                    if event['final-time'] != "" else "")
+                    if event['final-time'] else "")
         message += (f"Más información: {event['url']}\n" 
-                    if event['url'] != "" else "")
+                    if event['url'] else "")
         message += "--------------------------------"
     
     return message

@@ -131,10 +131,10 @@ styles %}
       <a href="{{event['url'] if event['url'] != none else ""}}" target="_blank" class="enlace">
         <div class="event-box {{event['status']}}">
           <div class="description-task">
-            <div class="time">{{event['start-time']}} - {{event['final-time']}}</div>
+            <div class="time">{{event['start-time'] if event["start-time"] is not none else ""}} - {{event['final-time'] if event["final-time"] is not none else ""}}</div>
             <div class="event-name">{{event['name']}}</div>
-            <div class="event-dependecy">
-              <p><strong>Invita:</strong> {{event['dependecy']}}</p>
+            <div class="event-dependency">
+              <p><strong>Invita:</strong> {{event['dependency']}}</p>
             </div>
           </div>
 
@@ -152,7 +152,7 @@ styles %}
           </a>
 
           <div class="collapse" id="collapse_{{event['_id']}}">
-            <div class="task-description">{{event['description']}}</div>
+            <div class="task-description">{{event['description'] if event["description"] is not none else ""}}</div>
           </div>
         </div>
       </a>

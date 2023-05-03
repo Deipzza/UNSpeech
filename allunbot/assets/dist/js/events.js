@@ -30,7 +30,7 @@ function template_event_edit(event_id) {
   var event_name = event_edit.find(".event_name").text();
   var event_status = event_edit.find(".event_status").text();
   var event_url = event_edit.find(".event_url div").text();
-  var event_dependecy = event_edit.find(".event_dependecy").text();
+  var event_dependency = event_edit.find(".event_dependency").text();
   var event_date = event_edit.find(".event_date").text();
   var event_start_time = event_edit.find(".event_start-time").text();
   var event_final_time = event_edit.find(".event_final-time").text();
@@ -50,8 +50,8 @@ function template_event_edit(event_id) {
       <td class="event_url" style="width: 200px;">
         <input type="text" class="form-control" value='${event_url}' placeholder = 'Estado'>
       </td>
-      <td class="event_dependecy" style="width: 200px;">
-        <input type="text" class="form-control" value='${event_dependecy}' placeholder = 'Dependencia'>
+      <td class="event_dependency" style="width: 200px;">
+        <input type="text" class="form-control" value='${event_dependency}' placeholder = 'Dependencia'>
       </td>
       <td class="event_date" style="width: 100px;">
         <input type="date" class="form-control" value='${event_date}' placeholder = 'Fecha'>
@@ -80,7 +80,7 @@ async function save_event(event_id) {
   var event_name = event_save.find(".event_name input").val();
   var event_status = event_save.find(".event_status select").val();
   var event_url = event_save.find(".event_url input").val();
-  var event_dependecy = event_save.find(".event_dependecy input").val();
+  var event_dependency = event_save.find(".event_dependency input").val();
   var event_date = event_save.find(".event_date input").val();
   var event_start_time = event_save.find(".event_start-time input").val();
   var event_final_time = event_save.find(".event_final-time input").val();
@@ -93,7 +93,7 @@ async function save_event(event_id) {
   formData.append("name", event_name);
   formData.append("status", event_status);
   formData.append("url", event_url);
-  formData.append("dependecy", event_dependecy);
+  formData.append("dependency", event_dependency);
   formData.append("date", event_date);
   formData.append("start-time", event_start_time);
   formData.append("final-time", event_final_time);

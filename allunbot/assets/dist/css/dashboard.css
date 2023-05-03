@@ -180,18 +180,18 @@ button {
   text-align: justify;
 }
 
-.event-dependecy {
+.event-dependency {
   font-size: 9pt;
   font-weight: 100;
   /* opacity: 0.6; */
   color: darkslategray;
 }
 
-.event-dependecy p{
+.event-dependency p{
   margin: 0;
 }
 
-.event-dependecy p strong{
+.event-dependency p strong{
   font-weight: 700;
 }
 .event-box {
