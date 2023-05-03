@@ -4,6 +4,26 @@ FROM python:3.7
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
+# Instala las dependencias necesarias para Selenium
+RUN apt-get update && apt-get install -y \
+    wget \
+    curl \
+    unzip \
+    xvfb \
+    libxi6 \
+    libgconf-2-4 \
+    default-jdk
+    
+# Descarga y configura el controlador de Selenium para Chrome
+RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
+    echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list && \
+    apt-get update && apt-get install -y google-chrome-stable
+
+# Descarga y configura el controlador de ChromeDriver
+RUN wget -q -O /tmp/chromedriver.zip https://chromedriver.storage.googleapis.com/113.0.5672.24/chromedriver_linux64.zip && \
+    unzip /tmp/chromedriver.zip -d /usr/local/bin/ && \
+    rm /tmp/chromedriver.zip
+
 # Establece la zona horaria en el contenedor
 ENV TZ=America/Bogota
 
@@ -26,8 +46,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copia el resto de los archivos fuente al contenedor
 COPY . .
 
+# Establece las variables de entorno necesarias para la ejecución de Selenium
+ENV DISPLAY=:99
+
 # Expone el puerto en el que se ejecuta el servidor
 EXPOSE 10000
 
 # Ejecuta el servidor con Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:10000", "bot:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:10000", "bot:app", "--timeout", "4000"]
