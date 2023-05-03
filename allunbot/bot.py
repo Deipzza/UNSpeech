@@ -365,7 +365,7 @@ def callback_query(call):
     elif call.data == "all_events":
         text = """
 Para ver todos los eventos debes ingresar al enlace:
-http://localhost:10000/all-events
+{URL}/all-events
 """
         bot.send_message(call.message.chat.id, text, parse_mode = "Markdown")
     elif call.data == "edit_events":

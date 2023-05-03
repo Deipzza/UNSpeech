@@ -34,6 +34,6 @@ search_directory = "Escribe las palabras clave para buscar en el directorio, sep
 
 edit_events = """
 Si tienes permisos para crear/editar/eliminar eventos debes ingresar al enlace:
-http://localhost:10000/events
+{URL}/events
 Recuerda que estas acciones requieren de permisos especiales, si requieres de estos comunícate con mis desarrolladores (puedes ver su información aquí: https://github.com/Deipzza/ppi_02).
 """
