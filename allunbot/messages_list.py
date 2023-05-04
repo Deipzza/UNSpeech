@@ -1,4 +1,5 @@
 from constants import *
+
 welcome = """
 ¡Hola!
 Me llamo AllUNBot, soy un bot académico y estoy aquí para ayudarte a tener tu información académica a la mano.
@@ -33,7 +34,7 @@ not_authenticated = "Lo sentimos, no hemos podido autenticarte. Prueba nuevament
 
 search_directory = "Escribe las palabras clave para buscar en el directorio, separadas por espacios.\nPor ejemplo: bienestar minas facultad"
 
-edit_events = """
+edit_events = f"""
 Si tienes permisos para crear/editar/eliminar eventos debes ingresar al enlace:
 {URL}/events
 Recuerda que estas acciones requieren de permisos especiales, si requieres de estos comunícate con mis desarrolladores (puedes ver su información aquí: https://github.com/Deipzza/ppi_02).

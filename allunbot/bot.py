@@ -363,7 +363,7 @@ def callback_query(call):
                          get_message_today_events(),
                          parse_mode = "Markdown")
     elif call.data == "all_events":
-        text = """
+        text = f"""
 Para ver todos los eventos debes ingresar al enlace:
 {URL}/all-events
 """
