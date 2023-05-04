@@ -230,6 +230,28 @@ def get_dateless_tasks(username):
 
     return task_list
 
+def get_alert_tasks(username):
+    """Returns a list of the tasks that have the alert date on the current day.
+
+    Inputs:
+    username -> string.
+    """
+
+    today = str(datetime.date.today())
+
+    # Create query for the search
+    query = {
+        "$and": [
+            {"username": username},
+            {"notification_time": {"$regex": f"^{today}"}}
+        ]
+    }
+
+    results = select_query_tasks(query) # Make the search
+    task_list = parse_task_list(results) # Format the results
+
+    return task_list
+
 def parse_task_list(task_list):
     """Format the list of tasks to fill the blank fields.
 
@@ -262,16 +284,16 @@ def get_user_message_tasks(user):
     """Returns the list of tasks formatted as a message."""
 
     message = ""
-    tasks = get_today_tasks(user["username"])
+    tasks = get_alert_tasks(user["username"])
     
     for task in tasks:
         message += f"\nNombre: {task['name']}\n"
         message += (f"Descripción: {task['description']}\n" 
-                    if task['description'] != "" else "")
+                    if task['description'] != None else "")
         message += (f"Materia: {task['subject']}\n" 
-                    if task['subject'] != "" else "")
+                    if task['subject'] != None else "")
         message += (f"Fecha: {task['date']}\n" 
-                    if task['date'] != "" else "")
-        message += "--------------------------------"
+                    if task['date'] != None else "")
+        message += ("-" * 42)
     
     return message

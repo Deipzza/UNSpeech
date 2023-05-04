@@ -256,16 +256,18 @@ def send_alert():
     users = get_users()
 
     for user in users:
-        tasks = get_user_message_tasks(user)
-        message = f"""
+        try: # Check if the user has an active chat with the bot
+            tasks = get_user_message_tasks(user)
+            if tasks != "": # Only send if user has tasks
+                message = f"""
 *¡Recuerda!*
 Tus notificaciones para hoy son:
 {tasks}
 """
-        bot.send_message(int(user["chat_id"]),
-                         text = message,
-                         parse_mode = "Markdown")
-
+                bot.send_message(int(user["chat_id"]), text = message,
+                                parse_mode = "Markdown")
+        except:
+            pass
 
 """----------------------------- CALLBACKS ----------------------------------"""
 
@@ -722,7 +724,7 @@ def add_event_db():
 if __name__ == "__main__":
     """Main execution of the program"""
     
-    # create_schedule_thread(send_alert)
+    create_schedule_thread(send_alert)
 
     mongo_db.user_logged.delete_many({})
     app.debug = True # Hot reloading
