@@ -1,24 +1,44 @@
 import regex
 
-from .utils import *
+from .functions_utils import *
 
 def get_calculator(driver):
+    """Extracts the grades information for the calculator.
+    
+    Inputs:
+    driver -> Selenium driver object.
+
+    Returns:
+    array with the grades.
+    """
+
     pag_academic_history = get_page_academic_history(driver)
     page_soup = BeautifulSoup(pag_academic_history, 'html5lib')
-    table = page_soup.find("span", {"class": "asignaturas-expediente"}).find("table", {"class": "af_table_data-table"})
+    table = page_soup.find(
+        "span", {"class": "asignaturas-expediente"}
+    ).find("table", {"class": "af_table_data-table"})
     result = process_table_subject(table)
 
-    now_plan = page_soup.find("select", {"class": "af_selectOneChoice_content"}).get("title")
-    plans = page_soup.find("select", {"class": "af_selectOneChoice_content"}).find_all("option")
+    now_plan = page_soup.find(
+        "select", {"class": "af_selectOneChoice_content"}
+    ).get("title")
+    plans = page_soup.find(
+        "select", {"class": "af_selectOneChoice_content"}
+    ).find_all("option")
 
-    for plan in plans:
+    for plan in plans:  # Iterate over the academic plans of the student.
         plan_text = plan.text
+        
         if plan == now_plan:
             continue
         elif plan_text[5:] == now_plan[5:]:
-            pag_academic_history = get_page_academic_history_by_plan(driver, plan.get("value"))
+            pag_academic_history = (
+                get_page_academic_history_by_plan(driver, plan.get("value"))
+            )
             page_soup = BeautifulSoup(pag_academic_history, 'html5lib')
-            table = page_soup.find("span", {"class": "asignaturas-expediente"}).find("table", {"class": "af_table_data-table"})
+            table = page_soup.find(
+                "span", {"class": "asignaturas-expediente"}
+            ).find("table", {"class": "af_table_data-table"})
             result = process_table_subject(table, result)
 
     return [now_plan[5:]] + result
@@ -83,10 +103,15 @@ def calculator(username, data):
     else:
         update_calculator_user(data, username)
 
-#-----------------------------------------
 
 def process_table_subject(table, values = [0, 0, 0, 0]):
+    """Formats the subject data.
     
+    Inputs:
+    table -> array with the data.
+    values -> array with general information about the subject's grades.
+    """
+
     content = table.find("tbody")
     ponderado, creditos, suma, size = values
 

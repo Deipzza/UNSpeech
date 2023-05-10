@@ -1,6 +1,8 @@
 from .database.mongodatabase import *
 
 def insert_values_into_groups(subject_code, subject_name, link):
+    """Inserts a group into the database."""
+
     collection = mongo_db["groups"]
 
     item = {
@@ -12,6 +14,16 @@ def insert_values_into_groups(subject_code, subject_name, link):
     collection.insert_one(item)
 
 def select_query_groups(subject_code):
+    """Makes a query to select a list of groups from the database with a given
+    subject code.
+    
+    Inputs:
+    subject_code -> code to search in the query.
+
+    Returns:
+    the result of the query.
+    """
+
     response = ""
 
     # Create query for the search

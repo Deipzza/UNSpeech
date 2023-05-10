@@ -1,3 +1,8 @@
+"""
+Variables containing some of the message strings to be sent from the bot to the
+user.
+"""
+
 from constants import *
 
 welcome = """
@@ -25,6 +30,8 @@ Información general.
 - Si quieres consultar información académica, escribe /informacion_academica.
 - Si quieres actualizar la información extraída del SIA, escribe /actualizar_info_sia.
 """
+
+not_recognized = "No reconozco ese comando.\nPara ver mi lista de comandos escribe /comandos"
 
 time_out = "La respuesta tarda un poco en generar. Por favor espere."
 

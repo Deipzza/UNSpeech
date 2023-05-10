@@ -1,16 +1,14 @@
+"""
+Control functions for the creation or update of the database collections.
+"""
+
 from university_calendar import *
 from directory import *
 from groups import *
 
-# Calendarios
+# Calendars.
 update_academic_calendar()
 update_request_calendar()
 
-# Directorio de contactos
+# Directory.
 update_directory()
-
-# Grupos de asignaturas
-# create_table_groups()
-
-
-# MongoDB

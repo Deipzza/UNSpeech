@@ -5,10 +5,13 @@ from bs4 import BeautifulSoup
 from .database.mongodatabase import *
 
 def get_directory():
+    """Extracts the data from the university's directory."""
+
     insert_data, position = [], 2
     base = "https://medellin.unal.edu.co/directoriotelefonico.html"
     URL = base
 
+    # Scraping process.
     while(True):
         page_request = requests.get(URL)
         soup = BeautifulSoup(page_request.content, 'html5lib')
@@ -25,11 +28,22 @@ def get_directory():
 
     insert_values(insert_data)
 
+
 def update_directory():
+    """Control function to update the directory in case it changes."""
+
     reset_collection("directory")
     get_directory()
 
+
 def insert_values(data):
+    """Insert the values extracted from the directory's page into the
+    database.
+    
+    Inputs:
+    data -> array with the data scraped.
+    """
+
     # Get or create collection
     collection = mongo_db["directory"]
 
@@ -45,23 +59,46 @@ def insert_values(data):
         }
         collection.insert_one(document)
 
+
 def select_data_scrap(rows):
-    data=[]
+    """Selects the actual data to work with from the scraped information.
+    
+    Inputs:
+    rows -> list of the elements from the scraped data.
+
+    Returns:
+    array with the data.
+    """
+
+    data = []
 
     for row in rows:
         cells = row.findAll("td")[:-1]
         cells = list(map(lambda x: x.text.strip(), cells))
         data.append(cells)
+
     return data
 
+
 def select_query_directory(metadata):
+    """Makes a query to the database to select the directory collection.
+    
+    Inputs:
+    metadata -> array with the words written by the user.
+
+    Returns:
+    string with the information formatted.
+    """
+
     response = ""
 
     # Create query for the search
     query = {
         '$and': [
-            {'$or': [{'dependencia': {'$regex': word, '$options': 'i'}} for word in metadata]},
-            {'$or': [{'area': {'$regex': word, '$options': 'i'}} for word in metadata]},
+            {'$or': [{'dependencia': {'$regex': word, '$options': 'i'}} for word
+                     in metadata]},
+            {'$or': [{'area': {'$regex': word, '$options': 'i'}} for word
+                     in metadata]},
         ]
     }
 
@@ -93,6 +130,6 @@ def select_query_directory(metadata):
         if 'correo' in row:
             response += f"Correo: {row['correo']}\n"
         
-        response += "----------------------------------\n"
+        response += "-" * 34 + "\n"
     
     return response

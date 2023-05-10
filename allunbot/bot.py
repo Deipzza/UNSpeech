@@ -21,7 +21,7 @@ from bot_functions.university_calendar import *
 from bot_functions.users import *
 from constants import *
 import messages_list as messages
-from utils import *
+from bot_utils import *
 
 # Bot creation
 bot = telebot.TeleBot(BOT_TOKEN, threaded = False)
@@ -37,10 +37,14 @@ login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(username):
+    """Load the user's page if it exists in the database."""
+
     users_collection = mongo_db["user_logged"]
     user_data = users_collection.find_one({'username': username})
+
     if user_data:
-        return User(username=user_data['username'], data = user_data['data'])
+        return User(username = user_data['username'], data = user_data['data'])
+
     return None
     
 
@@ -247,7 +251,8 @@ def requests_calendar(message):
 def echo_all(message):
     """Message handler for other messages."""
 
-    bot.send_message(message.chat.id, "No reconozco ese comando.\nPara ver mi lista de comandos escribe /comandos", parse_mode = "Markdown")
+    bot.send_message(message.chat.id, messages.not_recognized,
+                     parse_mode = "Markdown")
 
 
 def send_alert():
@@ -288,6 +293,7 @@ def callback_query(call):
                      f"*Calendario académico de {student}.*\n{calendar}",
                      parse_mode = "Markdown")
 
+
 @bot.callback_query_handler(func = lambda call: call.data in ["so_pregrado",
                                                               "so_posgrado"])
 def callback_query(call):
@@ -303,6 +309,7 @@ def callback_query(call):
     bot.send_message(call.message.chat.id,
                     f"*Calendario de solicitudes {student}.*\n{calendar}",
                     parse_mode = "Markdown")
+
 
 @bot.callback_query_handler(func = lambda call: "sia" in call.data)
 def callback_login(call):
@@ -338,13 +345,15 @@ Para poder utilizar la calculadora de notas debes ingresar al enlace:
 {URL}/calculadora
 Recuerda **NO** compartir este enlace ya que cualquiera podrá tener acceso a tu información.
 """
-            bot.send_message(call.message.chat.id, text, parse_mode = "Markdown")
+            bot.send_message(call.message.chat.id, text,
+                             parse_mode = "Markdown")
         elif call.data == "sia_my_tasks":
             text = f"""
 Para poder ver tus tareas debes ingresar al enlace:
 {URL}/tasks
 """
-            bot.send_message(call.message.chat.id, text, parse_mode = "Markdown")
+            bot.send_message(call.message.chat.id, text, parse_mode =
+                             "Markdown")
     else:
         text = messages.not_registered
         bot.send_message(call.message.chat.id, text, parse_mode = "Markdown")
@@ -387,12 +396,14 @@ def webhook():
     )
     return "ok"
 
+
 @app.route('/', methods=['GET'])
 def index():
     """Return the index page of the bot."""
     is_auth, info_sia, username, _ = user_authenticated(current_user)
 
     return render_template('index.html', logged = is_auth, username = username)
+
 
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
@@ -461,6 +472,7 @@ def login():
 
 @app.route('/auth-ldap', methods = ['GET', 'POST'])
 def auth_ldap_page():
+    """Returns the authentication page."""
     
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
@@ -488,8 +500,11 @@ def update():
 
 @app.route('/dashboard', methods = ['GET', 'POST'])
 def dashboard():
+    """Returns the dashboard page for a logged user."""
 
     is_auth, info_sia, username, permissions = user_authenticated(current_user)
+
+    # If the user is not authenticated, returns the authentication page.
     if not is_auth:
         return redirect(url_for('auth_ldap_page'))
     
@@ -502,10 +517,14 @@ def dashboard():
                            today_events = today_events,
                            permissions = permissions)
 
+
 @app.route('/calculadora', methods = ['GET'])
 def calculadora():
-    """ """
+    """Returns the calculator page for a logged user."""
+
     is_auth, info_sia, username, permissions = user_authenticated(current_user)
+
+    # If the user is not authenticated, returns the authentication page.
     if not is_auth:
         return redirect(url_for('auth_ldap_page'))
     
@@ -527,9 +546,14 @@ def calculadora():
                             today_events = today_events,
                             permissions = permissions)
 
+
 @app.route('/tasks', methods = ['GET', 'POST'])
 def task():
+    """Returns the tasks page for a logged user."""
+
     is_auth, info_sia, username, permissions = user_authenticated(current_user)
+
+    # If the user is not authenticated, returns the authentication page.
     if not is_auth:
         return redirect(url_for('auth_ldap_page'))
     
@@ -547,9 +571,14 @@ def task():
                            permissions = permissions
                            )
 
+
 @app.route('/events', methods = ['GET'])
 def events():
+    """Returns the events page for a logged user."""
+
     is_auth, info_sia, username, permissions = user_authenticated(current_user)
+
+    # If the user is not authenticated, returns the authentication page.
     if not is_auth or not 1 in permissions:
         return redirect(url_for('auth_ldap_page'))
     
@@ -566,7 +595,11 @@ def events():
 
 @app.route('/all-events', methods = ['GET'])
 def all_events():
+    """Returns the all-events page for a logged user."""
+
     is_auth, info_sia, username, permissions = user_authenticated(current_user)
+
+    # If the user is not authenticated, returns the authentication page.
     if not is_auth:
         return redirect(url_for('auth_ldap_page'))
     
@@ -583,7 +616,11 @@ def all_events():
 
 @app.route('/create_event', methods = ['GET', 'POST'])
 def create_event():
+    """Returns the create_event page for a logged user."""
+
     is_auth, info_sia, username, permissions = user_authenticated(current_user)
+
+    # If the user is not authenticated, returns the authentication page.
     if not is_auth or not 1 in permissions:
         return redirect(url_for('auth_ldap_page'))
     
@@ -600,13 +637,16 @@ def create_event():
 @app.route('/logout')
 @login_required
 def logout():
+    """Returns the main login page as the logout action is successful."""
+
     is_auth, _, username, _ = user_authenticated(current_user)
+
     if not is_auth:
         return redirect(url_for('auth_ldap_page'))
 
     mongo_db.user_logged.delete_many({"username": username})
-
     logout_user()
+
     return redirect(url_for('auth_ldap_page'))
 
 
@@ -615,7 +655,8 @@ def logout():
 
 @app.route('/calculadora', methods = ['POST'])
 def get_data_subject():
-    """
+    """Gets the actual semester's subjects data from the database for the
+    calculator.
     """
     
     username = request.form['username']
@@ -642,7 +683,8 @@ def get_data_subject():
         return jsonify(myGrades)
     else:
         return jsonify({})
-    
+
+
 @app.route('/api/task', methods = ['POST'])
 def add_task_db():
     """Endpoint for adding tasks."""
@@ -660,6 +702,7 @@ def add_task_db():
     else:
         return jsonify({})
 
+
 @app.route('/api/task', methods = ['DELETE'])
 def remove_task_db():
     """Endpoint for removing tasks."""
@@ -672,9 +715,10 @@ def remove_task_db():
     else:
         return jsonify({})
 
+
 @app.route('/api/event', methods = ['PUT'])
 def update_event_db():
-    """Endpoint for adding event."""
+    """Endpoint for adding events."""
     
     username = current_user.get_id()
     name = request.form['name']
@@ -689,9 +733,10 @@ def update_event_db():
     else:
         return jsonify({})
 
+
 @app.route('/api/event', methods = ['DELETE'])
 def remove_event_db():
-    """Endpoint for removing event."""
+    """Endpoint for removing events."""
 
     id = request.form['id']
 

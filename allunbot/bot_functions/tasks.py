@@ -36,6 +36,7 @@ def add_task(data):
     except:
         return False
 
+
 def update_task(data, id):
     """Updates the task of the given ID.
 
@@ -62,7 +63,8 @@ def update_task(data, id):
         return True
     except:
         return False
-    
+
+
 def remove_task(id):
     """Removes the task of the given ID.
 
@@ -78,11 +80,13 @@ def remove_task(id):
         return True
     except:
         return False
-    
+
+
 def verify_field_null(field):
     if field == "" or field == "undefined":
         return None
     return field
+
 
 def task_add(id, data):
     """Checks if the task is going to be added or updated
@@ -101,6 +105,7 @@ def task_add(id, data):
         return update_task(data, id)
     except:
         return add_task(data)
+
 
 def select_query_tasks(query):
     """Retrieves the list of tasks for a given username.
@@ -126,7 +131,10 @@ def select_query_tasks(query):
 
     return results
 
+
 def parse_date(date_input):
+    """Formats the date from the user's input."""
+
     date, time = [x for x in date_input.split(",")]
     year, month, day = [int(x) for x in date.split("-")]
     new_date = datetime.date(year, month, day)
@@ -139,6 +147,7 @@ def parse_date(date_input):
     complete_date_string = f"{date_string}. {time_string}"
 
     return complete_date_string
+
 
 def get_past_tasks(username):
     """Returns a list of the tasks that already passed.
@@ -164,6 +173,7 @@ def get_past_tasks(username):
 
     return task_list
 
+
 def get_today_tasks(username):
     """Returns a list of the tasks that occur the day of the query.
 
@@ -185,6 +195,7 @@ def get_today_tasks(username):
     task_list = parse_task_list(results) # Format the results
 
     return task_list
+
 
 def get_future_tasks(username):
     """Returns a list of the tasks that haven't occurred.
@@ -209,6 +220,7 @@ def get_future_tasks(username):
 
     return task_list
 
+
 def get_dateless_tasks(username):
     """Returns a list of the tasks that don't have date.
 
@@ -229,6 +241,7 @@ def get_dateless_tasks(username):
     task_list = parse_task_list(results) # Format the results
 
     return task_list
+
 
 def get_alert_tasks(username):
     """Returns a list of the tasks that have the alert date on the current day.
@@ -251,6 +264,7 @@ def get_alert_tasks(username):
     task_list = parse_task_list(results) # Format the results
 
     return task_list
+
 
 def parse_task_list(task_list):
     """Format the list of tasks to fill the blank fields.
@@ -279,6 +293,7 @@ def parse_task_list(task_list):
         formated_list.append(task)
 
     return formated_list
+
 
 def get_user_message_tasks(user):
     """Returns the list of tasks formatted as a message."""

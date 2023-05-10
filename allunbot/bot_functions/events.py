@@ -39,6 +39,7 @@ def add_event(data):
     except:
         return False
 
+
 def update_event(id, data):
     """Updates the event of the given ID.
 
@@ -63,12 +64,14 @@ def update_event(id, data):
             "final-time": verify_field_null(data["final-time"])
         }
     }
+
     try:
         collection.update_one(query, update)
         return True
     except:
         return False
     
+
 def remove_event(id):
     """Removes the event of the given ID.
 
@@ -85,10 +88,22 @@ def remove_event(id):
     except:
         return False
 
+
 def verify_field_null(field):
+    """Verifies that a field is an empty string or undefined, in which case
+    returns None.
+    
+    Inputs:
+    field -> the field to be checked.
+
+    Returns:
+    the field if it's not an empty string or undefined; None otherwise.
+    """
+
     if field == "" or field == "undefined":
         return None
     return field
+
 
 def event(data):
     """Checks if the event is going to be added or updated
@@ -102,6 +117,7 @@ def event(data):
     boolean that indicates whether the event could be added or updated.
     """
     return add_event(data)
+
 
 def select_query_events(query):
     """Retrieves the list of events for a given username.
@@ -131,11 +147,18 @@ def select_query_events(query):
 
     return results
 
+
 def get_events_by_user(username):
-    return parse_event_list(select_query_events({"username":username}))
+    """Returns the events of a user parsed."""
+
+    return parse_event_list(select_query_events({"username": username}))
+
 
 def get_events():
+    """Returns all of the events parsed."""
+
     return parse_event_list(select_query_events({}))
+
 
 def get_today_events():
     """Returns a list of the events that occur the day of the query."""
@@ -153,6 +176,7 @@ def get_today_events():
     event_list = parse_event_list(results) # Format the results
 
     return event_list
+
 
 def parse_event_list(event_list):
     """Format the list of events to fill the blank fields.
@@ -185,6 +209,7 @@ def parse_event_list(event_list):
 
     return formated_list
 
+
 def get_message_today_events():
     """Returns the list of today's events formatted as a message."""
 
@@ -204,6 +229,6 @@ def get_message_today_events():
                     if event['final-time'] else "")
         message += (f"Más información: {event['url']}\n" 
                     if event['url'] else "")
-        message += "--------------------------------"
+        message += "-" * 32
     
     return message

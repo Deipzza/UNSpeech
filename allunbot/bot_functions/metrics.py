@@ -1,5 +1,5 @@
 from .database.mongodatabase import *
-from .utils import *
+from .functions_utils import *
 
 def get_metrics(driver = None):
     """Retrieves the academic metrics for the user.
@@ -31,6 +31,7 @@ def get_metrics(driver = None):
     result[2] = page_soup.find("span", id = "pt1:r1:2:i12:0:pgl42").text
         
     return result
+
 
 def metrics(username, data):
     """Adds or updates the metrics of a user.
@@ -69,6 +70,7 @@ def add_metrics_user(data):
         "avance": data[3],
     }
     collection.insert_one(document)
+
 
 def update_metrics_user(data):
     """Updates the metrics for a user.

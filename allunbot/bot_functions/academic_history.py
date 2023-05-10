@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 
 from .database.mongodatabase import *
-from .utils import *
+from .functions_utils import *
 
 def get_academic_history(driver = None):
     """Scraps the student's academic history.
@@ -149,6 +149,7 @@ def generate_academic_history_img(username):
         "avance": 1,
     }
 
+    # Make the query to the database to extract the data.
     query = {"username": username}
     academic_history = mongo_db.academic_history.find_one(query, 
                                                     projection_academic_history)
@@ -156,16 +157,20 @@ def generate_academic_history_img(username):
     metrics = mongo_db.metrics.find_one(query, projection_metrics)
     len_metrics = mongo_db.metrics.count_documents(query)
 
+    # Verify if there's information available.
     if len_academic_history == 0 or len_metrics == 0:
         rows -= 1
     elif len_academic_history == 0 and len_metrics == 0:
-        return "Lo sentimos, no hemos podido encontrar tu historia academica, comunicate con el área de soporte."
+        return "Lo sentimos, no hemos podido encontrar tu historia academica,\
+        comunicate con el área de soporte."
     
     fig, (table1, table2) = plt.subplots(2, 1, sharey = True)
 
     if len_academic_history != 0:
-        academic_column_headers = ('Exigidos', 'Aprobados', 'Pendientes', 'Inscritos', 'Cursados')
-        academic_history_data = [value.split("-") for _, value in academic_history.items()]
+        academic_column_headers = ('Exigidos', 'Aprobados', 'Pendientes',
+                                   'Inscritos', 'Cursados')
+        academic_history_data = [value.split("-") for _, value
+                                 in academic_history.items()]
         metrics_data = [[value for _, value in metrics.items()]]
         
         # Pop the headers from the data array
@@ -185,7 +190,7 @@ def generate_academic_history_img(username):
             loc = 'center'
         )
     
-    # Hide axes
+    # Hide axes from the figure.
     fig.patch.set_visible(False)
     table1.axis('off')
     table1.axis('tight')
@@ -193,6 +198,7 @@ def generate_academic_history_img(username):
     table2.axis('tight')
     fig.tight_layout()
 
+    # Create the temp folder and save the picture in this folder.
     temp_folder = create_temp()
     filename = os.path.join(temp_folder, f'{username}-academic-history.png')
     plt.savefig(filename, bbox_inches = 'tight')
@@ -200,10 +206,12 @@ def generate_academic_history_img(username):
     return filename
 
 def create_temp():
+    """Create a temp directory."""
+
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     temp = os.path.join(BASE_DIR, os.path.join("bot_functions", "temp"))
 
-    if not os.path.exists(temp):
+    if not os.path.exists(temp):  # verify if the folder already exists.
         os.mkdir(temp)
 
     return temp

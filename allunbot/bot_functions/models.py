@@ -1,7 +1,7 @@
 from flask_login import LoginManager, UserMixin
 
-from .login import *
 from .database.mongodatabase import *
+from .login import *
 
 login_manager = LoginManager()
 
@@ -21,5 +21,3 @@ class User(UserMixin):
     
     def get_id(self):
         return str(self.username)
-    
-

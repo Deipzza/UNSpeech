@@ -12,9 +12,9 @@ from .users import *
 
 from .models import User
 
-
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+BASE_DIR = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
 db = os.path.join(BASE_DIR, 'allunbot.db')
 
 def auth(payload):
@@ -33,9 +33,12 @@ def auth(payload):
     driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
     driver.get("https://sia.unal.edu.co/ServiciosApp")
 
-    user_input = driver.find_element(by=By.XPATH, value="//input[@id='username']")
-    password_input = driver.find_element(by=By.XPATH, value="//input[@id='password']")
-    login_button = driver.find_element(by=By.XPATH, value="//input[@name='submit']")
+    user_input = driver.find_element(by = By.XPATH,
+                                     value = "//input[@id='username']")
+    password_input = driver.find_element(by = By.XPATH,
+                                     value = "//input[@id='password']")
+    login_button = driver.find_element(by = By.XPATH,
+                                     value = "//input[@name='submit']")
 
     user_input.send_keys(payload["username"])
     password_input.send_keys(payload["password"])
@@ -62,6 +65,8 @@ def auth(payload):
 
 
 def request_auth(username, password):
+    """"""
+
     load_dotenv(os.path.join(BASE_DIR, 'allunbot/.env'))
     URL = os.environ.get("CONNECTION_LDAP")
 
@@ -82,6 +87,8 @@ def auth_ldap(username, password):
     return None
 
 def load_user(username):
+    """Load the user's page if it exists in the database."""
+
     response = mongo_db["user_logged"].find_one({"username":username})
     
     if response["user"]["uid"] == username:

@@ -1,7 +1,7 @@
 import os
 import time
 
-from .utils import *
+from .functions_utils import *
 from .login import *
 
 from .database.mongodatabase import *
@@ -17,32 +17,50 @@ def get_schedule(driver):
     view_list = driver.find_element(By.XPATH, value = "//div[@title='Mes']")
     driver.execute_script("arguments[0].click();", view_list)
     time.sleep(2)
-    cells = driver.find_elements(By.XPATH, "//div[@class='af_calendar_month-time-activity-wrapper']")
+    cells = driver.find_elements(
+        By.XPATH, "//div[@class='af_calendar_month-time-activity-wrapper']"
+    )
     arc = -1
 
-    days = {"0": "Lunes", "1": "Martes", "2": "Miércoles", "3": "Jueves", "4": "Viernes", "5": "Sábado"}
-    subject_dic = {"Lunes": [], "Martes": [], "Miércoles": [], "Jueves": [], "Viernes": [], "Sábado": []}
+    days = {"0": "Lunes", "1": "Martes", "2": "Miércoles", "3": "Jueves",
+            "4": "Viernes", "5": "Sábado"}
+    subject_dic = {"Lunes": [], "Martes": [], "Miércoles": [], "Jueves": [],
+                   "Viernes": [], "Sábado": []}
 
     for cell in cells:
         if cell.get_attribute("arc") == str(arc):
             break
 
         day = days[cell.get_attribute("arc")]
-        subjects = cell.find_elements(by = By.XPATH, value = ".//div[@class='af_calendar_month-time-activity']")
+        subjects = cell.find_elements(
+            by = By.XPATH,
+            value = ".//div[@class='af_calendar_month-time-activity']"
+        )
 
         for subject in subjects:
             driver.execute_script("arguments[0].click();", subject)
             time.sleep(2)
-            dialog = driver.find_element(By.XPATH, value="//table[@class='af_dialog_main']")
+            dialog = driver.find_element(
+                by = By.XPATH, value = "//table[@class='af_dialog_main']"
+            )
             name = dialog.find_element(by = By.XPATH, value = ".//td[@class='af_dialog_header-content-center']/div[@class='af_dialog_title']")
-            hours = dialog.find_element(by = By.XPATH, value = ".//td[@class='af_dialog_content']/span[3]")
-            room = dialog.find_element(by = By.XPATH, value = ".//td[@class='af_dialog_content']/span[4]")
+            hours = dialog.find_element(
+                by = By.XPATH,
+                value = ".//td[@class='af_dialog_content']/span[3]"
+            )
+            room = dialog.find_element(
+                by = By.XPATH,
+                value = ".//td[@class='af_dialog_content']/span[4]"
+            )
             
-            subject_dic.setdefault(day, []).append([name.text, hours.text, room.text])
+            subject_dic.setdefault(day, []).append([
+                name.text, hours.text, room.text
+            ])
 
         arc = 0
 
     return subject_dic
+
 
 def add_schedule_user(data):
     """Inserts the data scraped to the database.
@@ -65,6 +83,7 @@ def add_schedule_user(data):
         "sabado": data[6],
     }
     collection.insert_one(document)
+
 
 def update_schedule_user(data):
     """Updates the user's schedule.

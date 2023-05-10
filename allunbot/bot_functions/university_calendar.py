@@ -53,6 +53,7 @@ def get_academic_calendar(student):
 
     return result
 
+
 def get_request_calendar(student):
     """Scraps the request calendar for the type of student received.
 
@@ -74,11 +75,16 @@ def get_request_calendar(student):
     for collapse in collapses:
         try:
             anchor = collapse.find("a").text
-            if (("CALENDARIO ACADÉMICO 2023-1S" in anchor) and (f"{student.upper()}" in anchor) and "MODIFICACIÓN" not in anchor):
+            if (("CALENDARIO ACADÉMICO 2023-1S" in anchor)
+                and (f"{student.upper()}" in anchor)
+                and "MODIFICACIÓN" not in anchor):
+
                 URL = collapse.find("div").find("a")["href"]
                 page_request = requests.get(URL)
                 soup = BeautifulSoup(page_request.content, 'html5lib')
-                table = soup.find_all("table", attrs = {"class": "MsoNormalTable"})
+                table = soup.find_all("table", attrs = {
+                    "class": "MsoNormalTable"
+                })
                 result = process_calendar_table(table[1], [1, 2], student)
 
                 insert_values(result, "request_calendar")
@@ -86,6 +92,7 @@ def get_request_calendar(student):
             pass
 
     return result
+
 
 def insert_values(data, collection_name):
     """Inserts the info into the database.
@@ -108,6 +115,7 @@ def insert_values(data, collection_name):
         }
         collection.insert_one(document)
 
+
 def update_academic_calendar():
     """Updates the academic calendar in case it changed."""
 
@@ -117,6 +125,7 @@ def update_academic_calendar():
     for student in students:
         get_academic_calendar(student)
 
+
 def update_request_calendar():
     """Updates the requests calendar in case it changed."""
 
@@ -125,6 +134,7 @@ def update_request_calendar():
 
     for student in students:
         get_request_calendar(student)
+
 
 def process_calendar_table(table, positions, student):
     """Formats the tables for better handling.
@@ -155,6 +165,7 @@ def process_calendar_table(table, positions, student):
 
     return result
 
+
 def generate_academic_calendar(student):
     """Returns the academic calendar as a message.
 
@@ -182,6 +193,7 @@ def generate_academic_calendar(student):
         message += f"{item['indice']} | {item['actividad']} | {item['fecha']}.\n\n"
 
     return message
+
 
 def generate_request_calendar(student):
     """Returns the request calendar as a message.

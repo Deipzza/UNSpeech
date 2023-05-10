@@ -30,6 +30,7 @@ def add_users(data):
         }}
         collection.update_one(query, update)
 
+
 def get_user_by_chat(chat_id):
     """Searches a user by a given chat_id.
 
@@ -52,6 +53,7 @@ def get_user_by_chat(chat_id):
         return ""
     else:
         return result["username"]
+
 
 def get_users():
     """Returns a list of all user's chat IDs."""
