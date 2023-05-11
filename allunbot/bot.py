@@ -342,7 +342,6 @@ def callback_login(call):
             text = f"""
 Para poder utilizar la calculadora de notas debes ingresar al enlace:
 {URL}/calculadora
-Recuerda **NO** compartir este enlace ya que cualquiera podrá tener acceso a tu información.
 """
             bot.send_message(call.message.chat.id, text,
                              parse_mode = "Markdown")
@@ -398,7 +397,7 @@ def webhook():
 @app.route('/', methods=['GET'])
 def index():
     """Return the index page of the bot."""
-    is_auth, info_sia, username, _ = user_authenticated(current_user)
+    is_auth, _, username, _ = user_authenticated(current_user)
 
     return render_template('index.html', logged = is_auth, username = username)
 
@@ -770,5 +769,5 @@ if __name__ == "__main__":
     create_schedule_thread(send_alert)
 
     mongo_db.user_logged.delete_many({})
-    app.debug = True # Hot reloading
+    # app.debug = True # Hot reloading
     app.run(port = int(os.environ.get('PORT', 10000))) # Server execution port
