@@ -1,14 +1,28 @@
-.container-table {
-  padding: 1%;
-  /* padding-right: calc(var(--bs-gutter-x) * .5);
-  padding-left: var(--bs-gutter-x); */
+/***************************************************
+Own styles for the calculator page.
 
-}
+https://allunbot.onrender.com/calculadora
+***************************************************/
 
+
+/* Delet styles by defect */
 .row {
   margin: 0;
 }
 
+
+/* General styles */
+.container-table {
+  padding: 1%;
+}
+
+#plan_estudios {
+  margin: 1.5% 0;
+  font-size: 19pt;
+}
+
+
+/* Styles for calculated metrics */
 .info_metricas {
   display: flex;
   align-items: center;
@@ -26,12 +40,11 @@
   border: 1px solid lightgray;
 }
 
-
 .info_metric_value {
   text-align: center;
 }
 
-.info_metric_value p{
+.info_metric_value p {
   margin: 0;
 }
 
@@ -44,9 +57,4 @@
 .item-name {
   font-size: 14pt;
   font-weight: 500;
-}
-
-#plan_estudios {
-  margin: 1.5% 0;
-  font-size: 19pt;
 }

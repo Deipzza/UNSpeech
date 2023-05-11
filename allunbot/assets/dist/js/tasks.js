@@ -1,3 +1,4 @@
+// Define global variables
 var new_task = 0;
 
 var tem_accion = [
@@ -37,8 +38,6 @@ var tem_table =[
         '<tr>',
           '<th>Tarea</th>',
           '<th>Asignatura</th>',
-          // '<th>Fecha</th>',
-          // '<th>Notificación</th>',
           '<th>Descripción</th>',
           '<th class="fix_column">Acciones</th>',
         '</tr>',
@@ -49,13 +48,22 @@ var tem_table =[
 ]
 ]
 
+// Main functions
 function add_task(tab, task = null) {
+    /********************************
+   * Add new task in the html.
+   * 
+   * Inputs:
+   * tab -> string with the identifier of the tab to be create task.
+   * task -> string with the identifier of the task to be create.
+  ********************************/
+ 
   var type_task = tab.charAt(tab.length - 1);
 
   if (type_task == "1")
     var content_task = template_task();
   else if (type_task != "1")
-    var content_task = templae_task_date(task);
+    var content_task = template_task_date(task);
 
   if(!$(`#${tab} table tbody`).length){
     if(type_task != "1")
@@ -69,8 +77,82 @@ function add_task(tab, task = null) {
   $(`#${tab} table tbody`).append(content_task);
 }
 
+async function save_task(task_id) {
+  /********************************
+   * Get information and save to task.
+   * 
+   * Inputs:
+   * task_id -> string with the identifier of the task to be update/create.
+  ********************************/
+
+  var task_name = $(`#${task_id}`).find(".name_task input").val();
+  var task_subject = $(`#${task_id}`).find(".subject_task input").val();
+  var task_description = $(`#${task_id}`)
+    .find(".description_task textarea")
+    .val();
+  if($(`#${task_id}`).find(".date_task input").length == 2) {
+    var task_date = $(`#${task_id}`).find(".date_task input")[0].value;
+    var task_time = $(`#${task_id}`).find(".date_task input")[1].value;
+    var task_date_time = task_date + " " + task_time;
+  }
+  else {
+    var task_date_time = "";
+  }
+
+  console.log(task_time)
+  var task_notification_time = $(`#${task_id}`)
+    .find(".task_notification_time input")
+    .val();
+
+  var formData = new FormData();
+  formData.append("id", task_id);
+  formData.append("name", task_name);
+  formData.append("subject", task_subject);
+  formData.append("description", task_description);
+  formData.append("date", task_date_time);
+  formData.append("notification_time", task_notification_time);
+  await request_save_task(formData, task_id);
+}
+
+async function remove_task(task_id) {
+  /********************************
+   * Get information and delete to task.
+   * 
+   * Inputs:
+   * task_id -> string with the identifier of the task to be delete.
+  ********************************/
+
+  var formData = new FormData();
+  formData.append("id", task_id);
+  await request_remove_task(formData, task_id);
+}
+
+function edit_task(table, task_id) {
+  /********************************
+   * Edit task in the html.
+   * 
+   * Inputs:
+   * tab -> string with the identifier of the tab to be edit task.
+   * task -> string with the identifier of the task to be edit.
+  ********************************/
+
+  var type_task = table.charAt(table.length - 1);
+  if(type_task != "1")
+    var content_task = template_task_edit_with_date(table, task_id);
+  else
+    var content_task = template_task_edit(table, task_id);
+
+
+  $(`#${table} #${task_id}`).html(content_task);
+}
+
+// Utils functions
 
 function template_task() {
+  /********************************
+   * Generate the template for new task
+  ********************************/
+
   var tem_content = [
     '<td class="name_task" style="width: 200px;">',
     `<input type="text" class="form-control" value="" placeholder = 'Tarea'>`,
@@ -78,12 +160,6 @@ function template_task() {
     '<td class="subject_task" style="width: 200px;">',
     `<input type="text" class="form-control" value="" placeholder = 'Asignatura'>`,
     "</td>",
-    // '<td class="date_task" style="width: 100px;">',
-    // `<input type="date" class="form-control" value=${task_date}>`,
-    // '</td>',
-    // '<td class="task_notification_time" style="width: 100px;">',
-    // `<input type="date" class="form-control" value=${task_notification_time}>`,
-    // '</td>',
     '<td class="description_task" style="width: 300px;">',
     `<textarea class="form-control" placeholder = 'Descripción'></textarea>`,
     "</td>",
@@ -102,8 +178,10 @@ function template_task() {
   return content_task;
 }
 
-function templae_task_date() {
-
+function template_task_date() {
+  /********************************
+   * Generate the template for new task with date
+  ********************************/
   var tem_content = [
     '<td class="name_task" style="width: 200px;">',
     `<input type="text" class="form-control" value='' placeholder = 'Tarea'>`,
@@ -134,7 +212,50 @@ function templae_task_date() {
   return content_task;
 }
 
+function template_task_edit(id_table, task_id) {
+  /********************************
+   * Generate the template for edit task.
+   * 
+   * Inputs:
+   * id_tab -> string with the identifier of the tab to be edit task.
+   * task_id -> string with the identifier of the task to be edit.
+  ********************************/
+  var task_edit = $(`#${id_table} #${task_id}`)
+
+  var task_name = task_edit.find(".name_task").text();
+  var task_subject = task_edit.find(".subject_task").text();
+  var task_description = task_edit.find(".description_task").text();
+
+  var tem_content = [
+    '<td class="name_task" style="width: 200px;">',
+    `<input type="text" class="form-control" value='${task_name}' placeholder = 'Tarea'>`,
+    "</td>",
+    '<td class="subject_task" style="width: 200px;">',
+    `<input type="text" class="form-control" value='${task_subject}' placeholder = 'Asignatura'>`,
+    "</td>",
+    '<td class="description_task" style="width: 300px;">',
+    `<textarea class="form-control" placeholder = 'Descripción'>${task_description}</textarea>`,
+    "</td>",
+  ];
+  $(`#${task_id}`).find(".accion .btn-warning").addClass("disabled");
+  var tem_accion = $(`#${task_id}`).find(".accion").html();
+  console.log(tem_accion);
+
+  var content_task =
+    tem_content.join("") + "<td class='accion'>" + tem_accion + "</td>";
+
+  return content_task;
+}
+
 function template_task_edit_with_date(id_table, task_id) {
+  /********************************
+   * Generate the template for edit task with date
+   * 
+   * Inputs:
+   * id_tab -> string with the identifier of the tab to be edit task.
+   * task_id -> string with the identifier of the task to be edit.
+  ********************************/
+
   var task_edit = $(`#${id_table} #${task_id}`)
   var task_name = task_edit.find(".name_task").text();
   var task_subject = task_edit.find(".subject_task").text();
@@ -177,77 +298,14 @@ function template_task_edit_with_date(id_table, task_id) {
   return content_task;
 }
 
-function template_task_edit(id_table, task_id) {
-  var task_edit = $(`#${id_table} #${task_id}`)
+async function request_save_task(formData) {
+  /********************************
+   * Request to save task to database.
+   * 
+   * Inputs:
+   * formData -> Information to save.
+  ********************************/
 
-  var task_name = task_edit.find(".name_task").text();
-  var task_subject = task_edit.find(".subject_task").text();
-  var task_description = task_edit.find(".description_task").text();
-
-  var tem_content = [
-    '<td class="name_task" style="width: 200px;">',
-    `<input type="text" class="form-control" value='${task_name}' placeholder = 'Tarea'>`,
-    "</td>",
-    '<td class="subject_task" style="width: 200px;">',
-    `<input type="text" class="form-control" value='${task_subject}' placeholder = 'Asignatura'>`,
-    "</td>",
-    // '<td class="date_task" style="width: 100px;">',
-    // `<input type="date" class="form-control" value=${task_date}>`,
-    // "</td>",
-    // '<td class="task_notification_time" style="width: 100px;">',
-    // `<input type="date" class="form-control" value=${task_notification_time}>`,
-    // "</td>",
-    '<td class="description_task" style="width: 300px;">',
-    `<textarea class="form-control" placeholder = 'Descripción'>${task_description}</textarea>`,
-    "</td>",
-  ];
-  $(`#${task_id}`).find(".accion .btn-warning").addClass("disabled");
-  var tem_accion = $(`#${task_id}`).find(".accion").html();
-  console.log(tem_accion);
-
-  var content_task =
-    tem_content.join("") + "<td class='accion'>" + tem_accion + "</td>";
-
-  return content_task;
-}
-
-async function save_task(task_id) {
-  var task_name = $(`#${task_id}`).find(".name_task input").val();
-  var task_subject = $(`#${task_id}`).find(".subject_task input").val();
-  var task_description = $(`#${task_id}`)
-    .find(".description_task textarea")
-    .val();
-  if($(`#${task_id}`).find(".date_task input").length == 2) {
-    var task_date = $(`#${task_id}`).find(".date_task input")[0].value;
-    var task_time = $(`#${task_id}`).find(".date_task input")[1].value;
-    var task_date_time = task_date + " " + task_time;
-  }
-  else {
-    var task_date_time = "";
-  }
-
-  console.log(task_time)
-  var task_notification_time = $(`#${task_id}`)
-    .find(".task_notification_time input")
-    .val();
-
-  var formData = new FormData();
-  formData.append("id", task_id);
-  formData.append("name", task_name);
-  formData.append("subject", task_subject);
-  formData.append("description", task_description);
-  formData.append("date", task_date_time);
-  formData.append("notification_time", task_notification_time);
-  await request_save_task(formData, task_id);
-}
-
-async function remove_task(task_id) {
-  var formData = new FormData();
-  formData.append("id", task_id);
-  await request_remove_task(formData, task_id);
-}
-
-async function request_save_task(formData, id) {
   await $.ajax({
     url: "../api/task",
     data: formData,
@@ -268,7 +326,15 @@ async function request_save_task(formData, id) {
     }
   });
 }
-async function request_remove_task(formData, id) {
+
+async function request_remove_task(formData) {
+    /********************************
+   * Request to remove task to database.
+   * 
+   * Inputs:
+   * formData -> Information to remove.
+  ********************************/
+
   await $.ajax({
     url: "../api/task",
     data: formData,
@@ -288,15 +354,4 @@ async function request_remove_task(formData, id) {
       location.reload();
     }
   });
-}
-
-function edit_task(table, task_id) {
-  var type_task = table.charAt(table.length - 1);
-  if(type_task != "1")
-    var content_task = template_task_edit_with_date(table, task_id);
-  else
-    var content_task = template_task_edit(table, task_id);
-
-
-  $(`#${table} #${task_id}`).html(content_task);
 }

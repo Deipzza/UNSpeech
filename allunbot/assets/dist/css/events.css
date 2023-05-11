@@ -1,47 +1,55 @@
-.Acciones .yellow {
-    background-color: var(--box-color);
-    color: #c3950a;
-    border: 1px solid;
-  }
-  
-  .Acciones .blue {
-    background-color: var(--box-color-2);
-    color: #073c8b;
-    border: 1px solid;
-  }
-  
-  .Acciones .red {
-    background-color: var(--box-color-3);
-    color: #68161e;
-    border: 1px solid;
-  }
-  
-  .Acciones .green {
-    background-color: var(--box-color-4);
-    color: #0f4d30;
-    border: 1px solid;
-  }
-  .Acciones .btn:hover{
-    color: white;
-    background-color: var(--bs-btn-hover-bg);
-    border-color: var(--bs-btn-hover-border-color);
-  }
-  
-  .Acciones {
-    gap: 1.8%;
-    margin-top: 1.5%;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    align-content: center;
-  }
-  
-  .Acciones.d-flex {
-    margin-bottom: 2%;
-  }
+/********************  
+Own styles for the events page.
 
-.require{
+https://allunbot.onrender.com/events
+https://allunbot.onrender.com/all-events
+*********************/
+
+.Acciones .btn:hover {
+  color: white;
+  background-color: var(--bs-btn-hover-bg);
+  border-color: var(--bs-btn-hover-border-color);
+}
+
+.Acciones {
+  gap: 1.8%;
+  margin-top: 1.5%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  align-content: center;
+}
+
+.Acciones.d-flex {
+  margin-bottom: 2%;
+}
+
+.Acciones .yellow {
+  background-color: var(--box-color);
+  color: #c3950a;
+  border: 1px solid;
+}
+
+.Acciones .blue {
+  background-color: var(--box-color-2);
+  color: #073c8b;
+  border: 1px solid;
+}
+
+.Acciones .red {
+  background-color: var(--box-color-3);
+  color: #68161e;
+  border: 1px solid;
+}
+
+.Acciones .green {
+  background-color: var(--box-color-4);
+  color: #0f4d30;
+  border: 1px solid;
+}
+
+.require {
   color: red;
   font-size: 11pt;
 }

@@ -1,70 +1,95 @@
-{% extends 'dashboard.html' %} {% block title %}Eventos{% endblock %} {% block
-    styles %}
-    <link href="../assets/dist/css/dashboard.css" rel="stylesheet" />
-    <link href="../assets/dist/css/events.css" rel="stylesheet" />
-    {% endblock %} {% block scripts %}
-    <script src="../assets/dist/js/events.js"></script>
+<!-- Implement general template -->
+{% extends 'dashboard.html' %} 
 
-    {% endblock %} {% block page_content %}
-    <div class="header">Mis eventos</div>
-    <form method="POST" id="event">
-       <input type="hidden" name="username" value="{{ username }}"/>
-        
-        <div class="row">
-            <div class="col mb-3">
-            <label for="name" class="form-label">Nombre del evento <span class="require">*</span></label>
-            <input type="text" class="form-control" id="name" name="name" required>
-            </div>
+<!-- Make to changes and add information in the head -->
+{% block title %}Eventos{% endblock %} 
 
-            <div class="col-3 mb-3">
-                <label for="status" class="form-label">Estado <span class="require">*</span></label>
-                <select class="form-select" id="status" name="status" required>
-                    <option value="">--Seleccione--</option>
-                    <option value="activo">Activo</option>
-                    <option value="cancelado">Cancelado</option>
-                    <option value="pospuesto">Pospuesto</option>
-                </select>
-            </div>
-        </div>
+{% block styles %}
+<link href="../assets/dist/css/dashboard.css" rel="stylesheet" />
+<link href="../assets/dist/css/events.css" rel="stylesheet" />
+{% endblock %}
 
-        <div class="row">
-            <div class="col mb-3">
-                <label for="dependency" class="form-label">Dependencia <span class="require">*</span></label>
-                <input type="text" class="form-control" id="dependency" name="dependency" required>
-            </div>
+{% block scripts %}
+<script src="../assets/dist/js/events.js"></script>
+{% endblock %}
 
-            <div class="col mb-3">
-                <label for="url" class="form-label">Enlace</label>
-                <input type="text" class="form-control" id="url" name="url">
-            </div>
-        </div>
+<!-- Main content of the page -->
+{% block page_content %}
+<div class="header">Mis eventos</div>
+<form method="POST" id="event">
+  <input type="hidden" name="username" value="{{ username }}" />
 
-        <div class="row">
+  <div class="row">
+    <div class="col mb-3">
+        <label for="name" class="form-label">
+            Nombre del evento <span class="require">*</span>
+        </label>
+        <input type="text" class="form-control" id="name" name="name" required />
+    </div>
 
-            <div class="col mb-3">
-                <label for="date" class="form-label">Fecha <span class="require">*</span></label>
-                <input type="date" class="form-control" id="date" name="date" required>
-            </div>
+    <div class="col-3 mb-3">
+        <label for="status" class="form-label">
+            Estado <span class="require">*</span>
+        </label>
+        <select class="form-select" id="status" name="status" required>
+            <option value="">--Seleccione--</option>
+            <option value="activo">Activo</option>
+            <option value="cancelado">Cancelado</option>
+            <option value="pospuesto">Pospuesto</option>
+        </select>
+    </div>
+  </div>
 
-            <div class="col mb-3">
-                <label for="time" class="form-label">Hora de inicio</label>
-                <input type="time" class="form-control" id="time" name="start-time">
-            </div>
+  <div class="row">
+    <div class="col mb-3">
+        <label for="dependency" class="form-label">
+            Dependencia <span class="require">*</span>
+        </label>
+        <input
+            type="text"
+            class="form-control"
+            id="dependency"
+            name="dependency"
+            required
+        />
+    </div>
 
-            <div class="col mb-3">
-                <label for="time" class="form-label">Hora de finalización</label>
-                <input type="time" class="form-control" id="time" name="final-time">
-            </div>
+    <div class="col mb-3">
+      <label for="url" class="form-label">Enlace</label>
+      <input type="text" class="form-control" id="url" name="url" />
+    </div>
+  </div>
 
-        </div>
+  <div class="row">
+    <div class="col mb-3">
+        <label for="date" class="form-label">
+            Fecha <span class="require">*</span>
+        </label>
+        <input type="date" class="form-control" id="date" name="date" required />
+    </div>
 
-        <div class="mb-3">
-          <label for="description" class="form-label">Descripción</label>
-          <textarea class="form-control" id="description" name="description" rows="3"></textarea>
-        </div>
+    <div class="col mb-3">
+      <label for="time" class="form-label">Hora de inicio</label>
+      <input type="time" class="form-control" id="time" name="start-time" />
+    </div>
 
-        <button type="submit" id="event_button" class="btn btn-primary">Crear</button>
-    </form>
-    
-    {% endblock %}
-    
+    <div class="col mb-3">
+      <label for="time" class="form-label">Hora de finalización</label>
+      <input type="time" class="form-control" id="time" name="final-time" />
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <label for="description" class="form-label">Descripción</label>
+    <textarea
+      class="form-control"
+      id="description"
+      name="description"
+      rows="3"
+    ></textarea>
+  </div>
+
+  <button type="submit" id="event_button" class="btn btn-primary">Crear</button>
+</form>
+
+{% endblock %}

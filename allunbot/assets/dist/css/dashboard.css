@@ -1,3 +1,17 @@
+/***************************************************
+Own styles for the dashboard page.
+
+https://allunbot.onrender.com/dashboard/
+
+and styles templates for:
+https://allunbot.onrender.com/calculadora/
+https://allunbot.onrender.com/tasks
+https://allunbot.onrender.com/events
+https://allunbot.onrender.com/all-events
+***************************************************/
+
+/* GLOBAL STYLES
+-------------------------------------------------- */
 * {
   box-sizing: border-box;
   outline: none;
@@ -26,6 +40,23 @@
   --task-color: #777982;
 }
 
+.yellow {
+  background-color: var(--box-color);
+}
+
+.blue {
+  background-color: var(--box-color-2);
+}
+
+.red {
+  background-color: var(--box-color-3);
+}
+
+.green {
+  background-color: var(--box-color-4);
+}
+
+
 body {
   margin: 0;
   width: 100%;
@@ -45,6 +76,18 @@ button {
   cursor: pointer;
 }
 
+.btn:hover {
+  color: white;
+  background-color: var(--bs-btn-hover-bg);
+  border-color: var(--bs-btn-hover-border-color);
+}
+
+.main-page {
+  padding: 20px;
+}
+
+/*********************SECCIONS*********************/
+/* CENTER */
 .task-manager {
   width: 100%;
   background: #fff;
@@ -56,6 +99,17 @@ button {
   margin: 0;
 }
 
+.nota {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-size: 11pt;
+  text-align: center;
+}
+
+/* LEFT */
 .left-bar {
   background-color: var(--bg-color);
   border-right: 1px solid #e3e7f7;
@@ -70,7 +124,6 @@ button {
   display: flex;
   align-items: center;
   color: var(--main-color);
-  /* margin-bottom: 14px; */
   font-weight: 500;
   gap: 3%;
   font-size: 10pt;
@@ -83,46 +136,23 @@ button {
   color: currentcolor;
 }
 
-.item a{
+.item a {
   width: 100%;
   color: currentColor;
   text-decoration: none;
 }
 
-.item:hover{
+.item:hover {
   background-color: rgb(197, 196, 196);
 }
 
-.category-list {
-  margin-top: 50px;
+.logout {
+  width: 100%;
+  font-size: 9pt;
 }
 
-.category-list .item {
-  color: var(--secondary-color);
-}
 
-.actions {
-  padding: 12px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.circle {
-  border-radius: 50%;
-  width: 10px;
-  height: 10px;
-  background-color: #fe4d46;
-  box-shadow: 14px 0 0 0 #fbc023, 28px 0 0 0 #7dd21f;
-}
-
-.circle-2 {
-  border-radius: 50%;
-  width: 4px;
-  height: 4px;
-  background-color: #d5d7e3;
-  box-shadow: -6px 0 0 0 #d5d7e3, 6px 0 0 0 #d5d7e3;
-}
-
+/* RIGHT */
 .right-bar {
   border-left: 1px solid #e3e7f7;
   display: flex;
@@ -133,6 +163,13 @@ button {
   font-size: 20px;
   color: var(--main-text-color);
   margin-left: 30px;
+}
+
+.right-content {
+  padding: 1% 2%;
+  overflow-y: auto;
+  flex: 1;
+  min-height: calc(100vh - 56px - 79px);
 }
 
 .top-part {
@@ -154,46 +191,12 @@ button {
   font-size: 14px;
   border-radius: 10px;
   padding: 5px;
-  /* background-color: #623ce8; */
-  /* color: #fff; */
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.right-content {
-  padding: 1% 2%;
-  overflow-y: auto;
-  flex: 1;
-  min-height: calc(100vh - 56px - 79px);
-}
-
-.enlace{
-  text-decoration: none;
-  color: inherit;
-}
-
-.event-name {
-  font-size: 10pt;
-  font-weight: 500;
-  color: gray;
-  text-align: justify;
-}
-
-.event-dependency {
-  font-size: 9pt;
-  font-weight: 100;
-  /* opacity: 0.6; */
-  color: darkslategray;
-}
-
-.event-dependency p{
-  margin: 0;
-}
-
-.event-dependency p strong{
-  font-weight: 700;
-}
+/* Events right */
 .event-box {
   position: relative;
   border-radius: 12px;
@@ -208,31 +211,40 @@ button {
   transform: scale(1.02);
 }
 
+.enlace {
+  text-decoration: none;
+  color: inherit;
+}
+
+.event-name {
+  font-size: 10pt;
+  font-weight: 500;
+  color: gray;
+  text-align: justify;
+}
+
+.event-dependency {
+  font-size: 9pt;
+  font-weight: 100;
+  color: darkslategray;
+}
+
+.event-dependency p {
+  margin: 0;
+}
+
+.event-dependency p strong {
+  font-weight: 700;
+}
+
 .time {
   margin-bottom: 6px;
   opacity: 0.4;
   font-size: 10px;
 }
 
-.yellow {
-  background-color: var(--box-color);
-}
-
-.blue {
-  background-color: var(--box-color-2);
-}
-
-.red {
-  background-color: var(--box-color-3);
-}
-
-.green {
-  background-color: var(--box-color-4);
-}
-
 .more-button {
   position: absolute;
-
   border-radius: 50%;
   color: #8e92a4;
   opacity: 0.4;
@@ -241,51 +253,46 @@ button {
   cursor: pointer;
 }
 
-.members {
-  display: flex;
-  margin-top: 14px;
+/* Types events */
+.event-box.pospuesto {
+  background-color: var(--box-color);
 }
 
-.members img {
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  margin-right: 4px;
-  object-fit: cover;
+.event-box.activo {
+  background-color: var(--box-color-2);
+  /* color: #073c8b; */
+  /* border: 1px solid; */
 }
 
-
-
-.content-categories {
-  display: flex;
-  justify-content: space-evenly;
-  width: 100%;
-  border-bottom: 1px solid #ddd;
-  padding: 20px 0 0;
+.event-box.cancelado {
+  background-color: var(--box-color-3);
 }
 
-.label-wrapper .nav-item {
-  display: none;
-}
+/****************** INDIVIDUAL STYLES ******************/
 
-.category {
-  font-weight: 500;
-  color: var(--secondary-color);
-  border-bottom: 1px solid #ddd;
-  transition: 0.4s ease-in;
-  padding: 20px 30px;
-  cursor: pointer;
+
+.notificación {
+  font-size: 14pt;
 }
 
 
-
-
-.main-page{
-    padding: 20px;
+div.header {
+  font-size: 26px;
+  color: var(--main-color);
+  margin-top: 0px;
+  margin-bottom: 1%;
 }
+
+
+.form-control,
+.form-select {
+  font-size: 10pt;
+}
+
+/****************** RESPONSIVE ******************/
 
 @media screen and (max-width: 900px) {
-  .right-content{
+  .right-content {
     min-height: 12vh;
   }
 }
@@ -301,61 +308,6 @@ button {
   .right-content {
     padding: 10px 16px;
   }
-}
-
-.nota {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    font-size: 11pt;
-    text-align: center;
-}
-
-.logout {
-  width: 100%;
-  font-size: 9pt;
-}
-
-.notificación {
-  font-size: 14pt;
-}
-
-.event-box.pospuesto {
-  background-color: var(--box-color);
-}
-
-.event-box.activo {
-  background-color: var(--box-color-2);
-  /* color: #073c8b; */
-  /* border: 1px solid; */
-}
-
-.event-box.cancelado {
-  background-color: var(--box-color-3);
-}
-
-.green {
-  background-color: var(--box-color-4);
-  color: #0f4d30;
-  border: 1px solid;
-}
-.btn:hover{
-  color: white;
-  background-color: var(--bs-btn-hover-bg);
-  border-color: var(--bs-btn-hover-border-color);
-}
-
-div.header {
-  font-size: 26px;
-  color: var(--main-color);
-  margin-top: 0px;
-  margin-bottom: 1%;
-}
-
-.form-control, .form-select {
-  font-size: 10pt;
 }
 
 

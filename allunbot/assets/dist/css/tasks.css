@@ -1,3 +1,23 @@
+/********************  
+Own styles for the tasks page.
+
+https://allunbot.onrender.com/tasks
+*********************/
+
+/****************** GLOBAL STYLES ******************/
+table{
+  min-width:100%
+}
+
+.tasks-wrapper {
+  padding: 14px 0;
+  flex: 1;
+  overflow-y: auto;
+  height: 100%;
+  padding-right: 8px;
+}
+
+/* ITEMS BAR */
 .page-content .nav-link {
   font-weight: 500;
   color: var(--secondary-color);
@@ -13,14 +33,8 @@
   border-bottom: 2px solid var(--checkbox-color) !important;
 }
 
-.tasks-wrapper {
-  padding: 14px 0;
-  flex: 1;
-  overflow-y: auto;
-  height: 100%;
-  padding-right: 8px;
-}
 
+/* STYLES TASK */
 .task {
   padding-bottom: 16px;
   padding-left: 30px;
@@ -34,58 +48,34 @@
   background-color: rgb(231 231 231);
 }
 
-label .label-text {
-  position: relative;
-}
-
-label .label-text:before {
-  content: "";
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  border: 1px solid #ddd;
-  border-radius: 2px;
-  left: -24px;
-  transition: 0.2s ease;
-}
-
-.task-item:checked + label .label-text:before {
-  background-color: var(--checkbox-color);
-  border: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-check'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-size: 10px;
-  background-position: center;
-  border: 1px solid var(--checkbox-color);
-}
-
-.tag {
-  font-size: 10px;
-  padding: 4px 8px;
-  border-radius: 20px;
-}
-.tag.approved {
-  background-color: var(--tag-color-one);
-  color: var(--tag-color-text-one);
-}
-
-.tag.progress {
-  background-color: var(--tag-color-two);
-  color: var(--tag-color-text-two);
-}
-
-.tag.review {
-  background-color: var(--tag-color-three);
-  color: var(--tag-color-text-three);
-}
-
-.tag.waiting {
-  background-color: var(--tag-color-four);
-  color: var(--tag-color-text-four);
-}
-
 .task label {
   cursor: pointer;
+}
+
+.description_task .collapse {
+  padding: 1% 3%;
+  border: 1px solid lightgray;
+  border-top: none;
+}
+
+.task.task_header {
+  background: black;
+  color: white;
+  border-radius: 10px 10px 0 0;
+}
+
+/* GENERAL STYLE SECCION */
+
+.page-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.page-content .header {
+  font-size: 26px;
+  color: var(--main-color);
+  margin-top: 0px;
 }
 
 .upcoming {
@@ -94,6 +84,54 @@ label .label-text:before {
   margin-bottom: 30px;
   margin-top: 4% !important;
 }
+
+/****************** COLUMN ACCIONS ******************/
+.Acciones {
+  gap: 1.8%;
+  margin-top: 1.5%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  align-content: center;
+}
+
+.Acciones.d-flex {
+  margin-bottom: 2%;
+}
+
+.Acciones .btn:hover{
+  color: white;
+  background-color: var(--bs-btn-hover-bg);
+  border-color: var(--bs-btn-hover-border-color);
+}
+
+.Acciones .yellow {
+  background-color: var(--box-color);
+  color: #c3950a;
+  border: 1px solid;
+}
+
+.Acciones .blue {
+  background-color: var(--box-color-2);
+  color: #073c8b;
+  border: 1px solid;
+}
+
+.Acciones .red {
+  background-color: var(--box-color-3);
+  color: #68161e;
+  border: 1px solid;
+}
+
+.Acciones .green {
+  background-color: var(--box-color-4);
+  color: #0f4d30;
+  border: 1px solid;
+}
+
+
+/****************** RESPONSIVE ******************/
 
 @media screen and (max-width: 700px) {
   .task-manager {
@@ -119,92 +157,4 @@ label .label-text:before {
   .category {
     padding: 20px;
   }
-}
-
-.page-content {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-.page-content .header {
-  font-size: 26px;
-  color: var(--main-color);
-  margin-top: 0px;
-}
-
-.collapse_description {
-  margin-bottom: 12px;
-  padding-left: 30px;
-  color: var(--task-color);
-  font-size: 13px;
-  font-weight: 500;
-  padding: 1.5% 1%;
-}
-
-.task_check {
-  width: 14px;
-}
-
-.description_task .collapse {
-  padding: 1% 3%;
-  border: 1px solid lightgray;
-  border-top: none;
-  /* border-radius: 0 0 10px 10px; */
-}
-
-.task.task_header {
-  background: black;
-  color: white;
-  border-radius: 10px 10px 0 0;
-}
-
-
-
-.Acciones .yellow {
-  background-color: var(--box-color);
-  color: #c3950a;
-  border: 1px solid;
-}
-
-.Acciones .blue {
-  background-color: var(--box-color-2);
-  color: #073c8b;
-  border: 1px solid;
-}
-
-.Acciones .red {
-  background-color: var(--box-color-3);
-  color: #68161e;
-  border: 1px solid;
-}
-
-.Acciones .green {
-  background-color: var(--box-color-4);
-  color: #0f4d30;
-  border: 1px solid;
-}
-.Acciones .btn:hover{
-  color: white;
-  background-color: var(--bs-btn-hover-bg);
-  border-color: var(--bs-btn-hover-border-color);
-}
-
-.Acciones {
-  gap: 1.8%;
-  margin-top: 1.5%;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  align-content: center;
-}
-
-.Acciones.d-flex {
-  margin-bottom: 2%;
-}
-
-
-
-table{
-  min-width:100%
 }

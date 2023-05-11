@@ -269,8 +269,7 @@ def send_alert():
 Tus notificaciones para hoy son:
 {tasks}
 """
-                bot.send_message(int(user["chat_id"]), text = message,
-                                parse_mode = "Markdown")
+                bot.send_message(int(user["chat_id"]), text = message)
         except:
             pass
 
@@ -371,8 +370,7 @@ def callback_query(call):
 
     if call.data == "today_events":
         bot.send_message(call.message.chat.id,
-                         get_message_today_events(),
-                         parse_mode = "Markdown")
+                         get_message_today_events())
     elif call.data == "all_events":
         text = f"""
 Para ver todos los eventos debes ingresar al enlace:

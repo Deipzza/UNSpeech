@@ -1,12 +1,20 @@
-{% extends 'dashboard.html' %} {% block title %}Calculadora{% endblock %} {%
-block styles %}
+<!-- Implement general template -->
+{% extends 'dashboard.html' %} 
+
+<!-- Make to changes and add information in the head -->
+{% block title %}Calculadora{% endblock %} 
+
+{% block styles %}
 <link href="../assets/dist/css/dashboard.css" rel="stylesheet" />
 <link href="../assets/dist/css/calculadora.css" rel="stylesheet" />
-{% endblock %} {% block scripts %}
+{% endblock %} 
+
+{% block scripts %}
 <script src="../assets/dist/js/calculadora.js"></script>
+{% endblock %} 
 
-
-{% endblock %} {% block page_content %}
+<!-- Main content of the page -->
+{% block page_content %}
 <h1 id="plan_estudios"></h1>
 
 <div class="info_metricas">
@@ -25,6 +33,8 @@ block styles %}
 
 <div class="container-table">
   <div class="info_calificaciones table-responsive">
+    
+    <!-- General information about subjects -->
     <table class="table table-striped table-bordered" id="calificaciones">
       <thead class="table-secondary">
         <tr>
@@ -64,6 +74,8 @@ block styles %}
                   />
                 </svg>
               </button>
+
+              <!-- Modal for add or changes grades -->
               <div
                 class="modal fade"
                 id="{{ id }}"
@@ -91,7 +103,7 @@ block styles %}
                             type="button"
                             class="btn btn-success"
                             id="add_row"
-                            onclick="add_subject({{id}})"
+                            onclick="add_grade({{id}})"
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -146,18 +158,10 @@ block styles %}
                       </table>
                     </div>
                     <div class="modal-footer">
-                      <button
-                        type="button"
-                        class="btn btn-secondary"
-                        data-bs-dismiss="modal"
-                      >
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         Cerrar
                       </button>
-                      <button
-                        type="button"
-                        class="btn btn-primary"
-                        onclick="save_values({{id}})"
-                      >
+                      <button type="button" class="btn btn-primary" onclick="save_values({{id}})">
                         Guardar valores
                       </button>
                     </div>
@@ -173,7 +177,5 @@ block styles %}
   </div>
 </div>
 
-<script>
-  var username = "{{ username }}";
-</script>
+<script>var username = "{{ username }}";</script>
 {% endblock %}

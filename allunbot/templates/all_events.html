@@ -1,8 +1,19 @@
-{% extends 'dashboard.html' %} {% block title %}Eventos{% endblock %} {% block
-styles %}
+<!-- Implement general template -->
+{% extends 'dashboard.html' %}
+
+<!-- Make to changes and add information in the head -->
+{% block title %}Eventos{% endblock %} 
+
+{% block styles %}
 <link href="../assets/dist/css/dashboard.css" rel="stylesheet" />
 <link href="../assets/dist/css/events.css" rel="stylesheet" />
-{% endblock %} {% block scripts %}{% endblock %} {% block page_content %}
+{% endblock %} 
+
+{% block scripts %}{% endblock %} 
+
+
+<!-- Main content of the page -->
+{% block page_content %}
 <div class="header">Todos los eventos.</div>
 
 {% if events | length > 0 %}
