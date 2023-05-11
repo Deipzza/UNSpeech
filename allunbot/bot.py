@@ -1,7 +1,7 @@
 import json
 import os
 
-from flask import Flask, jsonify, redirect, render_template, request, url_for
+from flask import Flask, jsonify, redirect, render_template, request, url_for, send_file
 from flask_login import LoginManager, current_user, login_required, logout_user
 from flask_login import login_user
 import secrets
@@ -488,6 +488,15 @@ def auth_ldap_page():
         return render_template('auth_ldap.html',
                                logged = False,
                                error = "Fallo en la autenticación")
+
+
+@app.route('/tratamiento_datos_personales', methods = ['GET'])
+def data_treatment():
+    """Returns the bot's data treatment documentation."""
+
+    pdf = "Tratamiento_datos_personales.pdf"
+
+    return send_file(pdf, mimetype = 'application/pdf', as_attachment = True)
 
 @app.route('/actualizar', methods = ['GET', 'POST'])
 def update():
